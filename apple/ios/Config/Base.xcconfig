@@ -1,0 +1,2 @@
+// Shared iOS build settings bootstrap.
+PRODUCT_NAME = Altis iOS

@@ -5,3 +5,26 @@
 - Avoid introducing platform-specific logic into `shared/`.
 - Do not duplicate assets between platform directories unless required by build tooling.
 - Record non-obvious structural decisions in `docs/DECISIONS.md`.
+- Keep one canonical task model for list, kanban, and widget use cases.
+- Treat widget filtering as a product-critical capability and reflect it in shared contracts.
+- Prefer offline-first behavior in data flow decisions.
+- Use `lastModifiedAt` or equivalent explicit version metadata for task synchronization.
+- Default to full task replacement on sync unless a new ADR changes that rule.
+- Keep deferred features out of active implementation paths until explicitly activated.
+- Before adding a new file, check whether the intended target path exists.
+- If a required directory is missing, create it in the correct layer before adding the file.
+- Put shared assets and images in `common/assets/`.
+- Put shared configs in `shared/config/`.
+- Put shared reusable components in `shared/components/`.
+- Put shared style definitions in `shared/styles/`.
+- Put Apple-only shared components or wrappers in `apple/shared/`.
+- Put scripts, CI helpers, and templates in `tooling/scripts/`, `tooling/ci/`, and `tooling/templates/`.
+- If implementation introduces a new convention that is not already covered by the current rules, document that convention in the same change.
+- Do not leave new placement, naming, or architectural patterns implicit.
+- Prefer native platform UI components and interaction patterns over custom abstractions for end-user interface work.
+- Introduce custom shared UI only when native controls do not cover the product need well enough.
+- After making code or configuration changes, run the most relevant build, test, lint, or diagnostics step for the affected project.
+- Fix errors and actionable warnings discovered during validation before considering the task complete.
+- If validation cannot be executed, document what was attempted, what remains unverified, and why.
+- Apply environment, `.env`, linter, formatter, and bootstrap rules from `docs/PROJECT_SETUP.md` at the project level.
+- After UI changes, validate alignment with the relevant platform design guidelines and note any intentional deviations.

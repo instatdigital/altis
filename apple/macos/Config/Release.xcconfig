@@ -1,0 +1,4 @@
+#include "Base.xcconfig"
+
+// macOS release settings bootstrap.
+SWIFT_COMPILATION_MODE = wholemodule

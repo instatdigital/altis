@@ -1,0 +1,4 @@
+#include "Base.xcconfig"
+
+// iOS debug settings bootstrap.
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG

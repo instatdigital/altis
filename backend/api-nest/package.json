@@ -1,0 +1,13 @@
+{
+  "name": "@altis/api-nest",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "nest build",
+    "start:dev": "nest start --watch",
+    "lint": "eslint .",
+    "test": "jest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev"
+  }
+}

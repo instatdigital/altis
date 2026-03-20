@@ -1,0 +1,4 @@
+#include "Base.xcconfig"
+
+// iOS release settings bootstrap.
+SWIFT_COMPILATION_MODE = wholemodule
