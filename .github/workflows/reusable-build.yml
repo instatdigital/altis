@@ -1,0 +1,10 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Reusable build placeholder"

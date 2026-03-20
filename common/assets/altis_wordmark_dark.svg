@@ -1,0 +1,17 @@
+<svg width="1600" height="520" viewBox="0 0 1600 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="520" rx="64" fill="#0F1724"/>
+  <g transform="translate(72,76)">
+    <rect width="368" height="368" rx="88" fill="url(#iconbg)"/>
+    <path d="M100 286L166 92C170 81 190 81 194 92L260 286" stroke="#DCE3EC" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M131 216H229" stroke="#6C92FF" stroke-width="30" stroke-linecap="round"/>
+    <path d="M180 216L242 125" stroke="#6C92FF" stroke-width="20" stroke-linecap="round"/>
+  </g>
+  <text x="500" y="290" fill="#F3F6FB" font-family="Inter, SF Pro Display, Arial, sans-serif" font-size="160" font-weight="600" letter-spacing="2">Altis</text>
+  <text x="508" y="356" fill="#B7C1CF" font-family="Inter, SF Pro Text, Arial, sans-serif" font-size="38" font-weight="500" letter-spacing="6">PREMIUM TASK SYSTEM</text>
+  <defs>
+    <linearGradient id="iconbg" x1="36" y1="28" x2="334" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#131D2B"/>
+      <stop offset="1" stop-color="#1B2432"/>
+    </linearGradient>
+  </defs>
+</svg>

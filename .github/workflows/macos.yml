@@ -1,0 +1,10 @@
+name: macOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    runs-on: macos-latest
+    steps:
+      - run: echo "macOS workflow placeholder"
