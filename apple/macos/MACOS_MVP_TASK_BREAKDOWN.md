@@ -6,4 +6,14 @@ Canonical source of truth:
 
 - `../../docs/MACOS_MVP_TASK_BREAKDOWN.md`
 
+Required global context before execution:
+
+- `../../AGENTS.md`
+- `../../docs/ARCHITECTURE.md`
+- `../../docs/MVP_APP_STRUCTURE.md`
+- `../../docs/TYPES_AND_CONTRACTS.md`
+- `../../docs/SYNC_RULES.md`
+- `../../docs/DEVELOPMENT_RULES.md`
+- `../../docs/PROJECT_SETUP.md`
+
 Open the canonical file for task tracking and checkbox updates.

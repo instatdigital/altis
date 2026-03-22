@@ -59,16 +59,42 @@ Verified: 2026-03-22
 
 ## Phase 1. App Structure
 
-- [ ] Create `apple/macos/App/Shell/`
-- [ ] Create `apple/macos/App/Navigation/`
-- [ ] Create `apple/macos/App/Features/Home/`
-- [ ] Create `apple/macos/App/Features/Project/`
-- [ ] Create `apple/macos/App/Features/Board/`
-- [ ] Create `apple/macos/App/Features/TaskList/`
-- [ ] Create `apple/macos/App/Features/KanbanBoard/`
-- [ ] Create `apple/macos/App/Features/TaskPage/`
-- [ ] Create feature-local `Page/`, `Components/`, `State/`, and `Utilities/` directories only where needed
-- [ ] Keep all new UI code at `platform app` level unless real shared reuse is proven
+- [x] Create `apple/macos/App/Shell/`
+- [x] Create `apple/macos/App/Navigation/`
+- [x] Create `apple/macos/App/Features/Home/`
+- [x] Create `apple/macos/App/Features/Project/`
+- [x] Create `apple/macos/App/Features/Board/`
+- [x] Create `apple/macos/App/Features/TaskList/`
+- [x] Create `apple/macos/App/Features/KanbanBoard/`
+- [x] Create `apple/macos/App/Features/TaskPage/`
+- [x] Create feature-local `Page/`, `Components/`, `State/`, and `Utilities/` directories only where needed
+- [x] Keep all new UI code at `platform app` level unless real shared reuse is proven
+
+### Phase 1 Validation Record
+
+Verified: 2026-03-22
+
+**Directory structure created** — all directories added under `apple/macos/App/`:
+- `Shell/` — `AppShell.swift` (structural `NavigationSplitView` shell, placeholder sidebar + detail)
+- `Navigation/` — `AppRoute.swift` (typed `AppRoute` enum, placeholder for Phase 4 expansion)
+- `Features/Home/Page/` — `HomePageView.swift` (placeholder `ContentUnavailableView`)
+- `Features/Home/State/` — `HomeFeatureState.swift` (empty struct, no live data per Phase 5 constraint)
+- `Features/Project/Page/` — `ProjectPageView.swift`
+- `Features/Project/State/` — `ProjectFeatureState.swift`
+- `Features/Board/Page/` — `BoardPageView.swift`
+- `Features/Board/State/` — `BoardFeatureState.swift`
+- `Features/TaskList/Page/` — `TaskListPageView.swift`
+- `Features/TaskList/State/` — `TaskListFeatureState.swift`
+- `Features/KanbanBoard/Page/` — `KanbanBoardPageView.swift`
+- `Features/KanbanBoard/State/` — `KanbanBoardFeatureState.swift`
+- `Features/TaskPage/Page/` — `TaskPageView.swift`
+- `Features/TaskPage/State/` — `TaskPageFeatureState.swift`
+
+**Ownership** — all files at `platform app` level (`apple/macos`), no shared promotion.
+
+**Wiring** — `RootView` updated to render `AppShell`. `AltisMacOSApp` entry point unchanged.
+
+**Build** — project built successfully with zero errors after all changes.
 
 ## Phase 2. Typed Models
 
