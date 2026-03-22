@@ -98,16 +98,35 @@ Verified: 2026-03-22
 
 ## Phase 2. Typed Models
 
-- [ ] Implement typed identifier strategy for canonical entities
-- [ ] Implement `Workspace`
-- [ ] Implement `Project`
-- [ ] Implement `Board`
-- [ ] Implement `BoardStage`
-- [ ] Implement `BoardStagePreset`
-- [ ] Implement `BoardStagePresetStage`
-- [ ] Implement `Task`
-- [ ] Implement `SyncMetadata`
-- [ ] Encode board-stage invariants in model or domain validation
+- [x] Implement typed identifier strategy for canonical entities
+- [x] Implement `Workspace`
+- [x] Implement `Project`
+- [x] Implement `Board`
+- [x] Implement `BoardStage`
+- [x] Implement `BoardStagePreset`
+- [x] Implement `BoardStagePresetStage`
+- [x] Implement `Task`
+- [x] Implement `SyncMetadata`
+- [x] Encode board-stage invariants in model or domain validation
+
+### Phase 2 Validation Record
+
+Verified: 2026-03-22
+
+**Files created** — all under `apple/macos/App/Models/Domain/`:
+- `EntityID.swift` — phantom-tagged `EntityID<Tag>` struct; `RawRepresentable`, `Hashable`, `Codable`, `Sendable`; typed aliases for all canonical identifiers (`WorkspaceID`, `ProjectID`, `BoardID`, `BoardStageID`, `BoardStagePresetID`, `BoardStagePresetStageID`, `TaskID`, `TaskFilterID`)
+- `SyncMetadata.swift` — `SyncMetadata` struct with `syncState`, `lastSyncedAt`, `remoteVersion`, `localRevision`, `isDirty`; `SyncState` enum (`pendingUpload`, `synced`, `locallyModified`, `pendingDeletion`, `syncError`)
+- `Workspace.swift` — `Workspace` with `workspaceId`, `name`, `createdAt`, `updatedAt`
+- `Project.swift` — `Project` with `projectId`, `workspaceId`, `name`, `createdAt`, `updatedAt`, `syncMetadata`
+- `Board.swift` — `Board` with `boardId`, `workspaceId`, `projectId`, `name`, `createdAt`, `updatedAt`, `syncMetadata`
+- `BoardStage.swift` — `BoardStage` with `stageId`, `boardId`, `name`, `orderIndex`, `kind`, `createdAt`, `updatedAt`, `syncMetadata`; `BoardStageKind` enum (`regular`, `terminalSuccess`, `terminalFailure`); `isTerminal` computed property
+- `BoardStagePreset.swift` — `BoardStagePreset` and `BoardStagePresetStage`; reuses `BoardStageKind`; `BoardStagePresetStage` carries no `syncMetadata` (preset-stage definitions are sub-entities of the preset)
+- `Task.swift` — `Task` with all canonical fields; `TaskStatus` enum (`open`, `completed`, `failed`) aligned with terminal stage outcomes
+- `BoardStageInvariants.swift` — stateless `BoardStageInvariants` validator returning `Result<Void, Violation>`; validates stage count ≥ 3, exactly one `terminalSuccess`, exactly one `terminalFailure`, at least one `regular`; `canDelete(stage:from:)` blocks terminal-stage deletion
+
+**Build** — project built successfully with zero errors after all changes.
+
+**Placement** — all files at `platform app` level (`apple/macos`). Promotion to `apple/shared` or `shared/domain` deferred until iOS becomes an active consumer.
 
 ## Phase 3. Persistence
 

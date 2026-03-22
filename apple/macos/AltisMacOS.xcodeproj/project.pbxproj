@@ -21,6 +21,15 @@
 		57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */; };
 		69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
 		6E88F0153003105FB189507C /* BoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999AE2D9BA9FE56362D93067 /* BoardPageView.swift */; };
+		AF1927FB2F705268004558EB /* EntityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FA2F705268004558EB /* EntityID.swift */; };
+		AF1927FD2F705283004558EB /* SyncMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FC2F705283004558EB /* SyncMetadata.swift */; };
+		AF1927FF2F705298004558EB /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FE2F705298004558EB /* Workspace.swift */; };
+		AF1928012F705298004558EB /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928002F705298004558EB /* Project.swift */; };
+		AF1928032F705299004558EB /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928022F705299004558EB /* Board.swift */; };
+		AF1928052F7052BC004558EB /* BoardStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928042F7052BC004558EB /* BoardStage.swift */; };
+		AF1928072F7052BD004558EB /* BoardStagePreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928062F7052BD004558EB /* BoardStagePreset.swift */; };
+		AF1928092F7052BE004558EB /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928082F7052BE004558EB /* Task.swift */; };
+		AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */; };
 		B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */; };
 		C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2CD785CA6B557085DD3209 /* HomePageView.swift */; };
 		E157B8C0C0CEDC007C80FF6D /* KanbanBoardFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */; };
@@ -57,6 +66,15 @@
 		9B0BA2E52DAC3DEA4F88B452 /* ProjectPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectPageView.swift; sourceTree = "<group>"; };
 		9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectFeatureState.swift; sourceTree = "<group>"; };
 		9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskListFeatureState.swift; sourceTree = "<group>"; };
+		AF1927FA2F705268004558EB /* EntityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityID.swift; sourceTree = "<group>"; };
+		AF1927FC2F705283004558EB /* SyncMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadata.swift; sourceTree = "<group>"; };
+		AF1927FE2F705298004558EB /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
+		AF1928002F705298004558EB /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		AF1928022F705299004558EB /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		AF1928042F7052BC004558EB /* BoardStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStage.swift; sourceTree = "<group>"; };
+		AF1928062F7052BD004558EB /* BoardStagePreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStagePreset.swift; sourceTree = "<group>"; };
+		AF1928082F7052BE004558EB /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStageInvariants.swift; sourceTree = "<group>"; };
 		C44E51198C46F082AAE86750 /* MACOS_MVP_TASK_BREAKDOWN.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = MACOS_MVP_TASK_BREAKDOWN.md; sourceTree = "<group>"; };
 		C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureState.swift; sourceTree = "<group>"; };
 		CC903E4827950842973296FF /* BoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardFeatureState.swift; sourceTree = "<group>"; };
@@ -90,7 +108,6 @@
 			children = (
 				C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */,
 			);
-			name = State;
 			path = State;
 			sourceTree = "<group>";
 		};
@@ -108,7 +125,6 @@
 			children = (
 				87DB719A28AC7DEFB229F10B /* AppShell.swift */,
 			);
-			name = Shell;
 			path = Shell;
 			sourceTree = "<group>";
 		};
@@ -134,7 +150,6 @@
 				B4F14D0503B5FAD49BDEB1A8 /* Page */,
 				C1E5E90A6CA18966DB19D27A /* State */,
 			);
-			name = KanbanBoard;
 			path = KanbanBoard;
 			sourceTree = "<group>";
 		};
@@ -143,7 +158,6 @@
 			children = (
 				CC903E4827950842973296FF /* BoardFeatureState.swift */,
 			);
-			name = State;
 			path = State;
 			sourceTree = "<group>";
 		};
@@ -152,7 +166,6 @@
 			children = (
 				0E1D4510AAD26CF6DB0427BE /* AppRoute.swift */,
 			);
-			name = Navigation;
 			path = Navigation;
 			sourceTree = "<group>";
 		};
@@ -161,7 +174,6 @@
 			children = (
 				D70DD97BFDE43BC1DEB5EDB5 /* TaskListPageView.swift */,
 			);
-			name = Page;
 			path = Page;
 			sourceTree = "<group>";
 		};
@@ -171,7 +183,6 @@
 				5CBEECB86B41AE3DE9485B10 /* Page */,
 				38B34E8594BD87D0DC2EE3EA /* State */,
 			);
-			name = Board;
 			path = Board;
 			sourceTree = "<group>";
 		};
@@ -180,7 +191,6 @@
 			children = (
 				999AE2D9BA9FE56362D93067 /* BoardPageView.swift */,
 			);
-			name = Page;
 			path = Page;
 			sourceTree = "<group>";
 		};
@@ -190,8 +200,8 @@
 				2702A6B27C9EE0F193D697DF /* Shell */,
 				3F2316EE5C22DFBF219D3D00 /* Navigation */,
 				C6A56C70AC07C59B57EC9309 /* Features */,
+				AF1927F82F70525A004558EB /* Models */,
 			);
-			name = App;
 			path = App;
 			sourceTree = "<group>";
 		};
@@ -216,8 +226,31 @@
 			children = (
 				18F58EC954A3A4214F07A7EA /* TaskPageView.swift */,
 			);
-			name = Page;
 			path = Page;
+			sourceTree = "<group>";
+		};
+		AF1927F82F70525A004558EB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AF1927F92F705261004558EB /* Domain */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AF1927F92F705261004558EB /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				AF1927FA2F705268004558EB /* EntityID.swift */,
+				AF1927FC2F705283004558EB /* SyncMetadata.swift */,
+				AF1927FE2F705298004558EB /* Workspace.swift */,
+				AF1928002F705298004558EB /* Project.swift */,
+				AF1928022F705299004558EB /* Board.swift */,
+				AF1928042F7052BC004558EB /* BoardStage.swift */,
+				AF1928062F7052BD004558EB /* BoardStagePreset.swift */,
+				AF1928082F7052BE004558EB /* Task.swift */,
+				AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */,
+			);
+			path = Domain;
 			sourceTree = "<group>";
 		};
 		B3C7A5FDACBB83AACE8247CB /* State */ = {
@@ -225,7 +258,6 @@
 			children = (
 				D967340833E3367BDDE707C8 /* HomeFeatureState.swift */,
 			);
-			name = State;
 			path = State;
 			sourceTree = "<group>";
 		};
@@ -234,7 +266,6 @@
 			children = (
 				3CC8F6E7BA4F2F67123CAC00 /* KanbanBoardPageView.swift */,
 			);
-			name = Page;
 			path = Page;
 			sourceTree = "<group>";
 		};
@@ -243,7 +274,6 @@
 			children = (
 				4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */,
 			);
-			name = State;
 			path = State;
 			sourceTree = "<group>";
 		};
@@ -257,7 +287,6 @@
 				2DEA34A1E95ACFEAA5255D58 /* KanbanBoard */,
 				D3B116788661D41CB0449559 /* TaskPage */,
 			);
-			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
@@ -266,7 +295,6 @@
 			children = (
 				9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */,
 			);
-			name = State;
 			path = State;
 			sourceTree = "<group>";
 		};
@@ -276,7 +304,6 @@
 				FE71A686BD7F87F960DB9F32 /* Page */,
 				CA66EFCC091B46C7BF2DC6A0 /* State */,
 			);
-			name = Project;
 			path = Project;
 			sourceTree = "<group>";
 		};
@@ -286,7 +313,6 @@
 				F2FF236C41850874B7CC3337 /* Page */,
 				B3C7A5FDACBB83AACE8247CB /* State */,
 			);
-			name = Home;
 			path = Home;
 			sourceTree = "<group>";
 		};
@@ -296,7 +322,6 @@
 				90BD38041A6135239C2F3475 /* Page */,
 				0DCF5C00603B13576283D1BE /* State */,
 			);
-			name = TaskPage;
 			path = TaskPage;
 			sourceTree = "<group>";
 		};
@@ -305,7 +330,6 @@
 			children = (
 				9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */,
 			);
-			name = State;
 			path = State;
 			sourceTree = "<group>";
 		};
@@ -322,7 +346,6 @@
 			children = (
 				2D2CD785CA6B557085DD3209 /* HomePageView.swift */,
 			);
-			name = Page;
 			path = Page;
 			sourceTree = "<group>";
 		};
@@ -332,7 +355,6 @@
 				4291CFA7E64F61F454E4187C /* Page */,
 				E8358A943D83D16F1FB720F9 /* State */,
 			);
-			name = TaskList;
 			path = TaskList;
 			sourceTree = "<group>";
 		};
@@ -341,7 +363,6 @@
 			children = (
 				9B0BA2E52DAC3DEA4F88B452 /* ProjectPageView.swift */,
 			);
-			name = Page;
 			path = Page;
 			sourceTree = "<group>";
 		};
@@ -434,16 +455,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */,
+				AF1928052F7052BC004558EB /* BoardStage.swift in Sources */,
 				24789AD5E62B6A642952821F /* RootView.swift in Sources */,
 				454070CCA28356311D94995A /* AppShell.swift in Sources */,
+				AF1928012F705298004558EB /* Project.swift in Sources */,
 				0F4DB9BECBA12A6A3223681F /* AppRoute.swift in Sources */,
 				C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */,
+				AF1927FD2F705283004558EB /* SyncMetadata.swift in Sources */,
+				AF1928072F7052BD004558EB /* BoardStagePreset.swift in Sources */,
 				FF5FF22D2272B579F0F1853E /* HomeFeatureState.swift in Sources */,
 				2E9C63CDAB47FEE2003AA095 /* ProjectPageView.swift in Sources */,
 				B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */,
+				AF1927FF2F705298004558EB /* Workspace.swift in Sources */,
+				AF1928032F705299004558EB /* Board.swift in Sources */,
 				6E88F0153003105FB189507C /* BoardPageView.swift in Sources */,
 				1727A55FE22884D72B57E6C0 /* BoardFeatureState.swift in Sources */,
+				AF1928092F7052BE004558EB /* Task.swift in Sources */,
+				AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */,
 				56AE6E8CE1C6B8FDA1AFBFAB /* TaskListPageView.swift in Sources */,
+				AF1927FB2F705268004558EB /* EntityID.swift in Sources */,
 				44F316FEC52F9E1B55829ECB /* TaskListFeatureState.swift in Sources */,
 				29CF5D9B71166AF2A34087EF /* KanbanBoardPageView.swift in Sources */,
 				E157B8C0C0CEDC007C80FF6D /* KanbanBoardFeatureState.swift in Sources */,
