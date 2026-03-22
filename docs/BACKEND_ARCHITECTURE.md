@@ -37,9 +37,9 @@ The first backend project lives in `backend/api-nest/`.
 ### `tasks`
 
 - task CRUD
-- latest-version task sync
+- task sync
 - task detail payloads
-- task links to project and board identities
+- task links to project, board, and stage identities
 
 ### `task-filters`
 
@@ -50,13 +50,13 @@ The first backend project lives in `backend/api-nest/`.
 
 - project CRUD
 - project scoping for task queries
-- project-level metadata
 
 ### `boards`
 
-- board grouping logic and board-oriented task responses
 - board CRUD
-- board membership or ownership within project scope
+- board stage CRUD
+- board stage preset support
+- board-oriented task responses
 
 ### `settings`
 
@@ -64,23 +64,14 @@ The first backend project lives in `backend/api-nest/`.
 
 ### `realtime`
 
-- live task updates
+- live invalidation or live update entry
 - collaboration event delivery
 
 ### `health`
 
 - service health and readiness endpoints
 
-## Prisma boundary
+## Boundary rule
 
-Prisma is a backend persistence tool, not the shared type system for the product. Prisma models may inform backend implementation, but client-facing contracts should remain transport-oriented and live outside backend internals.
-
-## Validation expectations
-
-The backend project should eventually expose clear commands for:
-
-- lint
-- test
-- build
-- Prisma generate
-- Prisma migrate
+- Prisma models are backend internals.
+- Shared contracts must remain transport-oriented and must not expose Prisma-generated types directly.

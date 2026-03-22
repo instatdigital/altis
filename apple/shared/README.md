@@ -5,9 +5,9 @@ Apple-only shared code for iOS and macOS lives here.
 ## Intended responsibilities
 
 - Apple framework adapters reused by both apps
+- Apple-only shared UI or wrappers
 - widget support shared across Apple platforms when appropriate
 - Apple ID integration wrappers
-- platform-neutral SwiftUI or Foundation code that is still Apple-only
 
 ## Not for this layer
 

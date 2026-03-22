@@ -1,0 +1,437 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		15783A2F2356D5CA531C51B8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
+		24789AD5E62B6A642952821F /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009753DFF96FAF283F791733 /* RootView.swift */; };
+		273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */; };
+		57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */; };
+		69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0284CAC84FC36A46CFDA4FB4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8F357C5BAC7E08671616333A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 46EC88EAD15DB7984CE39851;
+			remoteInfo = AltisMacOS;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		009753DFF96FAF283F791733 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RootView.swift; path = App/RootView.swift; sourceTree = "<group>"; };
+		0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltisMacOSApp.swift; path = App/AltisMacOSApp.swift; sourceTree = "<group>"; };
+		58EAF51483D6191D8DDCBB6C /* AltisMacOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AltisMacOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Config/Release.xcconfig; sourceTree = "<group>"; };
+		6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltisMacOSTests.swift; path = Tests/AltisMacOSTests.swift; sourceTree = "<group>"; };
+		687AF830925F835E854E0BF3 /* Debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Config/Debug.xcconfig; sourceTree = "<group>"; };
+		6C10A915EC8B78700F94841D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		8DEC202A1A09109E913FEEFA /* AltisMacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AltisMacOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C44E51198C46F082AAE86750 /* MACOS_MVP_TASK_BREAKDOWN.md */ = {isa = PBXFileReference; includeInIndex = 1; path = MACOS_MVP_TASK_BREAKDOWN.md; sourceTree = "<group>"; };
+		F7113E2887FC076C1A652F1E /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Config/Base.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		14029AE8F7CF1209B3134039 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		63B24347855C5CC448735E73 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				15783A2F2356D5CA531C51B8 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		10A65B9357836931365807A1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DEC202A1A09109E913FEEFA /* AltisMacOS.app */,
+				58EAF51483D6191D8DDCBB6C /* AltisMacOSTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		292DF1619795B3C977CF145E = {
+			isa = PBXGroup;
+			children = (
+				10A65B9357836931365807A1 /* Products */,
+				E9C5559B631AE04C522F3A8B /* Frameworks */,
+				0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */,
+				009753DFF96FAF283F791733 /* RootView.swift */,
+				6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */,
+				7A33D821EA5CF66D220493E7 /* Docs */,
+				F7113E2887FC076C1A652F1E /* Base.xcconfig */,
+				5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */,
+				687AF830925F835E854E0BF3 /* Debug.xcconfig */,
+			);
+			sourceTree = "<group>";
+		};
+		7A33D821EA5CF66D220493E7 /* Docs */ = {
+			isa = PBXGroup;
+			children = (
+				C44E51198C46F082AAE86750 /* MACOS_MVP_TASK_BREAKDOWN.md */,
+			);
+			name = Docs;
+			sourceTree = "<group>";
+		};
+		9075BBD5B043B5F18235D275 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				6C10A915EC8B78700F94841D /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		E9C5559B631AE04C522F3A8B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9075BBD5B043B5F18235D275 /* OS X */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0C0215CC09CA41349434A3D2 /* AltisMacOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 56327154CB24C0F48AD8DE07 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */;
+			buildPhases = (
+				46C948AB35F273AB8F9E9C65 /* Sources */,
+				14029AE8F7CF1209B3134039 /* Frameworks */,
+				2F7407FDB76ABE10001E3D9B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ADF69280B6E0E6512B75BF51 /* PBXTargetDependency */,
+			);
+			name = AltisMacOSTests;
+			productName = AltisMacOSTests;
+			productReference = 58EAF51483D6191D8DDCBB6C /* AltisMacOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		46EC88EAD15DB7984CE39851 /* AltisMacOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6787B2EE53CBC99ACCA01C7B /* Build configuration list for PBXNativeTarget "AltisMacOS" */;
+			buildPhases = (
+				35C29C2E51279E5DABE79E5A /* Sources */,
+				63B24347855C5CC448735E73 /* Frameworks */,
+				5B48E75E746FF2FE22F33667 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AltisMacOS;
+			productName = AltisMacOS;
+			productReference = 8DEC202A1A09109E913FEEFA /* AltisMacOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8F357C5BAC7E08671616333A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = D79F99C19A8BECB350E0B878 /* Build configuration list for PBXProject "AltisMacOS" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 292DF1619795B3C977CF145E;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 10A65B9357836931365807A1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				46EC88EAD15DB7984CE39851 /* AltisMacOS */,
+				0C0215CC09CA41349434A3D2 /* AltisMacOSTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2F7407FDB76ABE10001E3D9B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B48E75E746FF2FE22F33667 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		35C29C2E51279E5DABE79E5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */,
+				24789AD5E62B6A642952821F /* RootView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46C948AB35F273AB8F9E9C65 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		ADF69280B6E0E6512B75BF51 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = AltisMacOS;
+			target = 46EC88EAD15DB7984CE39851 /* AltisMacOS */;
+			targetProxy = 0284CAC84FC36A46CFDA4FB4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2A9295BE92A64608A7965212 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7113E2887FC076C1A652F1E /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		2C7B9B2130C5023FDE824CF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		31631A17552088CA31B79228 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AltisMacOS.app/Contents/MacOS/AltisMacOS";
+			};
+			name = Release;
+		};
+		37B02330ECD0E5AED4B57D30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 687AF830925F835E854E0BF3 /* Debug.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AltisMacOS.app/Contents/MacOS/AltisMacOS";
+			};
+			name = Debug;
+		};
+		450A5BA9946066026D38350D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 687AF830925F835E854E0BF3 /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		C58E8EFF7640B054F7E9A746 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7113E2887FC076C1A652F1E /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		56327154CB24C0F48AD8DE07 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31631A17552088CA31B79228 /* Release */,
+				37B02330ECD0E5AED4B57D30 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6787B2EE53CBC99ACCA01C7B /* Build configuration list for PBXNativeTarget "AltisMacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C7B9B2130C5023FDE824CF8 /* Release */,
+				450A5BA9946066026D38350D /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D79F99C19A8BECB350E0B878 /* Build configuration list for PBXProject "AltisMacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C58E8EFF7640B054F7E9A746 /* Debug */,
+				2A9295BE92A64608A7965212 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8F357C5BAC7E08671616333A /* Project object */;
+}

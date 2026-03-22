@@ -1,95 +1,49 @@
 # Altis Claude Context
 
-Use this repository structure as the default mental model.
+This file is a Claude-specific entry point, not the primary source of repository rules.
 
-## Product context
+## Source of truth
 
-Altis is a task manager with:
+- Global monorepo rules live in `AGENTS.md`.
+- Architecture, placement, workflow, and validation rules live in `docs/`.
+- Platform-specific or layer-specific rules should live close to the platform or layer they govern.
+- When duplicate working copies exist, the real Xcode project path is the source of truth for file edits, not an autosave mirror.
 
-- flat list mode
-- kanban mode
-- widget-level task filters as the main feature
+Claude should treat `AGENTS.md` as the default source of truth for repository-wide expectations and should avoid duplicating those rules here.
 
-Secondary architecture priority:
+## How to read context
 
-- offline-first persistence
-- latest-version task sync
-- `lastModifiedAt` tracking
-- full task replacement on sync
+For non-trivial work, read in this order:
 
-Additional active direction:
+1. `AGENTS.md`
+2. `README.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/TYPES_AND_CONTRACTS.md` when the task touches entities, relations, persistence models, or UI projections
+5. `docs/DEVELOPMENT_RULES.md`
+6. `docs/SYNC_RULES.md` when the task touches data flow, state, persistence, or networking
+7. `docs/PROJECT_SETUP.md`
+8. `docs/DECISIONS.md`
+9. the nearest platform or layer README for the touched area
 
-- collaboration
-- real-time updates on connected clients
-- native Apple ID authorization
+## Scope rules
 
-Deferred:
+- Do not copy monorepo-wide rules from `AGENTS.md` into platform files unless the platform intentionally overrides or narrows them.
+- Keep global rules global.
+- Keep platform-specific rules in platform directories.
+- Keep backend-specific rules in backend directories.
+- When a new rule applies to the whole repository, update `AGENTS.md` or the relevant file in `docs/`, not this file.
+- When a new rule applies only to one platform or one layer, update the nearest platform or layer README instead of adding a second monorepo-wide copy.
+- If both a real project path and an autosave copy exist, verify the active project root before editing and commit changes into the real project path.
 
-- calendar sync
-- Google authorization
+## Platform references
 
-## Core layers
+Use these files for local context after reading the global rules:
 
-- `common/assets`: shared assets, styles, and theme metaphors
-- `backend`: backend services and server-side infrastructure
-- `shared`: cross-platform logic and contracts
-- `apple/shared`: Apple shared layer
-- `apple/ios`: iOS application layer
-- `apple/macos`: macOS application layer
-- `android`: Android application layer
-- `windows`: Windows application layer
-- `.github/workflows`: GitHub Actions CI/CD
-- `tooling`: scripts, CI helpers, templates
-- `docs`: architecture and product documentation
+- Apple layer: `apple/README.md`
+- iOS: `apple/ios/README.md`
+- macOS: `apple/macos/README.md`
+- backend: `backend/README.md`
 
-## Repository expectations
+## Purpose of this file
 
-- Keep changes aligned with the declared layer boundaries.
-- Prefer documenting decisions before introducing cross-layer coupling.
-- Keep placeholders minimal until product and platform decisions are finalized.
-- Respect theme-aware resources in `common/assets/`.
-- Treat widget filters as core shared-domain data, not UI-only configuration.
-- Keep list and kanban backed by the same canonical task model.
-- Assume deferred features are out of scope unless the task explicitly activates them.
-- If a change introduces a new repository convention or structure rule, document it in the same change instead of leaving it implicit.
-- After implementation, run the most relevant build, diagnostics, or lint step available for the affected project and fix errors and meaningful warnings before considering the work done.
-- Prefer shared transport contracts over shared language-specific runtime types across backend and clients.
-- Prefer native platform components for user-facing UI and validate UI work against the relevant platform guidelines.
-
-## Placement rules
-
-- Check whether the expected target path already exists before creating new files.
-- If a needed directory is missing, create the correct directory instead of placing the file in an adjacent path.
-- Reuse existing shared locations before introducing new root-level folders.
-
-Default placement:
-
-- assets, icons, images, shared theme resources: `common/assets/`
-- backend services and modules: `backend/`
-- transport contracts and API schemas: `shared/contracts/`
-- cross-platform domain types and rules: `shared/domain/`
-- shared use-case orchestration: `shared/application/`
-- shared persistence contracts: `shared/persistence/`
-- cross-platform configs: `shared/config/`
-- cross-platform shared components or primitives: `shared/components/`
-- cross-platform styles or design constants outside raw assets: `shared/styles/`
-- Apple shared components or wrappers: `apple/shared/`
-- platform-specific UI, resources, and configs: platform folders
-- scripts: `tooling/scripts/`
-- CI helpers: `tooling/ci/`
-- templates: `tooling/templates/`
-- documentation: `docs/`
-
-Project-specific environment, `.env`, linter, and setup rules are defined in `docs/PROJECT_SETUP.md` and should be applied at project scope.
-
-## First reference files
-
-Read these first when making non-trivial changes:
-
-1. `README.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/DEVELOPMENT_RULES.md`
-4. `docs/PRODUCT_SPEC.md`
-5. `docs/PROJECT_SETUP.md`
-6. `docs/DECISIONS.md`
-7. `docs/OPEN_QUESTIONS.md`
+This file should stay short. It exists to point Claude to the canonical monorepo instructions and the nearest local rules without becoming another competing rule document.

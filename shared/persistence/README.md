@@ -1,10 +1,10 @@
 # Shared Persistence
 
-This folder is reserved for storage-facing shared contracts.
+Shared persistence abstractions and sync-facing storage contracts live here.
 
-Use it for:
+Expected responsibilities:
 
-- repository contracts
-- snapshot contracts
-- migration-facing abstractions
-- local storage interfaces
+- local store interfaces
+- outbox persistence interfaces
+- sync metadata persistence
+- projection persistence contracts

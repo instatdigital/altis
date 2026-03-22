@@ -6,14 +6,20 @@ This layer contains Apple-platform work split into:
 - `ios/` for the iOS application project
 - `macos/` for the macOS application project
 
-## Current bootstrap state
-
-- `apple/shared` is initialized as a Swift package for Apple-only shared code
-- `apple/ios` contains project-local setup, config, and target placeholders
-- `apple/macos` contains project-local setup, config, and target placeholders
-
 ## Rules
 
 - Keep cross-platform domain and sync contracts out of this layer unless they are Apple-only integrations.
-- Put widgets, Apple ID wrappers, and Apple framework adapters in `apple/shared` when they are reused by both Apple apps.
-- Keep project-local environment files, formatter configs, linter configs, and setup docs close to each Apple project.
+- Put Apple-specific wrappers or adapters shared by both apps in `apple/shared/`.
+
+## Bootstrap projects for Xcode
+
+From repository root run:
+
+```bash
+ruby tooling/scripts/bootstrap_apple_xcode_projects.rb
+```
+
+This generates:
+
+- `apple/macos/AltisMacOS.xcodeproj`
+- `apple/ios/AltisIOS.xcodeproj`

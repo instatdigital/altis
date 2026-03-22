@@ -1,10 +1,9 @@
 # Shared Application
 
-This folder is reserved for cross-platform use-case orchestration.
+Cross-platform use-case orchestration lives here.
 
-Use it for:
+Expected responsibilities:
 
-- task workflows
-- filter application flows
-- sync orchestration contracts
-- auth-related high-level flows
+- feature-oriented application services
+- event and command orchestration
+- data-worker coordination above persistence and transport boundaries

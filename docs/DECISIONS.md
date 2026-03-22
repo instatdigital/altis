@@ -90,3 +90,43 @@ Add `Project` and `Board` as first-class domain entities alongside `Task`, `Task
 
 Rationale:
 Tasks need stable grouping by project and by board. Modeling these as real domain entities keeps list mode, kanban mode, backend APIs, and future sync behavior aligned.
+
+## ADR-0009: Treat BoardStage and BoardStagePreset as canonical workflow entities
+
+Status: accepted
+
+Decision:
+Add `BoardStage` and `BoardStagePreset` as first-class workflow entities inside the board model. Staged boards must define ordered stages plus one terminal successful stage and one terminal unsuccessful stage. Task completion and unsuccessful closure must move the task into those explicit terminal stages.
+
+Rationale:
+Board workflow cannot remain a kanban-only presentation concern if list, task detail, and kanban must all agree on the current stage and terminal outcomes. Stage presets also need a stable reusable definition rather than per-screen ad hoc setup.
+
+## ADR-0010: Use SQLite-backed local persistence for Apple offline-first storage
+
+Status: accepted
+
+Decision:
+Use SQLite-backed local persistence as the default Apple client storage for offline-first behavior, local projections, outbox persistence, and sync metadata.
+
+Rationale:
+The current architecture requires durable local writes, explicit sync metadata, local projections, and predictable control over outbox and reconciliation behavior. SQLite is a safer baseline for this than a more implicit persistence layer.
+
+## ADR-0011: Do not implement permissions for stage and preset editing in MVP
+
+Status: accepted
+
+Decision:
+For MVP, all users may edit board stages and workspace-level board stage presets. Role-based permissions are deferred.
+
+Rationale:
+The current priority is workflow architecture and offline-first behavior, not access control. Deferring permissions reduces premature scope while keeping later authorization work explicit.
+
+## ADR-0009: Use feature-scoped event-driven UI flows in apps
+
+Status: accepted
+
+Decision:
+Application UI features must update through explicit event-driven state flows. Views emit events, a feature-owned state handler coordinates effects, and rendered UI reads from feature state. This is the repository-level analogue of BLoC, without locking the implementation to one framework.
+
+Rationale:
+This keeps list, kanban, task detail, sync updates, and real-time updates aligned around one canonical task state. It also gives agents and developers a stable rule for feature ownership, page structure, and where side effects are allowed to live.

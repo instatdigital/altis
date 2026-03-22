@@ -1,102 +1,276 @@
-# Types and Contracts
+# Types And Contracts
 
-## Short answer
+## Goal
 
-Yes, the product should have a shared contract layer.
+Define the canonical global data model, relationships, and typed boundary rules for the project.
 
-No, it should not try to share one literal runtime type system across Swift clients and the NestJS backend.
+This file is the source of truth for:
 
-The explicit architectural choice is:
+- canonical entities
+- required relationships
+- typed identifiers
+- local model boundaries
+- transport model boundaries
+- UI projection boundaries
 
-- shared domain meaning
-- shared transport contracts
-- platform-native implementation models
+## Global typing rule
 
-## Recommended split
+- Domain meaning MUST be defined globally before platform implementation diverges.
+- Canonical entities and relationships MUST be documented here before agents introduce app-local variants.
+- UI models, local persistence models, and transport contracts MUST remain typed and explicitly separated.
+- Platform code MAY introduce local models, but those models MUST map back to the canonical entities and relationships defined here.
 
-### `shared/domain`
+## Canonical entities
 
-Conceptual domain models and rules:
+### Workspace
 
-- task concepts
-- project concepts
-- board concepts
-- task status concepts
-- task filter concepts
-- board grouping concepts
-- sync metadata concepts
+Top-level scope for reusable presets and future collaboration boundaries.
 
-These represent business meaning, not backend ORM output.
+Required fields:
 
-### `shared/contracts`
+- `workspaceId`
+- `name`
+- `createdAt`
+- `updatedAt`
 
-Transport-facing contracts:
+### Project
 
-- request payloads
-- response payloads
-- event payloads
-- auth payloads
-- error shapes
-- project payloads
-- board payloads
-- task payloads that reference `projectId` and optional `boardId`
+Top-level work grouping inside a workspace.
 
-This is the correct cross-platform boundary.
+Required fields:
 
-### Backend internal types
+- `projectId`
+- `workspaceId`
+- `name`
+- `createdAt`
+- `updatedAt`
+- `syncMetadata`
 
-NestJS and Prisma can have backend-internal DTOs, entities, and persistence models.
+### Board
 
-### Client-native types
+Workflow grouping for tasks inside a project.
 
-Swift apps can have client-native models optimized for UI and local storage, as long as they map cleanly to the shared contracts and domain meaning.
+Required fields:
 
-## What not to do
+- `boardId`
+- `workspaceId`
+- `projectId`
+- `name`
+- `createdAt`
+- `updatedAt`
+- `syncMetadata`
 
-- do not expose Prisma-generated types as the app-wide source of truth
-- do not force Swift to mirror backend internals one-to-one
-- do not mix transport DTOs with local persistence models
-- do not use one backend-defined TypeScript object model as the direct source for Swift runtime models
+### BoardStage
 
-## Why
+Ordered workflow stage inside a board.
 
-Trying to keep one literal type store across Swift and NestJS usually becomes painful because:
+Required fields:
 
-- toolchains are different
-- runtime needs are different
-- local storage models diverge from transport payloads
-- backend persistence models change for reasons unrelated to clients
+- `stageId`
+- `boardId`
+- `name`
+- `orderIndex`
+- `kind`
+- `createdAt`
+- `updatedAt`
+- `syncMetadata`
 
-## Recommended direction
+`kind` MUST be one of:
 
-Use a contract-first boundary.
+- `regular`
+- `terminalSuccess`
+- `terminalFailure`
 
-Good options to evaluate:
+### BoardStagePreset
 
-- OpenAPI-first contracts
-- JSON Schema for transport payloads
+Workspace-level reusable stage definition set for creating boards.
 
-Current architectural direction:
+Required fields:
 
-- prefer OpenAPI-first contracts for backend-client boundaries
+- `stagePresetId`
+- `workspaceId`
+- `name`
+- `createdAt`
+- `updatedAt`
+- `syncMetadata`
 
-Then:
+### BoardStagePresetStage
 
-- generate TypeScript types where useful for backend and tooling
-- generate or map Swift client models from the contract layer
-- keep Prisma behind the backend boundary
+Ordered stage definition inside a board stage preset.
 
-## Canonical domain entities to preserve across contracts
+Required fields:
 
-- `Task`
+- `presetStageId`
+- `stagePresetId`
+- `name`
+- `orderIndex`
+- `kind`
+
+`kind` MUST use the same enum as `BoardStage`.
+
+### Task
+
+Canonical work item rendered in list, task detail, widgets, and kanban.
+
+Required fields:
+
+- `taskId`
+- `workspaceId`
+- `projectId`
+- `boardId?`
+- `stageId?`
+- `title`
+- `status`
+- `createdAt`
+- `updatedAt`
+- `lastModifiedAt`
+- `syncMetadata`
+
+`status` SHOULD remain compatible with board workflow and terminal outcomes. If the task belongs to a staged board, terminal completion state MUST align with the terminal stage rather than diverging from it.
+
+### TaskFilter
+
+Reusable task visibility definition shared across app surfaces and widgets.
+
+Required fields:
+
+- `taskFilterId`
+- `workspaceId`
+- `name`
+- `definition`
+- `createdAt`
+- `updatedAt`
+- `syncMetadata`
+
+### SyncMetadata
+
+Explicit local and remote synchronization metadata.
+
+Required fields:
+
+- `syncState`
+- `lastSyncedAt?`
+- `remoteVersion?`
+- `localRevision`
+- `isDirty`
+
+## Required relationships
+
+- one `Workspace` has many `Project`
+- one `Workspace` has many `BoardStagePreset`
+- one `Project` belongs to one `Workspace`
+- one `Project` has many `Board`
+- one `Project` has many `Task`
+- one `Board` belongs to one `Project`
+- one `Board` has many `BoardStage`
+- one `BoardStage` belongs to one `Board`
+- one `BoardStagePreset` belongs to one `Workspace`
+- one `BoardStagePreset` has many `BoardStagePresetStage`
+- one `Task` belongs to one `Workspace`
+- one `Task` belongs to one `Project`
+- one `Task` MAY belong to one `Board`
+- one `Task` MAY belong to one `BoardStage`
+- one `TaskFilter` belongs to one `Workspace`
+
+## Relationship constraints
+
+- A `Board` MUST belong to the same `Workspace` as its `Project`.
+- A `BoardStage` MUST belong to the same `Board` referenced by a task's `boardId` when `stageId` is present.
+- A `Task` with `stageId` MUST also have `boardId`.
+- A `Task` assigned to a `Board` MUST belong to the same `Project` as that `Board`.
+- A `BoardStagePreset` is workspace-level and MUST NOT belong directly to one board or one project.
+- Board creation from a preset MUST copy preset stages into board-local `BoardStage` entities.
+
+## Board stage invariants
+
+- Every staged `Board` MUST contain at least three stages.
+- Every staged `Board` MUST contain exactly one `terminalSuccess` stage.
+- Every staged `Board` MUST contain exactly one `terminalFailure` stage.
+- A board MUST contain at least one `regular` stage.
+- Terminal stages MAY be renamed.
+- Terminal stages MUST NOT be deleted.
+- Deleting a non-terminal stage MUST move its tasks to the first available remaining stage in board order.
+- Stage order MUST be explicit and stable through `orderIndex`.
+- List, task detail, and kanban projections MUST agree on the task's current stage.
+
+## Identifier rule
+
+- Canonical entities MUST use explicit typed identifiers at the model layer.
+- Identifiers MUST NOT be represented as untyped positional values.
+- Platform code MAY wrap identifiers in stronger local types, but logical identity MUST remain stable across persistence and transport boundaries.
+
+Recommended identifier names:
+
+- `workspaceId`
+- `projectId`
+- `boardId`
+- `stageId`
+- `stagePresetId`
+- `presetStageId`
+- `taskId`
+- `taskFilterId`
+
+## Model boundary rule
+
+The project distinguishes these model classes:
+
+- `Domain model`: canonical business entity or value object
+- `Persistence record`: SQLite-facing local storage representation
+- `Transport contract`: backend-facing payload shape
+- `UI projection`: read model optimized for rendering
+- `Feature state`: event-driven state owned by one feature flow
+
+Rules:
+
+- Domain models MUST NOT be raw transport DTOs.
+- UI projections MUST NOT be raw persistence records.
+- Feature state MUST NOT become the de facto domain model.
+- Persistence records MAY carry storage and sync metadata not exposed to UI projections.
+- Transport contracts MAY omit local-only fields such as outbox metadata.
+
+## UI projection rule
+
+UI-facing projections SHOULD be explicit for the first vertical slice.
+
+Recommended projections:
+
+- `ProjectListItemProjection`
+- `BoardListItemProjection`
+- `TaskListItemProjection`
+- `TaskCardProjection`
+- `TaskDetailProjection`
+- `BoardStageColumnProjection`
+- `HomePlaceholderProjection`
+
+These are projections, not canonical entities.
+
+## Sync typing rule
+
+- Synchronization metadata MUST be represented explicitly in typed models.
+- Outbox intents or pending operations MUST use explicit typed records.
+- CRUD entities MAY synchronize current state plus version metadata.
+- Ledger-like entities MUST use explicit operation records and confirmed-operation projections.
+
+## Apple local model rule
+
+- Apple local persistence uses SQLite-backed storage.
+- SQLite records MUST preserve canonical identifiers and sync metadata explicitly.
+- Platform-specific convenience wrappers MAY exist, but the stored schema MUST still reflect the canonical entities and relationships defined here.
+
+## First vertical slice minimum typed set
+
+The macOS-first vertical slice MUST at least define typed models for:
+
+- `Workspace`
 - `Project`
 - `Board`
-- `TaskFilter`
+- `BoardStage`
+- `BoardStagePreset`
+- `BoardStagePresetStage`
+- `Task`
 - `SyncMetadata`
 
-## Relationship guidance
+## Documentation maintenance rule
 
-- a task belongs to one project
-- a task may belong to one board
-- a board belongs to one project
-- list and kanban views are projections over tasks within project and board context
+- If implementation changes entity meaning, required fields, cardinality, or invariants, update this file in the same change.
+- If a new canonical entity is introduced, document it here before treating it as reusable architecture.

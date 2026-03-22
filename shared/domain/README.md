@@ -1,10 +1,13 @@
 # Shared Domain
 
-This folder is reserved for cross-platform domain concepts and rules.
+Canonical business entities, value objects, and invariants live here.
 
-Use it for:
+Current expected domains include:
 
-- task concepts
-- filter concepts
-- board concepts
-- sync metadata concepts
+- tasks
+- projects
+- boards
+- board stages
+- board stage presets
+- task filters
+- sync metadata
