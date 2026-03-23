@@ -5,6 +5,9 @@ import Foundation
 /// A task MUST belong to a workspace and a project. Board and stage membership are
 /// optional: a task with a `stageId` MUST also carry a `boardId`, and that board
 /// MUST belong to the same project.
+///
+/// `Task` does not carry a `BoardMode` field. Storage authority is derived from
+/// the owning `Board.mode` when a board is set, or from the project context otherwise.
 struct Task: Hashable, Codable, Sendable {
 
     /// Stable typed identifier for this task.
@@ -35,13 +38,6 @@ struct Task: Hashable, Codable, Sendable {
     /// UTC timestamp of the most recent change to any field on this task.
     var updatedAt: Date
 
-    /// UTC timestamp of the most recent content modification.
-    /// Used as the tie-breaker during sync's latest-version replacement strategy.
-    var lastModifiedAt: Date
-
-    /// Local and remote synchronization state for this task.
-    var syncMetadata: SyncMetadata
-
     init(
         taskId: TaskID = TaskID(),
         workspaceId: WorkspaceID,
@@ -51,9 +47,7 @@ struct Task: Hashable, Codable, Sendable {
         title: String,
         status: TaskStatus = .open,
         createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        lastModifiedAt: Date = Date(),
-        syncMetadata: SyncMetadata = SyncMetadata()
+        updatedAt: Date = Date()
     ) {
         self.taskId = taskId
         self.workspaceId = workspaceId
@@ -64,8 +58,6 @@ struct Task: Hashable, Codable, Sendable {
         self.status = status
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.lastModifiedAt = lastModifiedAt
-        self.syncMetadata = syncMetadata
     }
 }
 

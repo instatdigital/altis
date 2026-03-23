@@ -65,16 +65,16 @@ That work must now be sorted into three buckets:
 
 ### Migrate now
 
-- [ ] Add explicit `BoardMode` or equivalent typed discriminator to `Board`
-- [ ] Migrate Swift domain models under `apple/macos/App/Models/Domain/` to the board-mode contract
-- [ ] Remove `SyncMetadata` from macOS domain models
-- [ ] Remove `lastModifiedAt` if it only exists for sync semantics
-- [ ] Ensure board-owned entities derive storage authority from their owning board rather than carrying their own mode
-- [ ] Re-check stage/task invariants against the board-mode model
+- [x] Add explicit `BoardMode` or equivalent typed discriminator to `Board`
+- [x] Migrate Swift domain models under `apple/macos/App/Models/Domain/` to the board-mode contract
+- [x] Remove `SyncMetadata` from macOS domain models
+- [x] Remove `lastModifiedAt` if it only exists for sync semantics
+- [x] Ensure board-owned entities derive storage authority from their owning board rather than carrying their own mode
+- [x] Re-check stage/task invariants against the board-mode model
 
 ### Drop from active scope
 
-- [ ] Delete or isolate model code whose only responsibility is sync state tracking
+- [x] Delete or isolate model code whose only responsibility is sync state tracking
 
 ## Phase 3. Persistence And Data Boundaries Migration
 
@@ -85,19 +85,56 @@ That work must now be sorted into three buckets:
 
 ### Migrate now
 
-- [ ] Reclassify current SQLite persistence as `offline board` persistence only
-- [ ] Migrate Swift persistence records and store contracts under `apple/macos/App/Models/Persistence/` to the board-mode contract
-- [ ] Remove sync and outbox assumptions from local persistence contracts
-- [ ] Remove sync columns from local records
-- [ ] Keep typed local projections for offline boards
-- [ ] Define a separate online gateway or service contract for online boards
-- [ ] Ensure online board-owned entities are fetched through online board services rather than local durable storage
-- [ ] Ensure offline persistence contracts live in `shared/persistence/`
-- [ ] Ensure online transport contracts live in `shared/contracts/`
+- [x] Reclassify current SQLite persistence as `offline board` persistence only
+- [x] Migrate Swift persistence records and store contracts under `apple/macos/App/Models/Persistence/` to the board-mode contract
+- [x] Remove sync and outbox assumptions from local persistence contracts
+- [x] Remove sync columns from local records
+- [x] Keep typed local projections for offline boards
+- [x] Define a separate online gateway or service contract for online boards
+- [x] Ensure online board-owned entities are fetched through online board services rather than local durable storage
+- [x] Ensure offline persistence contracts live in `shared/persistence/`
+- [x] Ensure online transport contracts live in `shared/contracts/`
 
 ### Drop from active scope
 
-- [ ] Delete or isolate any persistence abstraction that exists only for outbox, sync intent, retry, reconciliation, or version replacement
+- [x] Delete or isolate any persistence abstraction that exists only for outbox, sync intent, retry, reconciliation, or version replacement
+
+### Phase 2 + Phase 3 Validation Record
+
+Verified: 2026-03-23
+
+**Domain model changes (`App/Models/Domain/`):**
+- Created `BoardMode.swift` — `offline` / `online` enum; `CaseIterable`, `Codable`, `Sendable`
+- `Board` — added `mode: BoardMode` (defaults `.offline`), removed `syncMetadata`
+- `Project`, `BoardStage`, `BoardStagePreset`, `Task` — removed `syncMetadata`
+- `Task` — removed `lastModifiedAt` (existed only as sync tie-breaker)
+- `BoardStageInvariants` — no changes required; invariants are mode-agnostic
+- Deleted `SyncMetadata.swift` (contained `SyncMetadata` struct and `SyncState` enum)
+
+**Persistence record changes (`App/Models/Persistence/`):**
+- `BoardRecord` — removed sync columns, added `mode: String` column; `toDomain()` guards on `BoardMode(rawValue:)`
+- `ProjectRecord`, `BoardStageRecord`, `BoardStagePresetRecord`, `TaskRecord` — removed all inline sync columns
+- `TaskRecord` — removed `lastModifiedAt` column
+- Deleted `SyncMetadataRecord.swift`
+
+**Projection changes (`App/Models/Projections/`):**
+- `TaskDetailProjection` — replaced `lastModifiedAt: Date` with `updatedAt: Date`
+
+**Shared contracts:**
+- `shared/persistence/` — `PersistenceRecord.swift`, `LocalStoreContract.swift`, `LocalWritePathContract.swift` remain as cross-platform canonical specs
+- `shared/contracts/OnlineBoardGatewayContract.swift` — created; marks the online board client boundary (Phase 14 will fill the methods)
+
+**Tests — `AltisMacOS/PersistenceRecordTests.swift`** (target: `AltisMacOSTests`, framework: Swift Testing):
+- 5 suites, 23 Swift Testing tests + 1 XCTest bootstrap = **24 total** — all sync-era suites and assertions removed
+- `ProjectRecord`: round-trip all fields, malformed createdAt → nil, malformed updatedAt → nil (3 tests)
+- `BoardRecord`: offline round-trip, online round-trip, malformed updatedAt → nil, unknown mode → nil (4 tests)
+- `BoardStageRecord`: round-trip all 3 `BoardStageKind` values (parameterised), unknown kind → nil, orderIndex preserved (5 tests)
+- `BoardStagePresetRecord`: preset round-trip, preset stage round-trip, unknown kind → nil (3 tests)
+- `TaskRecord`: no-board round-trip, boardId+stageId round-trip, all 3 `TaskStatus` values (parameterised), unknown status → nil, malformed createdAt → nil, malformed updatedAt → nil (8 tests)
+
+**Test run result: 24 passed, 0 failed, 0 skipped** (via `RunAllTests`, scheme `AltisMacOS`)
+
+**Fast diagnostics:** zero issues across all touched Swift files (`XcodeRefreshCodeIssuesInFile`). Zero Xcode navigator issues.
 
 ## Phase 4. Feature Flow Split
 

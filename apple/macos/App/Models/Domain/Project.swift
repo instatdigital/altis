@@ -21,22 +21,17 @@ struct Project: Hashable, Codable, Sendable {
     /// UTC timestamp of the most recent change to this project.
     var updatedAt: Date
 
-    /// Local and remote synchronization state for this project.
-    var syncMetadata: SyncMetadata
-
     init(
         projectId: ProjectID = ProjectID(),
         workspaceId: WorkspaceID,
         name: String,
         createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        syncMetadata: SyncMetadata = SyncMetadata()
+        updatedAt: Date = Date()
     ) {
         self.projectId = projectId
         self.workspaceId = workspaceId
         self.name = name
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.syncMetadata = syncMetadata
     }
 }

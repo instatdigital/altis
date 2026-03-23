@@ -7,6 +7,9 @@ import Foundation
 /// - at least three stages
 /// - exactly one terminalSuccess stage
 /// - exactly one terminalFailure stage
+///
+/// The `mode` field determines storage authority for the board and all its
+/// owned entities. See `BoardMode` for the full contract.
 struct Board: Hashable, Codable, Sendable {
 
     /// Stable typed identifier for this board.
@@ -21,30 +24,30 @@ struct Board: Hashable, Codable, Sendable {
     /// Display name shown in board lists and navigation.
     var name: String
 
+    /// Storage authority for this board and its owned entities.
+    var mode: BoardMode
+
     /// UTC timestamp of when this board was created.
     let createdAt: Date
 
     /// UTC timestamp of the most recent change to this board.
     var updatedAt: Date
 
-    /// Local and remote synchronization state for this board.
-    var syncMetadata: SyncMetadata
-
     init(
         boardId: BoardID = BoardID(),
         workspaceId: WorkspaceID,
         projectId: ProjectID,
         name: String,
+        mode: BoardMode = .offline,
         createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        syncMetadata: SyncMetadata = SyncMetadata()
+        updatedAt: Date = Date()
     ) {
         self.boardId = boardId
         self.workspaceId = workspaceId
         self.projectId = projectId
         self.name = name
+        self.mode = mode
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.syncMetadata = syncMetadata
     }
 }

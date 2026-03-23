@@ -12,8 +12,6 @@ import Foundation
 /// - `status`        TEXT NOT NULL   (raw value of `TaskStatus`)
 /// - `createdAt`     TEXT NOT NULL   (ISO-8601)
 /// - `updatedAt`     TEXT NOT NULL   (ISO-8601)
-/// - `lastModifiedAt` TEXT NOT NULL  (ISO-8601)
-/// - sync columns    — from `SyncMetadataRecord` (embedded inline)
 struct TaskRecord: PersistenceRecord {
 
     var taskId: String
@@ -28,15 +26,6 @@ struct TaskRecord: PersistenceRecord {
     var status: String
     var createdAt: String
     var updatedAt: String
-    var lastModifiedAt: String
-
-    // MARK: Embedded sync metadata columns
-
-    var syncState: String
-    var lastSyncedAt: String?
-    var remoteVersion: String?
-    var localRevision: Int
-    var isDirty: Bool
 }
 
 // MARK: - Domain mapping
@@ -56,14 +45,6 @@ extension TaskRecord {
         self.status = task.status.rawValue
         self.createdAt = Self.iso.string(from: task.createdAt)
         self.updatedAt = Self.iso.string(from: task.updatedAt)
-        self.lastModifiedAt = Self.iso.string(from: task.lastModifiedAt)
-
-        let sync = SyncMetadataRecord(from: task.syncMetadata)
-        self.syncState = sync.syncState
-        self.lastSyncedAt = sync.lastSyncedAt
-        self.remoteVersion = sync.remoteVersion
-        self.localRevision = sync.localRevision
-        self.isDirty = sync.isDirty
     }
 
     /// Converts this record back to a `Task` domain value.
@@ -74,17 +55,8 @@ extension TaskRecord {
         guard
             let created = Self.iso.date(from: createdAt),
             let updated = Self.iso.date(from: updatedAt),
-            let modified = Self.iso.date(from: lastModifiedAt),
             let taskStatus = TaskStatus(rawValue: status)
         else { return nil }
-
-        let syncRecord = SyncMetadataRecord(
-            syncState: syncState,
-            lastSyncedAt: lastSyncedAt,
-            remoteVersion: remoteVersion,
-            localRevision: localRevision,
-            isDirty: isDirty
-        )
 
         return Task(
             taskId: TaskID(rawValue: taskId),
@@ -95,9 +67,7 @@ extension TaskRecord {
             title: title,
             status: taskStatus,
             createdAt: created,
-            updatedAt: updated,
-            lastModifiedAt: modified,
-            syncMetadata: syncRecord.toDomain()
+            updatedAt: updated
         )
     }
 }

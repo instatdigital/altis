@@ -1,56 +1,6 @@
 import Testing
 import Foundation
-@testable import AltisMacOS
-
-// MARK: - SyncMetadataRecord
-
-@Suite("SyncMetadataRecord")
-struct SyncMetadataRecordTests {
-
-    @Test("round-trip preserves all fields")
-    func roundTripAllFields() {
-        let original = SyncMetadata(
-            syncState: .locallyModified,
-            lastSyncedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            remoteVersion: "v42",
-            localRevision: 7,
-            isDirty: true
-        )
-        let restored = SyncMetadataRecord(from: original).toDomain()
-
-        #expect(restored.syncState == .locallyModified)
-        #expect(restored.remoteVersion == "v42")
-        #expect(restored.localRevision == 7)
-        #expect(restored.isDirty == true)
-        #expect(abs(restored.lastSyncedAt!.timeIntervalSince1970 - 1_700_000_000) < 1)
-    }
-
-    @Test("nil lastSyncedAt survives round-trip as nil")
-    func nilLastSyncedAt() {
-        let restored = SyncMetadataRecord(
-            from: SyncMetadata(syncState: .pendingUpload, lastSyncedAt: nil)
-        ).toDomain()
-        #expect(restored.lastSyncedAt == nil)
-    }
-
-    @Test("unknown syncState raw value falls back to syncError")
-    func unknownSyncStateRawValue() {
-        let record = SyncMetadataRecord(
-            syncState: "completelyUnknownState",
-            lastSyncedAt: nil,
-            remoteVersion: nil,
-            localRevision: 1,
-            isDirty: false
-        )
-        #expect(record.toDomain().syncState == .syncError)
-    }
-
-    @Test("all SyncState raw values round-trip correctly", arguments: SyncState.allCases)
-    func allSyncStates(state: SyncState) {
-        let restored = SyncMetadataRecord(from: SyncMetadata(syncState: state)).toDomain()
-        #expect(restored.syncState == state)
-    }
-}
+@testable import Altis
 
 // MARK: - ProjectRecord
 
@@ -97,19 +47,34 @@ struct BoardRecordTests {
 
     @Test("round-trip preserves all fields")
     func roundTrip() throws {
-        let board = Board(workspaceId: workspaceId, projectId: projectId, name: "Sprint 1")
+        let board = Board(workspaceId: workspaceId, projectId: projectId, name: "Sprint 1", mode: .offline)
         let restored = try #require(BoardRecord(from: board).toDomain())
 
         #expect(restored.boardId == board.boardId)
         #expect(restored.workspaceId == workspaceId)
         #expect(restored.projectId == projectId)
         #expect(restored.name == "Sprint 1")
+        #expect(restored.mode == .offline)
+    }
+
+    @Test("round-trip preserves online mode")
+    func roundTripOnlineMode() throws {
+        let board = Board(workspaceId: workspaceId, projectId: projectId, name: "Online Board", mode: .online)
+        let restored = try #require(BoardRecord(from: board).toDomain())
+        #expect(restored.mode == .online)
     }
 
     @Test("toDomain returns nil for malformed updatedAt")
     func malformedUpdatedAt() {
         var record = BoardRecord(from: Board(workspaceId: workspaceId, projectId: projectId, name: "X"))
         record.updatedAt = "bad"
+        #expect(record.toDomain() == nil)
+    }
+
+    @Test("toDomain returns nil for unknown mode raw value")
+    func unknownMode() {
+        var record = BoardRecord(from: Board(workspaceId: workspaceId, projectId: projectId, name: "X"))
+        record.mode = "hybrid"
         #expect(record.toDomain() == nil)
     }
 }
@@ -241,10 +206,10 @@ struct TaskRecordTests {
         #expect(record.toDomain() == nil)
     }
 
-    @Test("toDomain returns nil for malformed lastModifiedAt")
-    func malformedLastModifiedAt() {
+    @Test("toDomain returns nil for malformed updatedAt")
+    func malformedUpdatedAt() {
         var record = TaskRecord(from: Task(workspaceId: workspaceId, projectId: projectId, title: "T"))
-        record.lastModifiedAt = "not-a-date"
+        record.updatedAt = "not-a-date"
         #expect(record.toDomain() == nil)
     }
 }

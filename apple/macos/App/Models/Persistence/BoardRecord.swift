@@ -7,25 +7,19 @@ import Foundation
 /// - `workspaceId`   TEXT NOT NULL
 /// - `projectId`     TEXT NOT NULL
 /// - `name`          TEXT NOT NULL
+/// - `mode`          TEXT NOT NULL   (raw value of `BoardMode`: `"offline"` or `"online"`)
 /// - `createdAt`     TEXT NOT NULL  (ISO-8601)
 /// - `updatedAt`     TEXT NOT NULL  (ISO-8601)
-/// - sync columns    — from `SyncMetadataRecord` (embedded inline)
 struct BoardRecord: PersistenceRecord {
 
     var boardId: String
     var workspaceId: String
     var projectId: String
     var name: String
+    /// Raw value of `BoardMode`: `"offline"` or `"online"`.
+    var mode: String
     var createdAt: String
     var updatedAt: String
-
-    // MARK: Embedded sync metadata columns
-
-    var syncState: String
-    var lastSyncedAt: String?
-    var remoteVersion: String?
-    var localRevision: Int
-    var isDirty: Bool
 }
 
 // MARK: - Domain mapping
@@ -40,42 +34,30 @@ extension BoardRecord {
         self.workspaceId = board.workspaceId.rawValue
         self.projectId = board.projectId.rawValue
         self.name = board.name
+        self.mode = board.mode.rawValue
         self.createdAt = Self.iso.string(from: board.createdAt)
         self.updatedAt = Self.iso.string(from: board.updatedAt)
-
-        let sync = SyncMetadataRecord(from: board.syncMetadata)
-        self.syncState = sync.syncState
-        self.lastSyncedAt = sync.lastSyncedAt
-        self.remoteVersion = sync.remoteVersion
-        self.localRevision = sync.localRevision
-        self.isDirty = sync.isDirty
     }
 
     /// Converts this record back to a `Board` domain value.
     ///
-    /// Returns `nil` when any required date string cannot be parsed.
+    /// Returns `nil` when any required date string cannot be parsed, or when the
+    /// stored `mode` string is not a known `BoardMode` raw value.
     func toDomain() -> Board? {
         guard
             let created = Self.iso.date(from: createdAt),
-            let updated = Self.iso.date(from: updatedAt)
+            let updated = Self.iso.date(from: updatedAt),
+            let boardMode = BoardMode(rawValue: mode)
         else { return nil }
-
-        let syncRecord = SyncMetadataRecord(
-            syncState: syncState,
-            lastSyncedAt: lastSyncedAt,
-            remoteVersion: remoteVersion,
-            localRevision: localRevision,
-            isDirty: isDirty
-        )
 
         return Board(
             boardId: BoardID(rawValue: boardId),
             workspaceId: WorkspaceID(rawValue: workspaceId),
             projectId: ProjectID(rawValue: projectId),
             name: name,
+            mode: boardMode,
             createdAt: created,
-            updatedAt: updated,
-            syncMetadata: syncRecord.toDomain()
+            updatedAt: updated
         )
     }
 }

@@ -31,8 +31,8 @@ struct TaskDetailProjection: Hashable, Sendable {
     /// UTC creation timestamp shown in task metadata.
     let createdAt: Date
 
-    /// UTC last-modified timestamp shown in task metadata.
-    let lastModifiedAt: Date
+    /// UTC timestamp of the most recent change shown in task metadata.
+    let updatedAt: Date
 }
 
 // MARK: - Domain mapping
@@ -56,6 +56,6 @@ extension TaskDetailProjection {
         self.projectId = task.projectId
         self.boardId = task.boardId
         self.createdAt = task.createdAt
-        self.lastModifiedAt = task.lastModifiedAt
+        self.updatedAt = task.updatedAt
     }
 }

@@ -10,7 +10,6 @@ import Foundation
 /// - `kind`          TEXT NOT NULL   (raw value of `BoardStageKind`)
 /// - `createdAt`     TEXT NOT NULL   (ISO-8601)
 /// - `updatedAt`     TEXT NOT NULL   (ISO-8601)
-/// - sync columns    — from `SyncMetadataRecord` (embedded inline)
 struct BoardStageRecord: PersistenceRecord {
 
     var stageId: String
@@ -21,14 +20,6 @@ struct BoardStageRecord: PersistenceRecord {
     var kind: String
     var createdAt: String
     var updatedAt: String
-
-    // MARK: Embedded sync metadata columns
-
-    var syncState: String
-    var lastSyncedAt: String?
-    var remoteVersion: String?
-    var localRevision: Int
-    var isDirty: Bool
 }
 
 // MARK: - Domain mapping
@@ -46,13 +37,6 @@ extension BoardStageRecord {
         self.kind = stage.kind.rawValue
         self.createdAt = Self.iso.string(from: stage.createdAt)
         self.updatedAt = Self.iso.string(from: stage.updatedAt)
-
-        let sync = SyncMetadataRecord(from: stage.syncMetadata)
-        self.syncState = sync.syncState
-        self.lastSyncedAt = sync.lastSyncedAt
-        self.remoteVersion = sync.remoteVersion
-        self.localRevision = sync.localRevision
-        self.isDirty = sync.isDirty
     }
 
     /// Converts this record back to a `BoardStage` domain value.
@@ -66,14 +50,6 @@ extension BoardStageRecord {
             let stageKind = BoardStageKind(rawValue: kind)
         else { return nil }
 
-        let syncRecord = SyncMetadataRecord(
-            syncState: syncState,
-            lastSyncedAt: lastSyncedAt,
-            remoteVersion: remoteVersion,
-            localRevision: localRevision,
-            isDirty: isDirty
-        )
-
         return BoardStage(
             stageId: BoardStageID(rawValue: stageId),
             boardId: BoardID(rawValue: boardId),
@@ -81,8 +57,7 @@ extension BoardStageRecord {
             orderIndex: orderIndex,
             kind: stageKind,
             createdAt: created,
-            updatedAt: updated,
-            syncMetadata: syncRecord.toDomain()
+            updatedAt: updated
         )
     }
 }

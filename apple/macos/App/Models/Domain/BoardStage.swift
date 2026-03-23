@@ -5,6 +5,9 @@ import Foundation
 /// Stage order is governed by `orderIndex`. Terminal stages (`terminalSuccess`,
 /// `terminalFailure`) MUST NOT be deleted and have special invariant enforcement
 /// through `BoardStageInvariants`.
+///
+/// `BoardStage` does not carry a `BoardMode` field. Storage authority is derived
+/// from the owning `Board.mode`.
 struct BoardStage: Hashable, Codable, Sendable {
 
     /// Stable typed identifier for this stage.
@@ -28,9 +31,6 @@ struct BoardStage: Hashable, Codable, Sendable {
     /// UTC timestamp of the most recent change to this stage.
     var updatedAt: Date
 
-    /// Local and remote synchronization state for this stage.
-    var syncMetadata: SyncMetadata
-
     /// Convenience: whether this stage is one of the two terminal kinds.
     var isTerminal: Bool {
         kind == .terminalSuccess || kind == .terminalFailure
@@ -43,8 +43,7 @@ struct BoardStage: Hashable, Codable, Sendable {
         orderIndex: Int,
         kind: BoardStageKind,
         createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        syncMetadata: SyncMetadata = SyncMetadata()
+        updatedAt: Date = Date()
     ) {
         self.stageId = stageId
         self.boardId = boardId
@@ -53,7 +52,6 @@ struct BoardStage: Hashable, Codable, Sendable {
         self.kind = kind
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.syncMetadata = syncMetadata
     }
 }
 

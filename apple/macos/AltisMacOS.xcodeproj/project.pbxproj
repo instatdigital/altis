@@ -21,8 +21,8 @@
 		57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */; };
 		69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
 		6E88F0153003105FB189507C /* BoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999AE2D9BA9FE56362D93067 /* BoardPageView.swift */; };
+		AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E712F71965E003A7C2C /* BoardMode.swift */; };
 		AF1927FB2F705268004558EB /* EntityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FA2F705268004558EB /* EntityID.swift */; };
-		AF1927FD2F705283004558EB /* SyncMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FC2F705283004558EB /* SyncMetadata.swift */; };
 		AF1927FF2F705298004558EB /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FE2F705298004558EB /* Workspace.swift */; };
 		AF1928012F705298004558EB /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928002F705298004558EB /* Project.swift */; };
 		AF1928032F705299004558EB /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928022F705299004558EB /* Board.swift */; };
@@ -31,7 +31,6 @@
 		AF1928092F7052BE004558EB /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928082F7052BE004558EB /* Task.swift */; };
 		AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */; };
 		AF19280F2F70540E004558EB /* PersistenceRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19280E2F70540E004558EB /* PersistenceRecord.swift */; };
-		AF1928112F70541A004558EB /* SyncMetadataRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928102F70541A004558EB /* SyncMetadataRecord.swift */; };
 		AF1928132F70542A004558EB /* ProjectRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928122F70542A004558EB /* ProjectRecord.swift */; };
 		AF1928152F705437004558EB /* BoardRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928142F705437004558EB /* BoardRecord.swift */; };
 		AF1928172F705445004558EB /* BoardStageRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928162F705445004558EB /* BoardStageRecord.swift */; };
@@ -76,13 +75,13 @@
 		687AF830925F835E854E0BF3 /* Debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Config/Debug.xcconfig; sourceTree = "<group>"; };
 		6C10A915EC8B78700F94841D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		87DB719A28AC7DEFB229F10B /* AppShell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppShell.swift; sourceTree = "<group>"; };
-		8DEC202A1A09109E913FEEFA /* Altis macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Altis macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DEC202A1A09109E913FEEFA /* Altis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Altis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		999AE2D9BA9FE56362D93067 /* BoardPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardPageView.swift; sourceTree = "<group>"; };
 		9B0BA2E52DAC3DEA4F88B452 /* ProjectPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectPageView.swift; sourceTree = "<group>"; };
 		9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectFeatureState.swift; sourceTree = "<group>"; };
 		9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskListFeatureState.swift; sourceTree = "<group>"; };
+		AF163E712F71965E003A7C2C /* BoardMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardMode.swift; sourceTree = "<group>"; };
 		AF1927FA2F705268004558EB /* EntityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityID.swift; sourceTree = "<group>"; };
-		AF1927FC2F705283004558EB /* SyncMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadata.swift; sourceTree = "<group>"; };
 		AF1927FE2F705298004558EB /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
 		AF1928002F705298004558EB /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		AF1928022F705299004558EB /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
@@ -91,7 +90,6 @@
 		AF1928082F7052BE004558EB /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStageInvariants.swift; sourceTree = "<group>"; };
 		AF19280E2F70540E004558EB /* PersistenceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceRecord.swift; sourceTree = "<group>"; };
-		AF1928102F70541A004558EB /* SyncMetadataRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncMetadataRecord.swift; sourceTree = "<group>"; };
 		AF1928122F70542A004558EB /* ProjectRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRecord.swift; sourceTree = "<group>"; };
 		AF1928142F705437004558EB /* BoardRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardRecord.swift; sourceTree = "<group>"; };
 		AF1928162F705445004558EB /* BoardStageRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStageRecord.swift; sourceTree = "<group>"; };
@@ -144,7 +142,7 @@
 		10A65B9357836931365807A1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8DEC202A1A09109E913FEEFA /* Altis macOS.app */,
+				8DEC202A1A09109E913FEEFA /* Altis.app */,
 				58EAF51483D6191D8DDCBB6C /* Altis macOS.xctest */,
 			);
 			name = Products;
@@ -274,7 +272,6 @@
 			isa = PBXGroup;
 			children = (
 				AF1927FA2F705268004558EB /* EntityID.swift */,
-				AF1927FC2F705283004558EB /* SyncMetadata.swift */,
 				AF1927FE2F705298004558EB /* Workspace.swift */,
 				AF1928002F705298004558EB /* Project.swift */,
 				AF1928022F705299004558EB /* Board.swift */,
@@ -282,6 +279,7 @@
 				AF1928062F7052BD004558EB /* BoardStagePreset.swift */,
 				AF1928082F7052BE004558EB /* Task.swift */,
 				AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */,
+				AF163E712F71965E003A7C2C /* BoardMode.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -290,7 +288,6 @@
 			isa = PBXGroup;
 			children = (
 				AF19280E2F70540E004558EB /* PersistenceRecord.swift */,
-				AF1928102F70541A004558EB /* SyncMetadataRecord.swift */,
 				AF1928122F70542A004558EB /* ProjectRecord.swift */,
 				AF1928142F705437004558EB /* BoardRecord.swift */,
 				AF1928162F705445004558EB /* BoardStageRecord.swift */,
@@ -462,7 +459,7 @@
 			);
 			name = AltisMacOS;
 			productName = AltisMacOS;
-			productReference = 8DEC202A1A09109E913FEEFA /* Altis macOS.app */;
+			productReference = 8DEC202A1A09109E913FEEFA /* Altis.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -526,13 +523,11 @@
 				AF1928192F705456004558EB /* BoardStagePresetRecord.swift in Sources */,
 				AF1928252F7054A3004558EB /* TaskListItemProjection.swift in Sources */,
 				AF1928212F705496004558EB /* ProjectListItemProjection.swift in Sources */,
-				AF1928112F70541A004558EB /* SyncMetadataRecord.swift in Sources */,
 				24789AD5E62B6A642952821F /* RootView.swift in Sources */,
 				454070CCA28356311D94995A /* AppShell.swift in Sources */,
 				AF1928012F705298004558EB /* Project.swift in Sources */,
 				0F4DB9BECBA12A6A3223681F /* AppRoute.swift in Sources */,
 				C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */,
-				AF1927FD2F705283004558EB /* SyncMetadata.swift in Sources */,
 				AF1928072F7052BD004558EB /* BoardStagePreset.swift in Sources */,
 				FF5FF22D2272B579F0F1853E /* HomeFeatureState.swift in Sources */,
 				AF19280F2F70540E004558EB /* PersistenceRecord.swift in Sources */,
@@ -559,6 +554,7 @@
 				EB01AB5442118A6732B6E7D5 /* TaskPageView.swift in Sources */,
 				520EF04D77DF2917496CC53A /* TaskPageFeatureState.swift in Sources */,
 				AF19281F2F705487004558EB /* LocalStoreContract.swift in Sources */,
+				AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -649,6 +645,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = Altis;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
 			};
@@ -666,7 +663,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AltisMacOS.app/Contents/MacOS/AltisMacOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Altis.app/Contents/MacOS/Altis";
 			};
 			name = Release;
 		};
@@ -682,7 +679,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AltisMacOS.app/Contents/MacOS/AltisMacOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Altis.app/Contents/MacOS/Altis";
 			};
 			name = Debug;
 		};
@@ -698,6 +695,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = Altis;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
 			};

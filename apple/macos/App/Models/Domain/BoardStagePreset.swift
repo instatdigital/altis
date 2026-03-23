@@ -21,23 +21,18 @@ struct BoardStagePreset: Hashable, Codable, Sendable {
     /// UTC timestamp of the most recent change to this preset.
     var updatedAt: Date
 
-    /// Local and remote synchronization state for this preset.
-    var syncMetadata: SyncMetadata
-
     init(
         stagePresetId: BoardStagePresetID = BoardStagePresetID(),
         workspaceId: WorkspaceID,
         name: String,
         createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        syncMetadata: SyncMetadata = SyncMetadata()
+        updatedAt: Date = Date()
     ) {
         self.stagePresetId = stagePresetId
         self.workspaceId = workspaceId
         self.name = name
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.syncMetadata = syncMetadata
     }
 }
 
