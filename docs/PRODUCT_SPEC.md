@@ -9,7 +9,7 @@ Altis is a task manager for multiple platforms.
 - flat task list
 - kanban board
 
-Both experiences operate on the same underlying task model and should support grouping tasks by project and by board.
+Both experiences operate on the same underlying task model and support grouping tasks by project and by board.
 
 ## MVP sections
 
@@ -28,11 +28,24 @@ The first canonical app sections are:
 - theme switching
 - authorization for online features
 
-These sections should feel coherent as one task workflow, while remaining architecture-first at this stage.
-
 ## Primary differentiator
 
 Widget-level task filters are the main feature. Users should be able to configure task visibility for widgets using reusable filter definitions that also make sense inside the main app.
+
+## Board mode model
+
+Boards are created in one of two modes:
+
+- `offline`
+- `online`
+
+Product rules:
+
+- offline boards exist only locally
+- online boards exist only through backend connectivity
+- the product does not synchronize an offline board into an online board
+- the mode is chosen explicitly and is not inferred from connectivity
+- the mode is a board property, not a separate app mode
 
 ## Board stage model
 
@@ -48,27 +61,7 @@ Product rules:
 - completing a task moves it into the terminal successful stage
 - closing a task unsuccessfully moves it into the terminal unsuccessful stage
 - boards may be created from stage presets
-- stage presets are workspace-level reusable definitions from which new boards can be assembled
 - boards created from presets are created by copying the preset definition, not by keeping a live link to it
-
-Stage management in MVP must support:
-
-- add stage to the end
-- rename stage
-- delete stage
-
-Stage constraints:
-
-- terminal stages may be renamed
-- terminal stages must not be deleted
-- when a non-terminal stage is deleted, tasks from that stage move to the first available stage
-
-## Presentation rules for stages
-
-- in list mode, a task must show its current stage
-- in task cards, the task should show a compact stage-progress line with the current stage
-- in kanban mode, cards must be distributed by current stage
-- task cards and task pages must expose explicit actions to move a task to the terminal successful or terminal unsuccessful stage
 
 ## Homepage
 
@@ -77,31 +70,17 @@ The product should include a homepage entry surface before the detailed project 
 Initial homepage scope may use placeholders, but it must act as the canonical landing point for:
 
 - dashboards
-- project lists
-- board entry points
-
-Current MVP assumption:
-
-- homepage sections may be placeholder surfaces
-- homepage is placeholder-only in the first vertical slice
-- homepage does not load live project, board, task, or dashboard data in the first vertical slice
-- placeholder scope remains open only in terms of exact content density, ordering, and empty-state behavior
-
-## Secondary capabilities
-
-- offline-first local storage
-- latest-version synchronization for tasks
-- local task records with `lastModifiedAt`
-- full replacement of a task with the current backend version during sync for ordinary CRUD entities
+- project and board entry points
 
 ## Additional planned capabilities
 
-- collaboration
-- real-time updates when connected to the network
+- collaboration for online boards
+- real-time updates when connected to the network for online boards
 - native Apple ID authorization
 
 ## Deferred capabilities
 
+- offline-online sync
 - calendar sync
 - Google authorization
 
@@ -111,6 +90,8 @@ Current MVP assumption:
 - widgets and full apps should read from compatible filter definitions
 - project and board are canonical product entities, not optional UI groupings
 - board stages are canonical workflow entities inside board context, not kanban-only decoration
-- terminal successful and unsuccessful stages must be explicit in the board model
-- stage presets must be reusable definitions rather than per-screen ad hoc templates
-- permissions for stage and preset editing are deferred from MVP
+- board mode is a canonical product concept because it changes authority, availability, and allowed flows
+- board mode changes board behavior without requiring a separate top-level interface branch
+- projects remain client-owned grouping entities in the current phase
+- `projectId` remains a client-owned grouping reference even when a board is online
+- workspace-scoped filters and stage presets remain shared support entities in the current phase

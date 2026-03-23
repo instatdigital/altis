@@ -1,196 +1,130 @@
-# Offline-First Sync Rules
+# Board Mode Rules
 
 Status: Accepted
 
 ## Problem / Context
 
-The project requires an offline-first architecture that behaves consistently under:
+The previous architecture assumed offline-first synchronization between local state and backend state.
 
-- loss of connectivity
-- reconnect after local changes
-- repeated command delivery
-- multi-client access
-- server confirmation arriving after local optimistic updates
+That approach is now explicitly out of scope. It adds too much implementation and product cost for the current phase.
 
-The project contains at least two different sync classes of entities:
+Altis now needs a simpler, harder boundary:
 
-- ordinary CRUD entities such as tasks, projects, boards, filters, and settings
-- ledger-like entities where history and invariants matter more than the latest scalar value
+- some boards are local-only
+- some boards are online-only
 
-The architecture MUST support both classes without collapsing them into one unsafe synchronization model.
+The system must make that distinction explicit in board rules, UI flows, persistence, and backend contracts.
 
 ## Decision
 
-The project adopts an offline-first architecture with one local read path and one local write path.
+Altis adopts two board modes:
 
-UI MUST read from local storage only.
+- `offline`
+- `online`
 
-All writes MUST first be recorded locally and MUST then be scheduled for synchronization through an outbox or equivalent durable pending-operation mechanism.
+These modes have different data authorities and different write paths.
 
-The project MUST distinguish between:
-
-- state-based sync for ordinary CRUD entities
-- operation-based sync for ledger-like or invariant-sensitive entities
-
-For ordinary CRUD entities, the local store may hold the current entity state plus version metadata.
-
-For ledger-like entities, the source of truth is the confirmed sequence of operations, not the last stored numeric value.
+There is no sync layer between them.
 
 ## Rules
 
 ### Core principles
 
-- The system MUST be offline-first.
-- The UI MUST read from the local store, not directly from network responses.
-- The system MUST have a single logical write path for both offline and online conditions.
-- The online case MUST reuse the same local-first write path rather than bypassing it.
-- Local persistence MUST be durable enough to survive app restarts before sync completes.
-- Sync MUST reconcile local state with server-confirmed state without introducing a separate online-only truth path.
+- Board mode MUST be explicit on `Board`.
+- Board mode MUST NOT be inferred from current connectivity.
+- Offline boards MUST use local persistence as their only durable source of truth.
+- Online boards MUST use backend APIs as their only durable source of truth.
+- The app MUST NOT implement outbox, reconciliation, background replay, or version-replacement sync for boards and tasks in the current architecture.
+- Board mode governs only the board and board-owned entities.
 
-### Read model
+### Offline board rules
 
-- User-facing screens and components MUST render from local typed read models.
-- A read model MAY be a projection over canonical domain entities and confirmed plus pending operations.
-- Network responses MUST update the local store first; only then MAY the UI reflect the change through local subscriptions.
-- The local store is the runtime source of truth for rendering.
-- For ledger-like entities, the UI read model MUST be treated as a projection, not the authoritative ledger.
+- Offline boards MUST be readable without network access.
+- Offline boards MUST accept writes locally.
+- Offline boards MUST persist durable state locally.
+- Offline boards MUST NOT depend on backend identifiers, remote versions, or auth state.
+- Offline boards MUST NOT create API requests as part of their normal write path.
+- Board-owned entities such as board stages and board-scoped tasks inherit local storage from the offline board they belong to.
 
-### Write model
+### Online board rules
 
-- Every user write MUST enter the local store first.
-- Every user write MUST create or update an outbox item, pending operation record, or equivalent durable sync intent.
-- The write path MUST be the same regardless of whether the network is currently available.
-- The write model MUST assign stable client-side identifiers for operations where idempotency or replay matters.
-- A network request MUST NOT be treated as the primary write.
-- Server confirmation MUST be applied by updating the local store from the confirmed response or confirmed operation result.
+- Online boards MUST require the backend path for reads and writes.
+- Online boards MUST NOT claim durable local acceptance while offline.
+- When network or auth is unavailable, online boards MUST surface unavailable, blocked, or reconnect-required state.
+- Online boards MAY use in-memory state or short-lived caches for UX, but those caches are not the durable product source of truth.
+- Online board mutations MUST go through typed API contracts.
+- Board-owned entities such as board stages and board-scoped tasks inherit backend authority from the online board they belong to.
 
-### Sync model
+### Non-board entity rules
 
-- Sync MUST consume durable local intents rather than transient UI callbacks.
-- Sync MUST support retry after network restoration.
-- Sync MUST support idempotent re-delivery of operations.
-- Sync MUST support reconciliation when multiple clients update the same logical entity.
-- Sync MUST be able to reload authoritative server state or authoritative confirmed operations when local projections become stale.
-- Reconnect MUST trigger reconciliation against the server source of truth and rebase remaining local pending work on top of the confirmed state.
+- A task without `boardId` is outside board-mode authority and uses local client persistence in the current phase unless a later contract documents a backend-owned non-board task flow.
+- Workspace-scoped support entities such as `TaskFilter` and `BoardStagePreset` use local client persistence in the current phase.
+- The app MUST NOT infer filter or preset authority from any one board's mode.
 
-### Conflict resolution
+### UI read-path rules
 
-- Conflict handling MUST be explicit.
-- Conflicts MUST NOT be silently overwritten when invariant-sensitive data is involved.
-- Ordinary CRUD entities MAY use state-based conflict policies when the chosen policy is documented and safe for that entity class.
-- Ledger-like entities MUST resolve conflicts through operation history, idempotency, rejection, compensation, or explicit user-visible error handling.
-- When rebase fails, the system MUST preserve the pending intent and mark it as failed, rejected, or requiring intervention.
+- Offline board surfaces MUST render from local typed projections.
+- Online board surfaces MUST render from feature-owned online state or explicit online read models.
+- UI MUST NOT render directly from raw transport payloads.
+- A feature MAY support both modes, but it MUST branch by the active board's mode and use the correct authority for that board.
 
-### Rules for balance / ledger-like entities
+### Write-path rules
 
-- Ledger-like entities MUST use operation-based sync.
-- Ledger-like entities MUST NOT use last-write-wins as the authoritative merge rule.
-- The local scalar value for a ledger-like entity MUST be treated as a projection.
-- The authoritative model for a ledger-like entity MUST be the confirmed sequence of operations plus domain rules.
-- The UI projected state MUST be computed as:
+- Offline board writes MUST stay local-only.
+- Online board writes MUST go through online services or gateways that wrap the API module.
+- UI code MUST NOT call transport clients directly.
+- There MUST NOT be a hidden fallback where an online write silently becomes a local write.
 
-`projected state = confirmed state + pending local operations`
+### API boundary rules
 
-- The server MUST support idempotent operation submission.
-- Reconnect MUST reconcile confirmed operations first, then rebase pending local operations on top of the confirmed base.
-- Background sync MUST NOT silently "fix" balances by overwriting the projected value with an unexplained number.
-- Any correction to a ledger-like entity MUST occur through explicit operations, compensations, reconciliation logic, or surfaced conflict states.
+- The API module serves only online boards and related online entities.
+- Offline boards MUST NOT appear in backend schemas, routes, or persistence plans except as an explicitly deferred future migration topic.
+- Shared transport contracts in `shared/contracts/` describe only online-board payloads.
+- Workspace-scoped filters and presets are local support entities in the current phase unless a later contract states otherwise.
 
-### Rules for ordinary CRUD entities
+### Mode transition rules
 
-- Ordinary CRUD entities MAY use state-based sync with explicit version metadata.
-- Ordinary CRUD entities SHOULD include version, revision, or `lastModifiedAt` metadata suitable for conflict detection.
-- Server-confirmed state MAY replace local state when the entity class is documented as state-synchronized.
-- Local pending writes for CRUD entities MUST still go through the local write path and outbox.
-- State-based sync for CRUD entities MUST still preserve deterministic conflict handling and retry semantics.
+- A board MUST be created as either `offline` or `online`.
+- The system MUST NOT silently migrate a board between modes.
+- If explicit mode conversion is ever added later, it requires a new documented architecture decision and a dedicated migration flow.
 
 ## Invariants
 
-- UI MUST read from local storage.
-- UI MUST NOT read directly from the network as its source of truth.
-- Every mutation MUST pass through the local write path.
-- The system MUST NOT have separate offline and online write-path logic with different business semantics.
-- Every synchronizable local write MUST produce durable sync intent before it is considered accepted.
-- Server confirmation MUST update local state before the UI reflects the confirmed result.
-- For CRUD entities, local state MAY be authoritative for rendering but server-confirmed state remains authoritative for sync reconciliation.
-- For ledger-like entities, the source of truth MUST be confirmed operations, not the last stored scalar value.
-- Reconnect MUST reconcile confirmed remote state before replaying or rebasing pending local operations.
-- Conflict resolution MUST be explicit for any entity where overwrite could violate invariants.
-
-## Examples
-
-### Task entity
-
-Entity class:
-
-- ordinary CRUD
-
-Flow:
-
-1. The user edits a task title.
-2. The app writes the new task state to the local store with updated local sync metadata.
-3. The app creates or updates an outbox record for task synchronization.
-4. The UI re-renders from the local task state.
-5. Sync sends the task state with version metadata.
-6. The server accepts and returns the confirmed task state.
-7. The local store is updated from the server-confirmed state.
-8. Any remaining pending metadata is cleared or advanced.
-
-### Balance / account / reserve entity
-
-Entity class:
-
-- ledger-like
-
-Flow:
-
-1. The user submits a reserve operation.
-2. The app records the pending operation locally with an idempotency key.
-3. The app derives projected UI state as confirmed balance plus pending reserve operations.
-4. The UI renders the projected state from the local projection.
-5. Sync sends the operation, not a new absolute balance number.
-6. The server accepts, rejects, or partially applies the operation according to domain rules.
-7. The local store records the confirmed operation result.
-8. The projected state is recalculated from confirmed operations plus any remaining pending operations.
-
-## Anti-patterns
-
-- MUST NOT use last updated scalar state as the source of truth for balances, reserves, limits, or similar invariant-sensitive entities.
-- MUST NOT implement separate write paths for online and offline behavior.
-- MUST NOT update UI directly from a network response in bypass of the local store.
-- MUST NOT silently overwrite conflicting values for invariant-sensitive entities.
-- MUST NOT repair balance drift by overwriting a number without explicit reconciliation semantics.
-- MUST NOT model operation-based sync as only "a queue of HTTP requests" without operation identity, idempotency, confirmed history, and rebase semantics.
-- MUST NOT treat pending projected balance as confirmed truth.
-- MUST NOT let background sync mutate ledger-like projections in ways that are not explainable by confirmed or pending operations.
+- No outbox.
+- No durable sync intent queue.
+- No version-replacement sync contract.
+- No background reconciliation between offline and online board state.
+- Offline boards remain usable without backend access.
+- Online boards remain backend-owned even if a local cache exists.
 
 ## Consequences
 
-- The architecture becomes stricter but more predictable under unreliable connectivity.
-- UI and domain layers become simpler to reason about because they depend on one local read model.
-- Sync infrastructure becomes more explicit because it must support durable intent storage, retries, reconciliation, and idempotency.
-- Ordinary CRUD entities remain relatively simple.
-- Ledger-like entities require explicit operation modeling and cannot be treated as simple overwriteable records.
-- The server contract must support confirmation semantics and idempotent operation handling where required.
+- The architecture is much simpler.
+- Offline work remains possible, but only inside offline boards.
+- Online collaboration remains possible, but only inside online boards.
+- Backend and client contracts become cleaner because they no longer need to model sync metadata and reconciliation behavior.
+- Board mode must be chosen correctly when the board is created.
 
 ## Implementation guidance
 
-- Keep local read models typed and derived from stable domain models or stable projections.
-- Separate domain entities, local persistence records, transport payloads, and sync metadata.
-- Represent pending local writes explicitly rather than inferring them from transient UI state.
-- Use version metadata for CRUD reconciliation.
-- Use operation identifiers and server-supported idempotency for ledger-like entities.
-- During reconnect, load confirmed remote base first, then replay or rebase still-pending local operations.
-- Surface failed, rejected, or conflicting operations explicitly to the application state rather than hiding them in transport logs.
-- Ensure event-driven UI flows subscribe to local projections and not directly to network callbacks.
+- Keep shared task, project, board, stage, preset, and filter semantics where they are truly common.
+- Split local persistence and online transport at the service boundary.
+- Treat board mode as a routing decision in feature flows.
+- Keep offline-board persistence contracts in `shared/persistence/`.
+- Keep online-board transport contracts in `shared/contracts/`.
+- Keep backend routes and modules focused on online boards only.
+- Keep workspace-scoped filters and presets out of backend ownership until a dedicated online contract is documented.
+
+## Anti-patterns
+
+- MUST NOT accept an online mutation locally and promise that it will sync later.
+- MUST NOT add sync metadata to offline entities as speculative future-proofing.
+- MUST NOT let offline and online boards share one fake repository API that hides authority differences.
+- MUST NOT expose offline boards through backend APIs.
+- MUST NOT render online boards directly from raw network responses without typed feature-level mapping.
 
 ## Glossary
 
-- `Local store`: durable local persistence used by the app as the read source for UI.
-- `Outbox`: durable queue or table of local sync intents pending confirmation.
-- `Confirmed state`: state derived only from operations or entity versions acknowledged by the server.
-- `Pending local operations`: locally accepted writes not yet confirmed by the server.
-- `Projected state`: UI-facing derived state built from confirmed state plus pending local operations where applicable.
-- `State-based sync`: synchronization of current entity state together with version metadata.
-- `Operation-based sync`: synchronization of explicit domain operations, commands, or events instead of only final scalar state.
-- `Rebase`: recomputation of pending local intent on top of a newly confirmed remote base.
+- `Offline board`: a board whose durable source of truth is local persistence only.
+- `Online board`: a board whose durable source of truth is backend APIs only.
+- `Board mode`: explicit data-authority choice on `Board` that governs the board and its board-owned entities.

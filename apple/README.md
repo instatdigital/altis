@@ -6,6 +6,16 @@ This layer contains Apple-platform work split into:
 - `ios/` for the iOS application project
 - `macos/` for the macOS application project
 
+## Agent context bootstrap
+
+Before Apple-layer implementation work, read:
+
+- `../AGENTS.md`
+- `../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
+- `../docs/TYPES_AND_CONTRACTS.md`
+- `../docs/SYNC_RULES.md`
+- `../docs/DEVELOPMENT_RULES.md`
+
 ## Rules
 
 - Keep cross-platform domain and sync contracts out of this layer unless they are Apple-only integrations.
@@ -19,7 +29,18 @@ From repository root run:
 ruby tooling/scripts/bootstrap_apple_xcode_projects.rb
 ```
 
-This generates:
+Default behavior (`--platform` omitted) generates:
 
 - `apple/macos/AltisMacOS.xcodeproj`
-- `apple/ios/AltisIOS.xcodeproj`
+
+Generate iOS explicitly:
+
+```bash
+ruby tooling/scripts/bootstrap_apple_xcode_projects.rb --platform=ios
+```
+
+Generate both:
+
+```bash
+ruby tooling/scripts/bootstrap_apple_xcode_projects.rb --platform=all
+```

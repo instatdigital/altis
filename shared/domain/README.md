@@ -10,4 +10,4 @@ Current expected domains include:
 - board stages
 - board stage presets
 - task filters
-- sync metadata
+- board mode

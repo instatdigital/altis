@@ -37,9 +37,9 @@ Primary product feature:
 
 Secondary product feature:
 
-- offline-first local storage
-- task-level `lastModifiedAt`
-- sync based on replacing local task state with the latest backend version
+- explicit board mode: `offline` or `online`
+- offline boards stored only locally
+- online boards available only through backend connectivity
 
 Additional supported direction:
 
@@ -69,9 +69,21 @@ Deferred, not for current architecture work unless explicitly requested:
 - `docs/MVP_APP_STRUCTURE.md` is the source of truth for product-level UX architecture.
 - `docs/ARCHITECTURE.md` is the source of truth for repository, layer, module, component, and event-flow architecture.
 - `docs/TYPES_AND_CONTRACTS.md` is the source of truth for canonical entities, relations, and typed model boundaries.
-- `docs/SYNC_RULES.md` is the source of truth for offline-first synchronization architecture.
+- `docs/SYNC_RULES.md` is the source of truth for offline-board vs online-board authority rules.
 - `docs/WIDGET_RULES.md` is the source of truth for widget-specific UX and handoff constraints.
 - Platform and layer README files should only add local specialization, not replace these product-level and repository-level contracts.
+
+## Mandatory context bootstrap for platform scope work
+
+- Before changing files inside any platform scope (`apple/ios`, `apple/macos`, `android`, `windows`, `backend`), agents MUST load:
+  - `AGENTS.md`
+  - `docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
+  - `docs/TYPES_AND_CONTRACTS.md`
+  - `docs/SYNC_RULES.md`
+  - `docs/DEVELOPMENT_RULES.md`
+  - nearest platform README
+- Before creating or moving files, agents MUST run the global artifact classification workflow from `docs/ARCHITECTURE.md` and map the artifact to its canonical destination.
+- If a platform README does not link to the canonical docs above, treat that as documentation debt and fix the README in the same change.
 
 ## Domain guidance
 
@@ -80,9 +92,10 @@ Deferred, not for current architecture work unless explicitly requested:
 - Treat widget filters as first-class entities, not view-only state.
 - Keep list and kanban as alternate presentations over the same task model.
 - Treat project and board as canonical grouping entities, not as optional UI tags.
-- Design sync around version replacement semantics for ordinary CRUD entities unless a stricter sync rule applies.
-- Follow `docs/SYNC_RULES.md` for all offline-first, outbox, reconciliation, and conflict behavior.
-- Keep offline persistence and sync metadata in shared logic where possible.
+- Treat board mode as a first-class domain rule.
+- Follow `docs/SYNC_RULES.md` for all offline-board vs online-board authority and write-path behavior.
+- Keep offline persistence in shared logic where possible.
+- Do not introduce sync metadata, outbox behavior, or reconciliation logic unless a later decision explicitly restores that scope.
 - Treat collaboration and real-time delivery as extensions over the same canonical task state.
 - Separate domain models from transport contracts and persistence models.
 - Do not treat Prisma models as application-wide shared types.
@@ -96,7 +109,7 @@ Deferred, not for current architecture work unless explicitly requested:
 - After UI work, check the result against the relevant platform guidelines and fix obvious mismatches when possible.
 - Do not invent undocumented product-level flows, shells, or entry points. Update `docs/MVP_APP_STRUCTURE.md` first when those need to change.
 - Treat pages as composition surfaces, visual components as typed renderers and intent emitters, and feature flows as event-driven orchestration analogous to BLoC.
-- UI MUST render from local typed projections rather than directly from network responses.
+- UI MUST render from typed projections or typed feature state rather than directly from network responses.
 
 ## Component workflow
 
@@ -115,11 +128,12 @@ Deferred, not for current architecture work unless explicitly requested:
 - Components MUST receive typed data suitable for rendering.
 - Components MUST emit typed user intents rather than mutating data layers directly.
 - Pages or containers MUST subscribe to the local or global flows required for their feature.
-- Feature flows MUST process user, lifecycle, realtime, and sync events through one explicit event pipeline.
-- Initial data load and later online updates MUST enter the same flows and local projections.
-- Feature flows MUST use isolated data-facing classes or services for local persistence, outbox handling, sync, and transport access.
+- Feature flows MUST process user, lifecycle, and online result events through one explicit event pipeline.
+- Initial data load and later online updates MUST enter the same feature flows for the active board mode.
+- Feature flows MUST use isolated data-facing classes or services for local persistence and transport access.
 - UI-facing code MUST NOT call transport clients directly.
-- All writes MUST follow the local-first write path defined in `docs/SYNC_RULES.md`.
+- Writes for offline boards MUST stay local-only.
+- Writes for online boards MUST go through the online API path defined in `docs/SYNC_RULES.md`.
 
 ## Working rules
 
@@ -129,13 +143,13 @@ Deferred, not for current architecture work unless explicitly requested:
 - Document architectural decisions in `docs/DECISIONS.md`.
 - Update `docs/ARCHITECTURE.md` when directory ownership, module boundaries, component taxonomy, event-flow rules, or component placement rules change.
 - Update `docs/MVP_APP_STRUCTURE.md` when section responsibilities, entry points, context switching, task flow, account flow, or page responsibilities change.
-- Update `docs/SYNC_RULES.md` when offline-first write-path, local read-path, sync semantics, conflict handling, or reconciliation rules change.
+- Update `docs/SYNC_RULES.md` when board-mode authority, local/offline write-path, online/API write-path, or mode transition rules change.
 - Update `docs/WIDGET_RULES.md` when widget behavior, widget filters, or widget-to-app handoff change.
 - Track unresolved structural or product contracts in `docs/OPEN_QUESTIONS.md`.
 - Treat this repository as a monorepo first, platform repo second.
 - Do not introduce separate task models for list, kanban, and widgets without an explicit architectural decision.
 - Do not implement deferred features as if they are active scope.
-- Favor shared contracts for sync, filters, and live updates before platform-specific adapters.
+- Favor shared contracts for online API boundaries, filters, and live updates before platform-specific adapters.
 - If a task introduces a new convention, placement rule, module boundary, artifact type, workflow pattern, sync rule, or UX flow not yet described in the docs, update the relevant rule files in the same change.
 - Treat undocumented structural decisions as incomplete work until they are written down.
 - Treat undocumented UX architecture changes as incomplete work until they are written down.
@@ -180,7 +194,7 @@ Expected work right now:
 - define conventions
 - define product-aware architecture
 - define UX architecture without overcommitting to visual design
-- define strict offline-first sync rules before implementation diverges
+- define strict offline-board vs online-board boundaries before implementation diverges
 - start Apple implementation with a macOS-first vertical slice: create project -> create board from or without preset -> create task -> move by stage -> complete/fail -> persist locally
 - avoid premature implementation details
 - keep placeholders lightweight and explicit

@@ -31,25 +31,29 @@ Represent tasks once in the shared domain and let list, kanban, and widgets act 
 Rationale:
 This avoids parallel logic for the same product state and keeps widget filtering central to the architecture.
 
-## ADR-0003: Use latest-version replacement for task sync
+## ADR-0003: Split boards into explicit offline and online modes
 
 Status: accepted
 
 Decision:
-Store local task state with `lastModifiedAt` and treat backend sync as replacement with the latest authoritative task version.
+Boards are created as either `offline` or `online`.
+
+- `offline` boards are stored and edited only locally
+- `online` boards are loaded and edited only through backend APIs
+- no offline-online sync layer is part of the active architecture
 
 Rationale:
-This keeps the first sync model deterministic, offline-capable, and easier to reason about than field-level merge logic.
+This removes the cost and complexity of offline-first sync, outbox handling, reconciliation, and version-replacement logic while preserving both local-only and server-backed product paths.
 
-## ADR-0004: Defer calendar sync and Google authorization
+## ADR-0004: Defer offline-online sync, calendar sync, and Google authorization
 
 Status: accepted
 
 Decision:
-Do not shape the active architecture around calendar sync or Google authorization until those features are explicitly brought into scope.
+Do not shape the active architecture around offline-online sync, calendar sync, or Google authorization until those features are explicitly brought into scope.
 
 Rationale:
-This reduces premature abstraction and keeps the current architecture focused on the core task, filter, sync, collaboration, and Apple ID flows.
+This reduces premature abstraction and keeps the current architecture focused on explicit board mode boundaries.
 
 ## ADR-0005: Add NestJS and Prisma as the backend stack
 
@@ -69,7 +73,7 @@ Decision:
 Do not attempt to force one shared runtime type layer across Swift clients and the NestJS backend. Instead, keep shared domain concepts in repository documentation and shared contract artifacts in `shared/contracts/`.
 
 Rationale:
-Swift and TypeScript have different runtime and tooling constraints. Sharing Prisma types or backend-internal TypeScript models directly with clients creates coupling and churn. Shared transport contracts are the stable boundary; platform-native client models can be generated from or mapped to those contracts.
+Swift and TypeScript have different runtime and tooling constraints. Shared transport contracts are the stable boundary.
 
 ## ADR-0007: Use OpenAPI-first contracts at the backend-client boundary
 
@@ -86,32 +90,55 @@ NestJS aligns naturally with OpenAPI tooling, and Swift clients can map or gener
 Status: accepted
 
 Decision:
-Add `Project` and `Board` as first-class domain entities alongside `Task`, `TaskFilter`, and sync metadata.
+Keep `Project` and `Board` as first-class domain entities alongside `Task` and `TaskFilter`, and make board mode explicit on `Board`.
 
 Rationale:
-Tasks need stable grouping by project and by board. Modeling these as real domain entities keeps list mode, kanban mode, backend APIs, and future sync behavior aligned.
+Tasks need stable grouping by project and by board. Board mode changes product behavior enough that it must be modeled explicitly, but it should not force separate mode flags onto every surrounding entity.
 
 ## ADR-0009: Treat BoardStage and BoardStagePreset as canonical workflow entities
 
 Status: accepted
 
 Decision:
-Add `BoardStage` and `BoardStagePreset` as first-class workflow entities inside the board model. Staged boards must define ordered stages plus one terminal successful stage and one terminal unsuccessful stage. Task completion and unsuccessful closure must move the task into those explicit terminal stages.
+Keep `BoardStage` and `BoardStagePreset` as first-class workflow entities inside the board model. Staged boards must define ordered stages plus one terminal successful stage and one terminal unsuccessful stage.
 
 Rationale:
-Board workflow cannot remain a kanban-only presentation concern if list, task detail, and kanban must all agree on the current stage and terminal outcomes. Stage presets also need a stable reusable definition rather than per-screen ad hoc setup.
+Board workflow cannot remain a kanban-only presentation concern if list, task detail, and kanban must all agree on the current stage and terminal outcomes.
 
-## ADR-0010: Use SQLite-backed local persistence for Apple offline-first storage
+## ADR-0010: Keep workspace-scoped presets and filters client-owned in the current phase
 
 Status: accepted
 
 Decision:
-Use SQLite-backed local persistence as the default Apple client storage for offline-first behavior, local projections, outbox persistence, and sync metadata.
+Keep `BoardStagePreset` and `TaskFilter` as workspace-scoped client-owned entities in the current phase. They are not typed by board mode and are not backend-owned by default.
 
 Rationale:
-The current architecture requires durable local writes, explicit sync metadata, local projections, and predictable control over outbox and reconciliation behavior. SQLite is a safer baseline for this than a more implicit persistence layer.
+Board mode should govern boards and board-owned entities only. Promoting presets or filters into backend-owned online entities would add a second authority split that is not required by the current product decision.
 
-## ADR-0011: Do not implement permissions for stage and preset editing in MVP
+## ADR-0011: Keep projects client-owned in the current phase
+
+Status: accepted
+
+Decision:
+Keep `Project` as a client-owned grouping entity in the current phase even when it contains online boards.
+
+Rationale:
+Board mode governs boards and board-owned entities only. Making `Project` backend-owned while one project may contain both offline and online boards would reintroduce a second authority split without a documented need.
+
+Implication:
+`projectId` remains a client-owned grouping reference in canonical client models unless a later decision explicitly promotes projects into backend-owned online entities.
+
+## ADR-0012: Use SQLite-backed local persistence for offline Apple boards
+
+Status: accepted
+
+Decision:
+Use SQLite-backed local persistence as the default Apple client storage for offline boards.
+
+Rationale:
+Offline boards still require durable local storage, but that storage no longer needs sync metadata, outbox behavior, or reconciliation infrastructure.
+
+## ADR-0013: Do not implement permissions for stage and preset editing in MVP
 
 Status: accepted
 
@@ -119,14 +146,14 @@ Decision:
 For MVP, all users may edit board stages and workspace-level board stage presets. Role-based permissions are deferred.
 
 Rationale:
-The current priority is workflow architecture and offline-first behavior, not access control. Deferring permissions reduces premature scope while keeping later authorization work explicit.
+The current priority is workflow architecture and board mode separation, not access control.
 
-## ADR-0009: Use feature-scoped event-driven UI flows in apps
+## ADR-0014: Use feature-scoped event-driven UI flows in apps
 
 Status: accepted
 
 Decision:
-Application UI features must update through explicit event-driven state flows. Views emit events, a feature-owned state handler coordinates effects, and rendered UI reads from feature state. This is the repository-level analogue of BLoC, without locking the implementation to one framework.
+Application UI features must update through explicit event-driven state flows. Views emit events, a feature-owned state handler coordinates effects, and rendered UI reads from feature state.
 
 Rationale:
-This keeps list, kanban, task detail, sync updates, and real-time updates aligned around one canonical task state. It also gives agents and developers a stable rule for feature ownership, page structure, and where side effects are allowed to live.
+This keeps list, kanban, task detail, offline persistence, and online API flows aligned around one architectural rule for state ownership.

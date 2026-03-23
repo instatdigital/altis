@@ -42,6 +42,8 @@ Use these files for local context after reading the global rules:
 - Apple layer: `apple/README.md`
 - iOS: `apple/ios/README.md`
 - macOS: `apple/macos/README.md`
+- Android: `android/README.md`
+- Windows: `windows/README.md`
 - backend: `backend/README.md`
 
 ## Purpose of this file

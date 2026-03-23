@@ -34,3 +34,7 @@ Key canonical architecture documents currently include:
 - `docs/MVP_APP_STRUCTURE.md`
 - `docs/TYPES_AND_CONTRACTS.md`
 - `docs/SYNC_RULES.md`
+
+Mandatory for placement decisions:
+
+- `docs/ARCHITECTURE.md#Global Artifact Classification Workflow`

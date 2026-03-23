@@ -2,7 +2,7 @@
 
 ## Goal
 
-Define the canonical global data model, relationships, and typed boundary rules for the project.
+Define the canonical global data model, relationships, and typed boundary rules for Altis.
 
 This file is the source of truth for:
 
@@ -16,9 +16,9 @@ This file is the source of truth for:
 ## Global typing rule
 
 - Domain meaning MUST be defined globally before platform implementation diverges.
-- Canonical entities and relationships MUST be documented here before agents introduce app-local variants.
+- Canonical entities and relationships MUST be documented here before app-local variants appear.
 - UI models, local persistence models, and transport contracts MUST remain typed and explicitly separated.
-- Platform code MAY introduce local models, but those models MUST map back to the canonical entities and relationships defined here.
+- Board mode MUST be explicit on `Board` and respected by related persistence and transport boundaries.
 
 ## Canonical entities
 
@@ -44,7 +44,6 @@ Required fields:
 - `name`
 - `createdAt`
 - `updatedAt`
-- `syncMetadata`
 
 ### Board
 
@@ -55,10 +54,20 @@ Required fields:
 - `boardId`
 - `workspaceId`
 - `projectId`
+- `mode`
 - `name`
 - `createdAt`
 - `updatedAt`
-- `syncMetadata`
+
+`mode` MUST be one of:
+
+- `offline`
+- `online`
+
+`projectId` rule:
+
+- `projectId` is a client-owned grouping reference in the current phase.
+- For online boards, `projectId` remains part of the canonical client model but is not a backend-owned entity contract unless a later decision documents that promotion.
 
 ### BoardStage
 
@@ -73,7 +82,6 @@ Required fields:
 - `kind`
 - `createdAt`
 - `updatedAt`
-- `syncMetadata`
 
 `kind` MUST be one of:
 
@@ -83,7 +91,7 @@ Required fields:
 
 ### BoardStagePreset
 
-Workspace-level reusable stage definition set for creating boards.
+Reusable stage definition set for creating boards.
 
 Required fields:
 
@@ -92,7 +100,6 @@ Required fields:
 - `name`
 - `createdAt`
 - `updatedAt`
-- `syncMetadata`
 
 ### BoardStagePresetStage
 
@@ -105,8 +112,6 @@ Required fields:
 - `name`
 - `orderIndex`
 - `kind`
-
-`kind` MUST use the same enum as `BoardStage`.
 
 ### Task
 
@@ -123,10 +128,8 @@ Required fields:
 - `status`
 - `createdAt`
 - `updatedAt`
-- `lastModifiedAt`
-- `syncMetadata`
 
-`status` SHOULD remain compatible with board workflow and terminal outcomes. If the task belongs to a staged board, terminal completion state MUST align with the terminal stage rather than diverging from it.
+`status` SHOULD remain compatible with board workflow and terminal outcomes.
 
 ### TaskFilter
 
@@ -140,24 +143,27 @@ Required fields:
 - `definition`
 - `createdAt`
 - `updatedAt`
-- `syncMetadata`
 
-### SyncMetadata
+### BoardMode
 
-Explicit local and remote synchronization metadata.
+Explicit domain value that defines data authority.
 
-Required fields:
+Values:
 
-- `syncState`
-- `lastSyncedAt?`
-- `remoteVersion?`
-- `localRevision`
-- `isDirty`
+- `offline`
+- `online`
+
+Rules:
+
+- `offline` means the board and its board-owned entities are stored locally.
+- `online` means the board and its board-owned entities are served through backend APIs.
+- Board mode MUST NOT be inferred from connectivity.
 
 ## Required relationships
 
 - one `Workspace` has many `Project`
 - one `Workspace` has many `BoardStagePreset`
+- one `Workspace` has many `TaskFilter`
 - one `Project` belongs to one `Workspace`
 - one `Project` has many `Board`
 - one `Project` has many `Task`
@@ -174,11 +180,19 @@ Required fields:
 
 ## Relationship constraints
 
-- A `Board` MUST belong to the same `Workspace` as its `Project`.
-- A `BoardStage` MUST belong to the same `Board` referenced by a task's `boardId` when `stageId` is present.
 - A `Task` with `stageId` MUST also have `boardId`.
 - A `Task` assigned to a `Board` MUST belong to the same `Project` as that `Board`.
-- A `BoardStagePreset` is workspace-level and MUST NOT belong directly to one board or one project.
+- A `BoardStage` inherits persistence and authority from its owning `Board`.
+- A `Task` assigned to a `Board` inherits persistence and authority from that `Board`.
+- `Project` is a client-owned grouping entity in the current phase.
+- For online boards and online board-scoped tasks, `projectId` remains a client-owned grouping reference unless a later contract makes projects backend-owned.
+- A `Task` without `boardId` is project-scoped and uses local client persistence in the current phase unless a later contract documents a backend-owned non-board task flow.
+- An `offline` board MUST NOT depend on backend-only identifiers or sync metadata.
+- An `online` board MUST NOT rely on local durable write acceptance while disconnected.
+- A `Project` may contain both offline and online boards.
+- A `Workspace` may contain both offline and online boards.
+- `BoardStagePreset` and `TaskFilter` are workspace-scoped support entities and are not independently typed by board mode.
+- `BoardStagePreset` and `TaskFilter` use local client persistence in the current phase unless a later contract explicitly promotes them to backend-owned online entities.
 - Board creation from a preset MUST copy preset stages into board-local `BoardStage` entities.
 
 ## Board stage invariants
@@ -197,7 +211,6 @@ Required fields:
 
 - Canonical entities MUST use explicit typed identifiers at the model layer.
 - Identifiers MUST NOT be represented as untyped positional values.
-- Platform code MAY wrap identifiers in stronger local types, but logical identity MUST remain stable across persistence and transport boundaries.
 
 Recommended identifier names:
 
@@ -215,8 +228,8 @@ Recommended identifier names:
 The project distinguishes these model classes:
 
 - `Domain model`: canonical business entity or value object
-- `Persistence record`: SQLite-facing local storage representation
-- `Transport contract`: backend-facing payload shape
+- `Persistence record`: local storage representation
+- `Transport contract`: backend payload shape
 - `UI projection`: read model optimized for rendering
 - `Feature state`: event-driven state owned by one feature flow
 
@@ -225,12 +238,13 @@ Rules:
 - Domain models MUST NOT be raw transport DTOs.
 - UI projections MUST NOT be raw persistence records.
 - Feature state MUST NOT become the de facto domain model.
-- Persistence records MAY carry storage and sync metadata not exposed to UI projections.
-- Transport contracts MAY omit local-only fields such as outbox metadata.
+- Offline persistence records MUST NOT carry fake sync or outbox fields.
+- Transport contracts exist only for online boards and related online entities that are explicitly backend-owned.
+- Client-owned grouping references such as `projectId` MAY remain in client models without becoming backend-owned entities.
 
 ## UI projection rule
 
-UI-facing projections SHOULD be explicit for the first vertical slice.
+UI-facing projections SHOULD be explicit for the first vertical slices.
 
 Recommended projections:
 
@@ -244,33 +258,17 @@ Recommended projections:
 
 These are projections, not canonical entities.
 
-## Sync typing rule
+## Persistence typing rule
 
-- Synchronization metadata MUST be represented explicitly in typed models.
-- Outbox intents or pending operations MUST use explicit typed records.
-- CRUD entities MAY synchronize current state plus version metadata.
-- Ledger-like entities MUST use explicit operation records and confirmed-operation projections.
+- Offline boards MUST use explicit local persistence records.
+- Online boards MAY use ephemeral caches or transport mappers, but those are not the durable source of truth.
+- SQLite records on Apple platforms MUST preserve canonical identifiers and board mode explicitly.
+- Workspace-scoped presets and filters use local persistence in the current phase.
 
-## Apple local model rule
+## Transport typing rule
 
-- Apple local persistence uses SQLite-backed storage.
-- SQLite records MUST preserve canonical identifiers and sync metadata explicitly.
-- Platform-specific convenience wrappers MAY exist, but the stored schema MUST still reflect the canonical entities and relationships defined here.
-
-## First vertical slice minimum typed set
-
-The macOS-first vertical slice MUST at least define typed models for:
-
-- `Workspace`
-- `Project`
-- `Board`
-- `BoardStage`
-- `BoardStagePreset`
-- `BoardStagePresetStage`
-- `Task`
-- `SyncMetadata`
-
-## Documentation maintenance rule
-
-- If implementation changes entity meaning, required fields, cardinality, or invariants, update this file in the same change.
-- If a new canonical entity is introduced, document it here before treating it as reusable architecture.
+- Backend transport contracts MUST model only online boards and related backend-owned online entities.
+- Offline boards MUST NOT be represented as a syncable transport entity class.
+- Workspace-scoped presets and filters MUST NOT be treated as backend-owned unless that contract is documented separately.
+- Client-owned grouping references such as `projectId` MUST NOT be treated as proof that `Project` is backend-owned.
+- OpenAPI-first contracts remain the preferred backend-client boundary.

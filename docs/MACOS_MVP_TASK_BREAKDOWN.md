@@ -2,9 +2,13 @@
 
 ## Purpose
 
-This file is a working execution checklist for the first macOS vertical slice.
+This file is the working execution checklist for the first macOS vertical slice.
 
-Use it as the operational task list for coding agents.
+It now tracks the transition from the previous offline-first sync plan to the new architecture:
+
+- `offline` boards are local-only
+- `online` boards are backend-only
+- there is no sync layer between them
 
 Rules:
 
@@ -22,40 +26,22 @@ Canonical references:
 - `docs/SYNC_RULES.md`
 - `docs/DEVELOPMENT_RULES.md`
 
+## Transition framing
+
+The repository already contains work done under the old sync-based plan.
+
+That work must now be sorted into three buckets:
+
+- keep: still valid under the new board-mode architecture
+- migrate: structurally useful but carries sync assumptions that must be removed
+- drop: artifacts or tasks that only existed to support sync
+
 ## Phase 0. Bootstrap
 
 - [x] Confirm active scope is macOS only
 - [x] Confirm `Home` stays placeholder-only
-- [x] Confirm no backend sync, auth, realtime push, widgets, or permissions are included
-- [x] Confirm SQLite-backed local persistence is the Apple local storage baseline
-
-### Phase 0 Review Tasks
-
-- [x] Align `tooling/scripts/bootstrap_apple_xcode_projects.rb` with macOS-only scope for this phase (do not generate iOS by default during Phase 0)
-- [x] Remove or isolate iOS bootstrap artifacts from Phase 0 delivery (`apple/ios/AltisIOS.xcodeproj`, `apple/ios/App/AltisIOSApp.swift`, `apple/ios/App/RootView.swift`, `apple/ios/Tests/AltisIOSTests.swift`)
-- [x] Add explicit validation note for Phase 0 acceptance in this file (what was verified, when, and by which command or manual check)
-
-### Phase 0 Validation Record
-
-Verified: 2026-03-22
-
-**Scope confirmation** — manual review of `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/MVP_APP_STRUCTURE.md`:
-- Active scope confirmed as macOS-only vertical slice
-- `Home` confirmed as placeholder-only with no live data
-- Backend sync, auth, realtime push, widgets, and permissions confirmed out of scope
-- SQLite-backed local persistence confirmed as the Apple local storage baseline
-
-**Bootstrap script** — `tooling/scripts/bootstrap_apple_xcode_projects.rb`:
-- Added `--platform` flag; default is now `macos` (Phase 0 safe)
-- iOS generation requires explicit `--platform=ios` or `--platform=all`
-
-**iOS artifact isolation** — manual `mv` + `rm`:
-- `apple/ios/AltisIOS.xcodeproj` — deleted (regenerable via `--platform=ios`)
-- `apple/ios/App/AltisIOSApp.swift` → `apple/ios/_phase0_deferred/App/`
-- `apple/ios/App/RootView.swift` → `apple/ios/_phase0_deferred/App/`
-- `apple/ios/Tests/AltisIOSTests.swift` → `apple/ios/_phase0_deferred/Tests/`
-
-**macOS project** — verified present and unmodified at `apple/macos/AltisMacOS.xcodeproj`
+- [x] Confirm no backend sync, auth, realtime push, widgets, or permissions are included in the first local vertical slice
+- [x] Confirm SQLite-backed local persistence is the Apple local storage baseline for offline boards
 
 ## Phase 1. App Structure
 
@@ -67,118 +53,92 @@ Verified: 2026-03-22
 - [x] Create `apple/macos/App/Features/TaskList/`
 - [x] Create `apple/macos/App/Features/KanbanBoard/`
 - [x] Create `apple/macos/App/Features/TaskPage/`
-- [x] Create feature-local `Page/`, `Components/`, `State/`, and `Utilities/` directories only where needed
 - [x] Keep all new UI code at `platform app` level unless real shared reuse is proven
 
-### Phase 1 Validation Record
+## Phase 2. Domain Migration
 
-Verified: 2026-03-22
+### Keep from existing work
 
-**Directory structure created** — all directories added under `apple/macos/App/`:
-- `Shell/` — `AppShell.swift` (structural `NavigationSplitView` shell, placeholder sidebar + detail)
-- `Navigation/` — `AppRoute.swift` (typed `AppRoute` enum, placeholder for Phase 4 expansion)
-- `Features/Home/Page/` — `HomePageView.swift` (placeholder `ContentUnavailableView`)
-- `Features/Home/State/` — `HomeFeatureState.swift` (empty struct, no live data per Phase 5 constraint)
-- `Features/Project/Page/` — `ProjectPageView.swift`
-- `Features/Project/State/` — `ProjectFeatureState.swift`
-- `Features/Board/Page/` — `BoardPageView.swift`
-- `Features/Board/State/` — `BoardFeatureState.swift`
-- `Features/TaskList/Page/` — `TaskListPageView.swift`
-- `Features/TaskList/State/` — `TaskListFeatureState.swift`
-- `Features/KanbanBoard/Page/` — `KanbanBoardPageView.swift`
-- `Features/KanbanBoard/State/` — `KanbanBoardFeatureState.swift`
-- `Features/TaskPage/Page/` — `TaskPageView.swift`
-- `Features/TaskPage/State/` — `TaskPageFeatureState.swift`
+- [x] Typed identifier strategy exists
+- [x] `Workspace`, `Project`, `Board`, `BoardStage`, `BoardStagePreset`, `BoardStagePresetStage`, and `Task` structures exist
+- [x] Board-stage invariants are already modeled
 
-**Ownership** — all files at `platform app` level (`apple/macos`), no shared promotion.
+### Migrate now
 
-**Wiring** — `RootView` updated to render `AppShell`. `AltisMacOSApp` entry point unchanged.
+- [ ] Add explicit `BoardMode` or equivalent typed discriminator to `Board`
+- [ ] Migrate Swift domain models under `apple/macos/App/Models/Domain/` to the board-mode contract
+- [ ] Remove `SyncMetadata` from macOS domain models
+- [ ] Remove `lastModifiedAt` if it only exists for sync semantics
+- [ ] Ensure board-owned entities derive storage authority from their owning board rather than carrying their own mode
+- [ ] Re-check stage/task invariants against the board-mode model
 
-**Build** — project built successfully with zero errors after all changes.
+### Drop from active scope
 
-## Phase 2. Typed Models
+- [ ] Delete or isolate model code whose only responsibility is sync state tracking
 
-- [x] Implement typed identifier strategy for canonical entities
-- [x] Implement `Workspace`
-- [x] Implement `Project`
-- [x] Implement `Board`
-- [x] Implement `BoardStage`
-- [x] Implement `BoardStagePreset`
-- [x] Implement `BoardStagePresetStage`
-- [x] Implement `Task`
-- [x] Implement `SyncMetadata`
-- [x] Encode board-stage invariants in model or domain validation
+## Phase 3. Persistence And Data Boundaries Migration
 
-### Phase 2 Validation Record
+### Keep from existing work
 
-Verified: 2026-03-22
+- [x] Local record and projection structure exists for a local board path
+- [x] Projection-first local read APIs were already started
 
-**Files created** — all under `apple/macos/App/Models/Domain/`:
-- `EntityID.swift` — phantom-tagged `EntityID<Tag>` struct; `RawRepresentable`, `Hashable`, `Codable`, `Sendable`; typed aliases for all canonical identifiers (`WorkspaceID`, `ProjectID`, `BoardID`, `BoardStageID`, `BoardStagePresetID`, `BoardStagePresetStageID`, `TaskID`, `TaskFilterID`)
-- `SyncMetadata.swift` — `SyncMetadata` struct with `syncState`, `lastSyncedAt`, `remoteVersion`, `localRevision`, `isDirty`; `SyncState` enum (`pendingUpload`, `synced`, `locallyModified`, `pendingDeletion`, `syncError`)
-- `Workspace.swift` — `Workspace` with `workspaceId`, `name`, `createdAt`, `updatedAt`
-- `Project.swift` — `Project` with `projectId`, `workspaceId`, `name`, `createdAt`, `updatedAt`, `syncMetadata`
-- `Board.swift` — `Board` with `boardId`, `workspaceId`, `projectId`, `name`, `createdAt`, `updatedAt`, `syncMetadata`
-- `BoardStage.swift` — `BoardStage` with `stageId`, `boardId`, `name`, `orderIndex`, `kind`, `createdAt`, `updatedAt`, `syncMetadata`; `BoardStageKind` enum (`regular`, `terminalSuccess`, `terminalFailure`); `isTerminal` computed property
-- `BoardStagePreset.swift` — `BoardStagePreset` and `BoardStagePresetStage`; reuses `BoardStageKind`; `BoardStagePresetStage` carries no `syncMetadata` (preset-stage definitions are sub-entities of the preset)
-- `Task.swift` — `Task` with all canonical fields; `TaskStatus` enum (`open`, `completed`, `failed`) aligned with terminal stage outcomes
-- `BoardStageInvariants.swift` — stateless `BoardStageInvariants` validator returning `Result<Void, Violation>`; validates stage count ≥ 3, exactly one `terminalSuccess`, exactly one `terminalFailure`, at least one `regular`; `canDelete(stage:from:)` blocks terminal-stage deletion
+### Migrate now
 
-**Build** — project built successfully with zero errors after all changes.
+- [ ] Reclassify current SQLite persistence as `offline board` persistence only
+- [ ] Migrate Swift persistence records and store contracts under `apple/macos/App/Models/Persistence/` to the board-mode contract
+- [ ] Remove sync and outbox assumptions from local persistence contracts
+- [ ] Remove sync columns from local records
+- [ ] Keep typed local projections for offline boards
+- [ ] Define a separate online gateway or service contract for online boards
+- [ ] Ensure online board-owned entities are fetched through online board services rather than local durable storage
+- [ ] Ensure offline persistence contracts live in `shared/persistence/`
+- [ ] Ensure online transport contracts live in `shared/contracts/`
 
-**Placement** — all files at `platform app` level (`apple/macos`). Promotion to `apple/shared` or `shared/domain` deferred until iOS becomes an active consumer.
+### Drop from active scope
 
-## Phase 3. Persistence
+- [ ] Delete or isolate any persistence abstraction that exists only for outbox, sync intent, retry, reconciliation, or version replacement
 
-- [ ] Define SQLite-backed local persistence interfaces in `shared/persistence/`
-- [ ] Define persistence records for `Project`
-- [ ] Define persistence records for `Board`
-- [ ] Define persistence records for `BoardStage`
-- [ ] Define persistence records for `BoardStagePreset`
-- [ ] Define persistence records for `Task`
-- [ ] Define local sync metadata persistence shape
-- [ ] Define local-first write path contract
-- [ ] Ensure UI read models come from local persistence-backed projections
+## Phase 4. Feature Flow Split
 
-## Phase 4. Application Layer
-
-- [ ] Define feature flow contract for `Home`
+- [ ] Define feature flow contract for `Home` in the offline-first executable slice
 - [ ] Define feature flow contract for `Project`
-- [ ] Define feature flow contract for `Board`
-- [ ] Define feature flow contract for `TaskList`
-- [ ] Define feature flow contract for `KanbanBoard`
-- [ ] Define feature flow contract for `TaskPage`
-- [ ] Define isolated data worker or service interfaces for persistence access
-- [ ] Define typed events for user intents
-- [ ] Define typed state for each feature
-- [ ] Ensure initial data ingress and later updates enter the same flow structure
+- [ ] Define feature flow contract for offline `Board`
+- [ ] Define feature flow contract for offline `TaskList`
+- [ ] Define feature flow contract for offline `KanbanBoard`
+- [ ] Define feature flow contract for offline `TaskPage`
+- [ ] Define separate online feature flow contracts or routing points where online mode will later attach
+- [ ] Define isolated data worker interfaces for offline local persistence
+- [ ] Define isolated data worker interfaces for online transport
+- [ ] Ensure board mode routes board-specific features into the correct data authority without creating a separate top-level shell
 
-## Phase 5. Home
+## Phase 5. Offline Vertical Slice First
+
+This remains the first executable macOS slice.
 
 - [ ] Implement placeholder-only `HomeShell`
-- [ ] Add placeholder entry point for dashboards
-- [ ] Add placeholder entry point for projects
-- [ ] Add placeholder entry point for boards
-- [ ] Ensure `Home` does not load live project, board, task, or dashboard data
+- [ ] Keep `Home` structurally unchanged while board mode remains a board property
+- [ ] Ensure `Home` does not load live online board data in the first slice
 
 ## Phase 6. Project Flow
 
 - [ ] Implement create project flow
 - [ ] Implement project list projection
-- [ ] Implement navigation from `Home` into project-related flow
 - [ ] Persist created projects locally
 
-## Phase 7. Board Flow
+## Phase 7. Offline Board Flow
 
-- [ ] Implement create board flow
-- [ ] Implement create board from preset copy
+- [ ] Implement create offline board flow
+- [ ] Implement create offline board from preset copy
+- [ ] Add board mode choice to board creation flow without introducing a separate offline/online app branch
+- [ ] Ensure board creation records `mode = offline`
 - [ ] Ensure board creation always results in at least three stages
 - [ ] Ensure exactly one terminal success stage exists
 - [ ] Ensure exactly one terminal failure stage exists
-- [ ] Implement board list projection
-- [ ] Persist created boards locally
+- [ ] Implement offline board list projection
+- [ ] Persist created offline boards locally
 
-## Phase 8. Board Stage Management
+## Phase 8. Offline Board Stage Management
 
 - [ ] Implement add stage to end
 - [ ] Implement rename stage
@@ -188,35 +148,35 @@ Verified: 2026-03-22
 - [ ] Allow rename of terminal stages
 - [ ] Persist stage order changes locally
 
-## Phase 9. Task Creation And Detail
+## Phase 9. Offline Task Creation And Detail
 
-- [ ] Implement create task flow
+- [ ] Implement create offline task flow
 - [ ] Assign task to project
 - [ ] Assign task to board when board context is active
 - [ ] Assign task to stage when board workflow is active
-- [ ] Implement `TaskPage`
+- [ ] Implement offline `TaskPage`
 - [ ] Show current stage in task detail
 - [ ] Show compact stage progress line in task detail
-- [ ] Persist tasks locally
+- [ ] Persist offline tasks locally
 
-## Phase 10. Task List
+## Phase 10. Offline Task List
 
-- [ ] Implement `TaskList` page
+- [ ] Implement offline `TaskList` page
 - [ ] Show task title
 - [ ] Show current stage in list mode
 - [ ] Support opening `TaskPage` from list
-- [ ] Ensure list reads from local typed projections only
+- [ ] Ensure list reads from offline local typed projections only
 
-## Phase 11. Kanban
+## Phase 11. Offline Kanban
 
-- [ ] Implement `KanbanBoard` page
+- [ ] Implement offline `KanbanBoard` page
 - [ ] Group tasks by current stage
 - [ ] Render stage columns in order
 - [ ] Render task cards with compact stage-progress line
 - [ ] Support opening `TaskPage` from kanban card
-- [ ] Ensure kanban reads from local typed projections only
+- [ ] Ensure kanban reads from offline local typed projections only
 
-## Phase 12. Drag And Drop
+## Phase 12. Offline Drag And Drop
 
 - [ ] Implement drag source for task cards
 - [ ] Implement drop target for stage columns
@@ -224,7 +184,7 @@ Verified: 2026-03-22
 - [ ] Persist stage movement locally
 - [ ] Re-render list, task detail, and kanban from updated local projections
 
-## Phase 13. Terminal Actions
+## Phase 13. Offline Terminal Actions
 
 - [ ] Add complete action on task card
 - [ ] Add fail action on task card
@@ -234,7 +194,26 @@ Verified: 2026-03-22
 - [ ] Move task into terminal failure stage on fail
 - [ ] Ensure terminal actions stay consistent across list, card, and detail projections
 
-## Phase 14. Validation
+## Phase 14. Online Architecture Stub
+
+This phase is about making the online path architecturally ready without pretending sync exists.
+
+- [ ] Define online board API client boundary
+- [ ] Define online board read models
+- [ ] Define online board write models
+- [ ] Define auth gate for online boards
+- [ ] Define unavailable/offline state for online boards when network is missing
+- [ ] Ensure no online feature falls back to local durable writes
+
+## Phase 15. Cleanup Of Old Sync Direction
+
+- [ ] Remove or rename files, types, comments, and tests that still describe sync/outbox/reconciliation architecture
+- [ ] Remove outdated references to `lastModifiedAt` and latest-version replacement where they no longer apply
+- [ ] Update Swift tests to match the board-mode contract and remove sync-era assertions
+- [ ] Update README files that still describe offline-first sync
+- [ ] Confirm backend/API docs describe online boards only
+
+## Phase 16. Validation
 
 - [ ] Run fast diagnostics for touched Swift files
 - [ ] Build the macOS project when buildable
@@ -242,26 +221,28 @@ Verified: 2026-03-22
 - [ ] Fix actionable warnings that reflect real issues
 - [ ] Document any validation limitation if full build cannot run
 
-## Phase 15. Documentation Sync
+## Phase 17. Documentation Sync
 
 - [ ] Update canonical docs if model meanings changed
 - [ ] Update canonical docs if flow boundaries changed
 - [ ] Update canonical docs if persistence conventions changed
-- [ ] Update canonical docs if a component moved to a wider ownership level
+- [ ] Update canonical docs if online API boundaries changed
 - [ ] Mark completed tasks in this file
 
-## Definition Of Done For First Vertical Slice
+## Definition Of Done For First Executable Vertical Slice
+
+The first executable slice is now offline-only.
 
 - [ ] `Home` opens as placeholder-only landing hub
 - [ ] User can create a project
-- [ ] User can create a board
-- [ ] User can create a board from preset copy
+- [ ] User can create an offline board
+- [ ] User can create an offline board from preset copy
 - [ ] Board preserves valid stage invariants
-- [ ] User can create a task
+- [ ] User can create an offline task
 - [ ] List shows current stage
 - [ ] Kanban groups tasks by stage
 - [ ] Drag-and-drop moves tasks between stage columns
 - [ ] Complete moves a task to terminal success stage
 - [ ] Fail moves a task to terminal failure stage
-- [ ] Local state survives restart
+- [ ] Offline local state survives restart
 - [ ] Relevant docs remain in sync with implementation

@@ -14,11 +14,8 @@ The first backend project lives in `backend/api-nest/`.
 - `auth`
 - `profile`
 - `tasks`
-- `task-filters`
-- `projects`
 - `boards`
 - `settings`
-- `realtime`
 - `health`
 
 ## Responsibilities
@@ -36,36 +33,20 @@ The first backend project lives in `backend/api-nest/`.
 
 ### `tasks`
 
-- task CRUD
-- task sync
+- task CRUD for online boards only
 - task detail payloads
-- task links to project, board, and stage identities
-
-### `task-filters`
-
-- persisted filter definitions
-- widget-compatible filter payloads
-
-### `projects`
-
-- project CRUD
-- project scoping for task queries
+- task links to board and stage identities
+- optional client grouping references may be echoed or mapped, but they do not make those groupings backend-owned by default
 
 ### `boards`
 
-- board CRUD
+- online board CRUD
 - board stage CRUD
-- board stage preset support
 - board-oriented task responses
 
 ### `settings`
 
 - server-backed user settings when required
-
-### `realtime`
-
-- live invalidation or live update entry
-- collaboration event delivery
 
 ### `health`
 
@@ -75,3 +56,8 @@ The first backend project lives in `backend/api-nest/`.
 
 - Prisma models are backend internals.
 - Shared contracts must remain transport-oriented and must not expose Prisma-generated types directly.
+- Backend APIs represent only online boards and related backend-owned online entities.
+- Offline boards do not belong to the backend architecture in the current phase.
+- Projects are not backend-owned by default in the current phase.
+- Workspace-scoped filters and stage presets are not backend-owned by default in the current phase.
+- Client grouping references such as `projectId` do not by themselves create backend ownership.

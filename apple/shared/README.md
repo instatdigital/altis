@@ -2,6 +2,17 @@
 
 Apple-only shared code for iOS and macOS lives here.
 
+## Agent Context (Canonical Docs)
+
+Before implementation work in `apple/shared`, load:
+
+- `../../AGENTS.md`
+- `../../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
+- `../../docs/TYPES_AND_CONTRACTS.md`
+- `../../docs/SYNC_RULES.md`
+- `../../docs/DEVELOPMENT_RULES.md`
+- `../README.md`
+
 ## Intended responsibilities
 
 - Apple framework adapters reused by both apps

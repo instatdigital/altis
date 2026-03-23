@@ -7,7 +7,7 @@ Cross-platform shared logic and contracts live here.
 - `contracts/` transport-facing contracts
 - `domain/` business concepts and rules
 - `application/` use-case orchestration
-- `persistence/` local storage abstractions and sync-facing persistence rules
+- `persistence/` offline local storage abstractions and local projection rules
 
 ## Rule
 

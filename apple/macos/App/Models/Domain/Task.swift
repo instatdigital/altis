@@ -75,7 +75,7 @@ struct Task: Hashable, Codable, Sendable {
 ///
 /// When a task belongs to a staged board, transitions to `completed` or `failed`
 /// MUST also move the task into the corresponding terminal `BoardStage`.
-enum TaskStatus: String, Hashable, Codable, Sendable {
+enum TaskStatus: String, Hashable, Codable, Sendable, CaseIterable {
     /// Task is active and not yet resolved.
     case open
     /// Task was completed successfully. Aligns with `BoardStageKind.terminalSuccess`.

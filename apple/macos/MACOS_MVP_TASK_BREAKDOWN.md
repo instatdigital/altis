@@ -9,11 +9,13 @@ Canonical source of truth:
 Required global context before execution:
 
 - `../../AGENTS.md`
-- `../../docs/ARCHITECTURE.md`
+- `../../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
 - `../../docs/MVP_APP_STRUCTURE.md`
 - `../../docs/TYPES_AND_CONTRACTS.md`
 - `../../docs/SYNC_RULES.md`
 - `../../docs/DEVELOPMENT_RULES.md`
 - `../../docs/PROJECT_SETUP.md`
+- `../README.md`
+- `README.md`
 
 Open the canonical file for task tracking and checkbox updates.

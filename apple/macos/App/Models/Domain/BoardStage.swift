@@ -63,7 +63,7 @@ struct BoardStage: Hashable, Codable, Sendable {
 ///
 /// Every board must have exactly one `terminalSuccess` and one `terminalFailure` stage.
 /// All other stages are `regular`.
-enum BoardStageKind: String, Hashable, Codable, Sendable {
+enum BoardStageKind: String, Hashable, Codable, Sendable, CaseIterable {
     /// An ordinary in-progress stage. Multiple regular stages per board are allowed.
     case regular
     /// The unique terminal stage reached when a task is completed successfully.

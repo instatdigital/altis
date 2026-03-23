@@ -41,7 +41,7 @@ struct SyncMetadata: Hashable, Codable, Sendable {
 // MARK: - SyncState
 
 /// Observable states of a single entity relative to the backend.
-enum SyncState: String, Hashable, Codable, Sendable {
+enum SyncState: String, Hashable, Codable, Sendable, CaseIterable {
     /// Entity was created locally and has never been sent to the backend.
     case pendingUpload
     /// Entity is in sync with the backend and has no local changes.
