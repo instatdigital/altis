@@ -1,6 +1,14 @@
 import Foundation
 
-/// Feature state for Project. Placeholder — extended in Phase 4 and Phase 6.
+/// Render state owned by `ProjectFeatureFlow`.
 struct ProjectFeatureState {
-    // Populated when project flow is implemented.
+
+    /// Typed projections shown in the project list. Empty until Phase 6 loads data.
+    var projects: [ProjectListItemProjection] = []
+
+    /// `true` while a load or save is in progress.
+    var isLoading: Bool = false
+
+    /// Non-nil when the last persistence operation produced an error.
+    var errorMessage: String? = nil
 }

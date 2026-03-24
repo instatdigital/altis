@@ -214,6 +214,14 @@ Apple local persistence direction:
 - Projects remain client-owned and locally persisted in the current phase.
 - Workspace-scoped filters and stage presets remain locally persisted support entities in the current phase.
 
+Apple transport contract placement:
+
+- `shared/contracts/` is the canonical documentation source and cross-platform reference for transport contract definitions.
+- `shared/contracts/` is a plain monorepo directory, not a Swift Package. Apple Xcode targets cannot consume it directly.
+- Each Apple platform app MUST declare its own copy of the transport contract inside its app target (e.g. `App/Models/Contracts/`) and keep it structurally in sync with `shared/contracts/`.
+- The app-local copy is the active Xcode build input; `shared/contracts/` is the canonical specification.
+- When either copy is updated, the other MUST be updated in the same change to prevent divergence.
+
 ## App feature structure
 
 Recommended app-local directories:
@@ -261,7 +269,7 @@ Use stable paths for common artifact types:
 
 - shared assets, images, icons, and theme-dependent resources -> `common/assets/`
 - backend services, Nest modules, Prisma schema, and backend project config -> `backend/`
-- transport contracts and backend-facing API schemas -> `shared/contracts/`
+- transport contracts and backend-facing API schemas -> `shared/contracts/` (canonical spec; see "Apple transport contract placement" below for Xcode build-input mirror rule)
 - shared domain models and rules -> `shared/domain/`
 - shared use-case orchestration -> `shared/application/`
 - shared local persistence contracts and store abstractions -> `shared/persistence/`
@@ -293,7 +301,7 @@ Artifact type classification:
 
 - `domain entity/rule/value object` -> `shared/domain/`
 - `application orchestration/use-case` -> `shared/application/`
-- `transport contract/API schema` -> `shared/contracts/`
+- `transport contract/API schema` -> `shared/contracts/` as the canonical specification; for Apple Xcode targets, follow the `Apple transport contract placement` mirror rule and keep the matching app-local build-input copy in `App/Models/Contracts/` in sync in the same change
 - `shared persistence contract/local store abstraction` -> `shared/persistence/`
 - `apple-only shared wrapper/integration` -> `apple/shared/`
 - `platform app UI/shell/feature state/platform adapter` -> platform app directory
@@ -342,6 +350,9 @@ Flow rules:
 - UI-facing components MUST NOT call transport clients directly.
 - Offline boards MUST render from local typed projections.
 - Online boards MUST render from feature-owned online state or explicit online read models, not raw transport payloads.
+- A feature MUST NOT emit unavailable, blocked, or reconnect-required state unless the flow has enough evidence that the relevant online path was actually required and could not be used.
+- If a canonical surface may legally contain both offline and online entities, the feature contract MUST define a real success path for each represented authority or explicitly document why one authority is out of scope for that phase.
+- A placeholder gateway or routing point does not by itself satisfy a feature-flow contract; the contract is only coherent when matching state and event paths exist for both success and failure semantics that the phase claims to support.
 
 For board-mode rules, see `docs/SYNC_RULES.md`.
 

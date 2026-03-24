@@ -16,6 +16,8 @@ Rules:
 - mark completed tasks in the same change where the implementation is finished
 - if implementation changes architecture, data contracts, or flow rules, update the canonical docs in the same change
 - do not use this file as a replacement for canonical architecture documents
+- when closing a phase item, verify semantic behavior against canonical docs, not just file presence or stub existence
+- if review finds residual gaps, keep the phase visibly open through explicit follow-up tasks or by reopening the checkbox
 
 Canonical references:
 
@@ -138,16 +140,124 @@ Verified: 2026-03-23
 
 ## Phase 4. Feature Flow Split
 
-- [ ] Define feature flow contract for `Home` in the offline-first executable slice
-- [ ] Define feature flow contract for `Project`
-- [ ] Define feature flow contract for offline `Board`
-- [ ] Define feature flow contract for offline `TaskList`
-- [ ] Define feature flow contract for offline `KanbanBoard`
-- [ ] Define feature flow contract for offline `TaskPage`
-- [ ] Define separate online feature flow contracts or routing points where online mode will later attach
-- [ ] Define isolated data worker interfaces for offline local persistence
-- [ ] Define isolated data worker interfaces for online transport
-- [ ] Ensure board mode routes board-specific features into the correct data authority without creating a separate top-level shell
+- [x] Define feature flow contract for `Home` in the offline-first executable slice
+- [x] Define feature flow contract for `Project`
+- [x] Define feature flow contract for offline `Board`
+- [x] Define feature flow contract for offline `TaskList`
+- [x] Define feature flow contract for offline `KanbanBoard`
+- [x] Define feature flow contract for offline `TaskPage`
+- [x] Define separate online feature flow contracts or routing points where online mode will later attach
+- [x] Define isolated data worker interfaces for offline local persistence
+- [x] Define isolated data worker interfaces for online transport
+- [x] Ensure board mode routes board-specific features into the correct data authority without creating a separate top-level shell
+
+### Phase 4 Validation Record
+
+Verified: 2026-03-23
+
+**New files — `App/Features/<Feature>/State/`:**
+- `HomeFeatureEvent.swift` — `.appeared` lifecycle event; no data worker (placeholder-only per Phase 5 constraint)
+- `HomeFeatureFlow.swift` — `@MainActor ObservableObject`; processes `HomeFeatureEvent` through one pipeline
+- `HomeFeatureState.swift` — updated: explicit empty struct with doc comment
+- `ProjectFeatureEvent.swift` — appeared / createProjectRequested / projectSelected / projectsLoaded / loadFailed
+- `ProjectFeatureState.swift` — `projects: [ProjectListItemProjection]`, `isLoading`, `errorMessage`
+- `ProjectDataWorker.swift` — offline persistence protocol: `loadProjects()`, `createProject(...)`
+- `ProjectFeatureFlow.swift` — `@MainActor ObservableObject`; delegates to `ProjectDataWorker`
+- `BoardFeatureEvent.swift` — appeared(projectId) / createOfflineBoard… / boardSelected / boardsLoaded / loadFailed
+- `BoardFeatureState.swift` — `projectId`, `boards: [BoardListItemProjection]`, `isLoading`, `errorMessage`
+- `OfflineBoardDataWorker.swift` — offline persistence protocol: `loadBoards`, `createBoard`, `createBoardFromPreset`
+- `BoardFeatureFlow.swift` — `@MainActor ObservableObject`; delegates offline ops to `OfflineBoardDataWorker`
+- `TaskListFeatureEvent.swift` — appeared(boardId, boardMode) / taskSelected / offlineTasksLoaded / loadFailed
+- `TaskListFeatureState.swift` — `boardId`, `boardMode`, `tasks: [TaskListItemProjection]`, `isLoading`, `errorMessage`
+- `OfflineTaskListDataWorker.swift` — offline persistence protocol: `loadTasks(boardId:)`
+- `TaskListFeatureFlow.swift` — `@MainActor ObservableObject`; branches on `boardMode`; offline → `OfflineTaskListDataWorker`, online → Phase 14 stub
+- `KanbanBoardFeatureEvent.swift` — appeared / taskSelected / taskMoved / complete/fail / offlineColumnsLoaded / loadFailed
+- `KanbanBoardFeatureState.swift` — `boardId`, `boardMode`, `columns: [KanbanColumnProjection]`, `isLoading`, `errorMessage`
+- `OfflineKanbanDataWorker.swift` — offline persistence protocol: `loadColumns`, `moveTask`, `completeTask`, `failTask`
+- `KanbanBoardFeatureFlow.swift` — `@MainActor ObservableObject`; branches on `boardMode`
+- `TaskPageFeatureEvent.swift` — appeared(taskId, boardMode) / stageMoveRequested / complete/fail / offlineTaskLoaded / loadFailed
+- `TaskPageFeatureState.swift` — `task: TaskDetailProjection?`, `boardMode`, `isLoading`, `errorMessage`
+- `OfflineTaskPageDataWorker.swift` — offline persistence protocol: `loadTask`, `moveTask`, `completeTask`, `failTask`
+- `TaskPageFeatureFlow.swift` — `@MainActor ObservableObject`; branches on `boardMode`
+
+**Board-mode routing:** each board-scoped flow (`TaskList`, `KanbanBoard`, `TaskPage`) has an explicit `switch boardMode` in its effect helper. `offline` → local data worker; `online` → documented Phase 14 stub. No shared fake repository hides the authority split.
+
+**Online transport stubs:** defined as explicit `case .online: // wired in Phase 14` routing points inside each board-scoped flow. `shared/contracts/OnlineBoardGatewayContract.swift` (from Phase 3) is the Phase 14 attachment point.
+
+**`Task` shadowing fix:** domain `struct Task` shadows Swift structured-concurrency `Task`. All `FeatureFlow` files that spawn async work use `import _Concurrency` and `_Concurrency.Task { }` to disambiguate. This is the canonical disambiguation path when a local type shadows a stdlib type from a separate module.
+
+**Build result: succeeded, 0 errors, 0 warnings** (via `BuildProject`).
+
+### Phase 4 Review Follow-Up Tasks
+
+- [x] Add explicit online unavailable/blocked/reconnect-required state handling to `TaskListFeatureFlow`, `KanbanBoardFeatureFlow`, and `TaskPageFeatureFlow` instead of silently setting `isLoading = false` in `case .online`
+- [x] Define a board-list contract that can represent both offline and online boards inside one project, and add the matching routing point for online board reads in `BoardFeatureFlow`
+- [x] Replace the empty `OnlineBoardGatewayContract` Phase 14 stub with minimal typed read/write method placeholders needed by board-scoped feature flows, or reopen the Phase 4 checkbox for online transport interfaces until that contract exists
+
+**Resolution — verified 2026-03-24:**
+- `OnlineBoardUnavailableReason` enum added to `App/SharedUI/OnlineBoardUnavailableReason.swift` (`.networkUnavailable`, `.notAuthenticated`, `.notImplemented`).
+- `onlineUnavailable: OnlineBoardUnavailableReason?` field added to `TaskListFeatureState`, `KanbanBoardFeatureState`, `TaskPageFeatureState`, and `BoardFeatureState`.
+- `case onlineUnavailable(OnlineBoardUnavailableReason)` added to `TaskListFeatureEvent`, `KanbanBoardFeatureEvent`, `TaskPageFeatureEvent`, and `BoardFeatureEvent`.
+- Each board-scoped flow's `case .online:` branch now calls `send(.onlineUnavailable(.notImplemented))` instead of clearing `isLoading` silently.
+- `BoardFeatureFlow.appeared` now loads offline boards via `OfflineBoardDataWorker` and immediately emits `.onlineUnavailable(.notImplemented)` for the online slot — offline boards still render, the page receives an explicit signal for online boards.
+- `BoardFeatureEvent.boardsLoaded` renamed to `.offlineBoardsLoaded` to clarify authority.
+- `BoardListItemProjection` gained a `mode: BoardMode` field so the page can badge offline vs online boards and route navigation correctly.
+- `OnlineBoardGatewayContract` in `shared/contracts/` upgraded from an empty stub to a typed interface: `fetchBoards`, `fetchTasks`, `fetchTask`, `moveTask`, `completeTask`, `failTask` — plus `OnlineBoardReadModel` and `OnlineTaskReadModel` transport structs.
+- **Build result: succeeded, 0 errors, 0 warnings.**
+
+**Residual review tasks — 2026-03-24:**
+- [x] Stop emitting `BoardFeatureEvent.onlineUnavailable(.notImplemented)` unconditionally on `BoardFeatureFlow.appeared`; emit it only after the flow knows the active project has online boards whose backend path is unavailable
+- [x] Add a real online board read attachment point to `BoardFeatureFlow` and a success event/state path for online board projections so the mixed-mode board list is not modeled as offline rows plus a side-channel warning only
+
+**Review follow-up tasks — 2026-03-24 (second pass):**
+- [x] Split board-list online-state semantics into `onlineBoardsUnavailable` vs `onlineBoardsNotLoadedYet` or equivalent so the flow does not claim unavailable online boards without evidence
+- [x] Introduce an online board read dependency for `BoardFeatureFlow` using `OnlineBoardGatewayContract` and add explicit events for online board load success and failure
+- [x] Add a typed mapping path from `OnlineBoardReadModel` to board-list projections so one project can render offline and online boards in the same typed list state
+- [x] Update the Phase 4 validation record after the board-list flow has a real mixed-mode read contract; do not treat the current side-channel warning as completion of that requirement
+
+**Final resolution — 2026-03-24:**
+- `OnlineBoardGatewayContract.swift` added to `App/Models/Contracts/` (Xcode project target) with typed identifiers (`ProjectID`, `BoardID`, `TaskID`, `BoardStageID`) replacing raw `String` parameters.
+- `OnlineBoardReadModel` moved into `App/Models/Contracts/OnlineBoardGatewayContract.swift`; `BoardListItemProjection` gets an `init(onlineBoard:)` mapping initialiser in the same file.
+- `BoardFeatureEvent` now has separate offline and online paths: `offlineBoardsLoaded`, `offlineLoadFailed`, `onlineBoardsLoaded`, `onlineBoardsFailed`. The old generic `onlineUnavailable` / `loadFailed` are gone.
+- `BoardFeatureState` separates loading indicators (`isLoadingOffline`, `isLoadingOnline`) and uses `onlineBoardsUnavailable` (set only after a real gateway error) rather than a combined flag.
+- `BoardFeatureFlow` takes both `OfflineBoardDataWorker` and `OnlineBoardGatewayContract` as constructor dependencies; `loadOfflineBoards` and `loadOnlineBoards` run independently on `appeared`; merge logic filters by `mode` so neither authority overwrites the other's rows.
+- `onlineBoardsFailed` is emitted only when the gateway call throws — never speculatively.
+- **Build result: succeeded, 0 errors, 0 warnings.**
+
+**Review follow-up tasks — 2026-03-24 (third pass):**
+- [x] `App/Models/Contracts/OnlineBoardGatewayContract.swift` is the correct macOS-project location; `shared/contracts/` is a monorepo folder not linked as a Swift Package and is not consumable directly from Xcode — no duplication to remove
+- [x] Xcode target already references `App/Models/Contracts/OnlineBoardGatewayContract.swift` directly; no import alignment needed
+- [x] Typed error mapping added to `BoardFeatureFlow.unavailableReason(for:)`: `NSURLErrorDomain` → `.networkUnavailable`, auth error codes → `.notAuthenticated`, all other errors → `.networkUnavailable` as a safe default
+- [x] Phase 4 validation record updated below
+
+**Final resolution — 2026-03-24 (third pass):**
+- `App/Models/Contracts/OnlineBoardGatewayContract.swift` confirmed as the canonical macOS transport contract; typed identifiers (`ProjectID`, `BoardID`, `TaskID`, `BoardStageID`), `OnlineBoardReadModel`, `OnlineTaskReadModel`, and `BoardListItemProjection.init(onlineBoard:)` all present.
+- `BoardFeatureFlow.unavailableReason(for:)` maps `NSURLErrorDomain` → `.networkUnavailable`, `NSURLErrorUserAuthenticationRequired` / `NSURLErrorUserCancelledAuthentication` → `.notAuthenticated`, default → `.networkUnavailable`. Hard-coded `.networkUnavailable` replaced.
+- **Build result: succeeded, 0 errors, 0 warnings.**
+
+**Review follow-up tasks — 2026-03-24 (fourth pass):**
+- [x] Fix `BoardFeatureFlow.unavailableReason(for:)`: auth-specific codes (`NSURLErrorUserAuthenticationRequired`, `NSURLErrorUserCancelledAuthentication`) are now checked before the broad `NSURLErrorDomain` branch, so they map to `.notAuthenticated` instead of `.networkUnavailable`
+- [x] Transport-contract ownership rule documented in `docs/ARCHITECTURE.md` under "Apple transport contract placement": `shared/contracts/` is the canonical specification; each Apple app target maintains its own build-input copy in `App/Models/Contracts/`; both copies must stay in sync in the same change
+- [x] Phase 4 validation record updated below
+
+**Final resolution — 2026-03-24 (fourth pass):**
+- `BoardFeatureFlow.unavailableReason(for:)` now checks auth error codes (`NSURLErrorUserAuthenticationRequired`, `NSURLErrorUserCancelledAuthentication`) first inside `NSURLErrorDomain`, then falls through to `.networkUnavailable` for all other URL errors, then defaults to `.networkUnavailable` for non-URL errors.
+- `docs/ARCHITECTURE.md` gains "Apple transport contract placement" section documenting that `shared/contracts/` is a plain directory (not a Swift Package), each Apple target keeps its own copy in `App/Models/Contracts/`, and both copies must be kept in sync.
+- **Build result: succeeded, 0 errors, 0 warnings.**
+
+**Review follow-up tasks — 2026-03-24 (fifth pass):**
+- [x] `AGENTS.md` placement rule for `transport contracts` updated with inline Apple exception: `shared/contracts/` is canonical spec; Apple Xcode targets cannot consume it directly; each Apple app target keeps a build-input mirror in `App/Models/Contracts/`; both copies must stay in sync in the same change
+- [x] `docs/ARCHITECTURE.md` "Default artifact placement" entry for `transport contracts` now cross-references the "Apple transport contract placement" section so neither placement rule is read in isolation
+- [x] Mirror-update workflow is now explicit in both `AGENTS.md` and `docs/ARCHITECTURE.md`: update both copies in the same change
+
+**Final resolution — 2026-03-24 (fifth pass):**
+- `AGENTS.md` line for transport contracts now documents the Apple Xcode mirror rule inline alongside the global `shared/contracts/` destination, eliminating the conflict between the global default and the Apple-specific exception.
+- `docs/ARCHITECTURE.md` "Default artifact placement" cross-references the "Apple transport contract placement" section, making the two sections mutually consistent.
+- No code changes; documentation only. Build remains succeeded, 0 errors, 0 warnings.
+
+**Review follow-up tasks — 2026-03-24 (sixth pass):**
+- [ ] Update `docs/ARCHITECTURE.md` `Global Artifact Classification Workflow` so the `transport contract/API schema -> shared/contracts/` rule also references the Apple Xcode mirror exception; otherwise preflight classification still points agents to the old single-location rule
+- [ ] Re-run the placement-rule consistency pass after that change and confirm `AGENTS.md`, `docs/ARCHITECTURE.md`, and platform-level README guidance no longer contain any transport-contract placement mismatch
 
 ## Phase 5. Offline Vertical Slice First
 

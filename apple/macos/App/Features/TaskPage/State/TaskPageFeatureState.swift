@@ -1,6 +1,21 @@
 import Foundation
 
-/// Feature state for TaskPage. Placeholder — extended in Phase 4 and Phase 9.
+/// Render state owned by `TaskPageFeatureFlow`.
 struct TaskPageFeatureState {
-    // Populated when task page flow is implemented.
+
+    /// The task being viewed. `nil` before `appeared` is processed or while loading.
+    var task: TaskDetailProjection? = nil
+
+    /// Active board mode — determines which data authority is used.
+    var boardMode: BoardMode = .offline
+
+    /// `true` while a load or write is in progress.
+    var isLoading: Bool = false
+
+    /// Non-nil when the active board is online but unavailable.
+    /// Mutually exclusive with `errorMessage`.
+    var onlineUnavailable: OnlineBoardUnavailableReason? = nil
+
+    /// Non-nil when a local persistence operation produced an error.
+    var errorMessage: String? = nil
 }

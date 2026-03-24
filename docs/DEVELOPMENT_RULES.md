@@ -59,3 +59,12 @@
 - If a change alters repository, layer, placement, event-flow, or component boundaries, update `docs/ARCHITECTURE.md`.
 - If a change alters offline/online authority rules, local persistence scope, online API scope, or mode transition rules, update `docs/SYNC_RULES.md`.
 - Treat architecture, UX, or board-mode code changes without matching documentation updates as incomplete work.
+
+## Review gate for phase completion
+
+- Do not mark a phase item complete only because a type, stub, or file exists. Completion requires that the implemented semantics match the canonical docs.
+- Before closing a feature-flow task, compare the code against the relevant invariants in `docs/ARCHITECTURE.md`, `docs/TYPES_AND_CONTRACTS.md`, and `docs/SYNC_RULES.md`.
+- If a feature claims to support multiple authorities or modes, review both the success path and the failure/unavailable path for each claimed authority.
+- Do not emit unavailable, blocked, or reconnect-required UI state speculatively. That state must be triggered only when the flow has established that the online path is the required authority and is currently unusable.
+- If a project-, workspace-, or board-level surface is documented as mixed-mode, verify that the feature contract can represent all allowed entities on the read path. A warning-only side channel is not a substitute for a typed success path.
+- Validation records in task breakdown files MUST include any known residual gaps. If residual gaps remain, reopen the relevant checkbox or add explicit follow-up tasks in the same section instead of presenting the phase as fully closed.

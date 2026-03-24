@@ -1,6 +1,30 @@
 import Foundation
 
-/// Feature state for Board. Placeholder — extended in Phase 4 and Phase 7.
+/// Render state owned by `BoardFeatureFlow`.
+///
+/// A project may contain both offline and online boards. The flow loads each
+/// authority independently and merges results into `boards` as they arrive.
 struct BoardFeatureState {
-    // Populated when board flow is implemented.
+
+    /// The project whose boards are shown. `nil` before `appeared` is processed.
+    var projectId: ProjectID? = nil
+
+    /// All board projections for the active project, combining offline and online results.
+    /// Offline boards appear as soon as local persistence responds.
+    /// Online boards are appended when the gateway responds successfully.
+    var boards: [BoardListItemProjection] = []
+
+    /// `true` while the offline persistence load is in progress.
+    var isLoadingOffline: Bool = false
+
+    /// `true` while the online gateway load is in progress.
+    var isLoadingOnline: Bool = false
+
+    /// Non-nil when the online gateway call failed or the online path is known to be unavailable.
+    /// Set only after the gateway call has actually been attempted and returned an error.
+    /// `nil` while the online load is still in progress or has not been attempted.
+    var onlineBoardsUnavailable: OnlineBoardUnavailableReason? = nil
+
+    /// Non-nil when the offline persistence load produced an error.
+    var offlineErrorMessage: String? = nil
 }

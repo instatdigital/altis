@@ -169,7 +169,7 @@ Use these default destinations:
 - shared visual assets, icons, images, and theme resources: `common/assets/`
 - backend application modules and server infrastructure: `backend/`
 - cross-platform configs and shared static definitions: `shared/config/`
-- transport contracts and API-facing schemas: `shared/contracts/`
+- transport contracts and API-facing schemas: `shared/contracts/` (canonical specification and cross-platform reference; Apple Xcode targets cannot consume this directory directly because it is not a Swift Package — each Apple app target maintains a build-input mirror in `App/Models/Contracts/` that must stay structurally in sync with `shared/contracts/`; update both in the same change)
 - cross-platform domain entities and rules: `shared/domain/`
 - cross-platform use-case orchestration: `shared/application/`
 - persistence-facing shared contracts and local store abstractions: `shared/persistence/`

@@ -22,6 +22,25 @@
 		69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
 		6E88F0153003105FB189507C /* BoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999AE2D9BA9FE56362D93067 /* BoardPageView.swift */; };
 		AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E712F71965E003A7C2C /* BoardMode.swift */; };
+		AF163E742F719AC7003A7C2C /* HomeFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E732F719AC7003A7C2C /* HomeFeatureEvent.swift */; };
+		AF163E762F719AD4003A7C2C /* HomeFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E752F719AD4003A7C2C /* HomeFeatureFlow.swift */; };
+		AF163E782F719AE3003A7C2C /* ProjectFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E772F719AE3003A7C2C /* ProjectFeatureEvent.swift */; };
+		AF163E7A2F719AF3003A7C2C /* ProjectDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E792F719AF3003A7C2C /* ProjectDataWorker.swift */; };
+		AF163E7C2F719AFE003A7C2C /* ProjectFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E7B2F719AFE003A7C2C /* ProjectFeatureFlow.swift */; };
+		AF163E7E2F719B14003A7C2C /* BoardFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E7D2F719B14003A7C2C /* BoardFeatureEvent.swift */; };
+		AF163E802F719B26003A7C2C /* OfflineBoardDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E7F2F719B26003A7C2C /* OfflineBoardDataWorker.swift */; };
+		AF163E822F719B32003A7C2C /* BoardFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E812F719B32003A7C2C /* BoardFeatureFlow.swift */; };
+		AF163E842F719B46003A7C2C /* TaskListFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E832F719B46003A7C2C /* TaskListFeatureEvent.swift */; };
+		AF163E862F719B58003A7C2C /* OfflineTaskListDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E852F719B58003A7C2C /* OfflineTaskListDataWorker.swift */; };
+		AF163E882F719B63003A7C2C /* TaskListFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E872F719B63003A7C2C /* TaskListFeatureFlow.swift */; };
+		AF163E8A2F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E892F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift */; };
+		AF163E8C2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E8B2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift */; };
+		AF163E8E2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E8D2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift */; };
+		AF163E902F719BBA003A7C2C /* TaskPageFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E8F2F719BBA003A7C2C /* TaskPageFeatureEvent.swift */; };
+		AF163E922F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E912F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift */; };
+		AF163E942F719BD3003A7C2C /* TaskPageFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */; };
+		AF163E972F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */; };
+		AF163E9C2F72A452003A7C2C /* OnlineBoardGatewayContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */; };
 		AF1927FB2F705268004558EB /* EntityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FA2F705268004558EB /* EntityID.swift */; };
 		AF1927FF2F705298004558EB /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FE2F705298004558EB /* Workspace.swift */; };
 		AF1928012F705298004558EB /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928002F705298004558EB /* Project.swift */; };
@@ -81,6 +100,25 @@
 		9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectFeatureState.swift; sourceTree = "<group>"; };
 		9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskListFeatureState.swift; sourceTree = "<group>"; };
 		AF163E712F71965E003A7C2C /* BoardMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardMode.swift; sourceTree = "<group>"; };
+		AF163E732F719AC7003A7C2C /* HomeFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeatureEvent.swift; sourceTree = "<group>"; };
+		AF163E752F719AD4003A7C2C /* HomeFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeatureFlow.swift; sourceTree = "<group>"; };
+		AF163E772F719AE3003A7C2C /* ProjectFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFeatureEvent.swift; sourceTree = "<group>"; };
+		AF163E792F719AF3003A7C2C /* ProjectDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDataWorker.swift; sourceTree = "<group>"; };
+		AF163E7B2F719AFE003A7C2C /* ProjectFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFeatureFlow.swift; sourceTree = "<group>"; };
+		AF163E7D2F719B14003A7C2C /* BoardFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardFeatureEvent.swift; sourceTree = "<group>"; };
+		AF163E7F2F719B26003A7C2C /* OfflineBoardDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineBoardDataWorker.swift; sourceTree = "<group>"; };
+		AF163E812F719B32003A7C2C /* BoardFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardFeatureFlow.swift; sourceTree = "<group>"; };
+		AF163E832F719B46003A7C2C /* TaskListFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListFeatureEvent.swift; sourceTree = "<group>"; };
+		AF163E852F719B58003A7C2C /* OfflineTaskListDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTaskListDataWorker.swift; sourceTree = "<group>"; };
+		AF163E872F719B63003A7C2C /* TaskListFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListFeatureFlow.swift; sourceTree = "<group>"; };
+		AF163E892F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanbanBoardFeatureEvent.swift; sourceTree = "<group>"; };
+		AF163E8B2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineKanbanDataWorker.swift; sourceTree = "<group>"; };
+		AF163E8D2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanbanBoardFeatureFlow.swift; sourceTree = "<group>"; };
+		AF163E8F2F719BBA003A7C2C /* TaskPageFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureEvent.swift; sourceTree = "<group>"; };
+		AF163E912F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTaskPageDataWorker.swift; sourceTree = "<group>"; };
+		AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureFlow.swift; sourceTree = "<group>"; };
+		AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineBoardUnavailableReason.swift; sourceTree = "<group>"; };
+		AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineBoardGatewayContract.swift; sourceTree = "<group>"; };
 		AF1927FA2F705268004558EB /* EntityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityID.swift; sourceTree = "<group>"; };
 		AF1927FE2F705298004558EB /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
 		AF1928002F705298004558EB /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
@@ -135,6 +173,9 @@
 			isa = PBXGroup;
 			children = (
 				C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */,
+				AF163E8F2F719BBA003A7C2C /* TaskPageFeatureEvent.swift */,
+				AF163E912F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift */,
+				AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */,
 			);
 			path = State;
 			sourceTree = "<group>";
@@ -186,6 +227,9 @@
 			isa = PBXGroup;
 			children = (
 				CC903E4827950842973296FF /* BoardFeatureState.swift */,
+				AF163E7D2F719B14003A7C2C /* BoardFeatureEvent.swift */,
+				AF163E7F2F719B26003A7C2C /* OfflineBoardDataWorker.swift */,
+				AF163E812F719B32003A7C2C /* BoardFeatureFlow.swift */,
 			);
 			path = State;
 			sourceTree = "<group>";
@@ -230,6 +274,7 @@
 				3F2316EE5C22DFBF219D3D00 /* Navigation */,
 				C6A56C70AC07C59B57EC9309 /* Features */,
 				AF1927F82F70525A004558EB /* Models */,
+				AF163E952F7295D2003A7C2C /* SharedUI */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -258,12 +303,29 @@
 			path = Page;
 			sourceTree = "<group>";
 		};
+		AF163E952F7295D2003A7C2C /* SharedUI */ = {
+			isa = PBXGroup;
+			children = (
+				AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */,
+			);
+			path = SharedUI;
+			sourceTree = "<group>";
+		};
+		AF163E982F729C51003A7C2C /* Contracts */ = {
+			isa = PBXGroup;
+			children = (
+				AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */,
+			);
+			path = Contracts;
+			sourceTree = "<group>";
+		};
 		AF1927F82F70525A004558EB /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				AF1927F92F705261004558EB /* Domain */,
 				AF19280C2F7053FC004558EB /* Persistence */,
 				AF19280D2F7053FF004558EB /* Projections */,
+				AF163E982F729C51003A7C2C /* Contracts */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -315,6 +377,8 @@
 			isa = PBXGroup;
 			children = (
 				D967340833E3367BDDE707C8 /* HomeFeatureState.swift */,
+				AF163E732F719AC7003A7C2C /* HomeFeatureEvent.swift */,
+				AF163E752F719AD4003A7C2C /* HomeFeatureFlow.swift */,
 			);
 			path = State;
 			sourceTree = "<group>";
@@ -331,6 +395,9 @@
 			isa = PBXGroup;
 			children = (
 				4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */,
+				AF163E892F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift */,
+				AF163E8B2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift */,
+				AF163E8D2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift */,
 			);
 			path = State;
 			sourceTree = "<group>";
@@ -352,6 +419,9 @@
 			isa = PBXGroup;
 			children = (
 				9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */,
+				AF163E772F719AE3003A7C2C /* ProjectFeatureEvent.swift */,
+				AF163E792F719AF3003A7C2C /* ProjectDataWorker.swift */,
+				AF163E7B2F719AFE003A7C2C /* ProjectFeatureFlow.swift */,
 			);
 			path = State;
 			sourceTree = "<group>";
@@ -387,6 +457,9 @@
 			isa = PBXGroup;
 			children = (
 				9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */,
+				AF163E832F719B46003A7C2C /* TaskListFeatureEvent.swift */,
+				AF163E852F719B58003A7C2C /* OfflineTaskListDataWorker.swift */,
+				AF163E872F719B63003A7C2C /* TaskListFeatureFlow.swift */,
 			);
 			path = State;
 			sourceTree = "<group>";
@@ -518,26 +591,38 @@
 			buildActionMask = 2147483647;
 			files = (
 				AF1928232F70549B004558EB /* BoardListItemProjection.swift in Sources */,
+				AF163E9C2F72A452003A7C2C /* OnlineBoardGatewayContract.swift in Sources */,
 				273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */,
+				AF163E802F719B26003A7C2C /* OfflineBoardDataWorker.swift in Sources */,
 				AF1928052F7052BC004558EB /* BoardStage.swift in Sources */,
 				AF1928192F705456004558EB /* BoardStagePresetRecord.swift in Sources */,
+				AF163E902F719BBA003A7C2C /* TaskPageFeatureEvent.swift in Sources */,
 				AF1928252F7054A3004558EB /* TaskListItemProjection.swift in Sources */,
+				AF163E8E2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift in Sources */,
+				AF163E762F719AD4003A7C2C /* HomeFeatureFlow.swift in Sources */,
 				AF1928212F705496004558EB /* ProjectListItemProjection.swift in Sources */,
 				24789AD5E62B6A642952821F /* RootView.swift in Sources */,
 				454070CCA28356311D94995A /* AppShell.swift in Sources */,
 				AF1928012F705298004558EB /* Project.swift in Sources */,
+				AF163E822F719B32003A7C2C /* BoardFeatureFlow.swift in Sources */,
 				0F4DB9BECBA12A6A3223681F /* AppRoute.swift in Sources */,
+				AF163E8C2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift in Sources */,
 				C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */,
 				AF1928072F7052BD004558EB /* BoardStagePreset.swift in Sources */,
 				FF5FF22D2272B579F0F1853E /* HomeFeatureState.swift in Sources */,
 				AF19280F2F70540E004558EB /* PersistenceRecord.swift in Sources */,
 				AF1928172F705445004558EB /* BoardStageRecord.swift in Sources */,
+				AF163E942F719BD3003A7C2C /* TaskPageFeatureFlow.swift in Sources */,
 				2E9C63CDAB47FEE2003AA095 /* ProjectPageView.swift in Sources */,
+				AF163E882F719B63003A7C2C /* TaskListFeatureFlow.swift in Sources */,
 				B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */,
 				AF19281D2F70547D004558EB /* LocalWritePathContract.swift in Sources */,
+				AF163E922F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift in Sources */,
 				AF1927FF2F705298004558EB /* Workspace.swift in Sources */,
 				AF1928292F7054B3004558EB /* KanbanColumnProjection.swift in Sources */,
 				AF1928032F705299004558EB /* Board.swift in Sources */,
+				AF163E972F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift in Sources */,
+				AF163E742F719AC7003A7C2C /* HomeFeatureEvent.swift in Sources */,
 				6E88F0153003105FB189507C /* BoardPageView.swift in Sources */,
 				AF1928152F705437004558EB /* BoardRecord.swift in Sources */,
 				1727A55FE22884D72B57E6C0 /* BoardFeatureState.swift in Sources */,
@@ -545,7 +630,11 @@
 				AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */,
 				56AE6E8CE1C6B8FDA1AFBFAB /* TaskListPageView.swift in Sources */,
 				AF1927FB2F705268004558EB /* EntityID.swift in Sources */,
+				AF163E862F719B58003A7C2C /* OfflineTaskListDataWorker.swift in Sources */,
 				44F316FEC52F9E1B55829ECB /* TaskListFeatureState.swift in Sources */,
+				AF163E7C2F719AFE003A7C2C /* ProjectFeatureFlow.swift in Sources */,
+				AF163E7A2F719AF3003A7C2C /* ProjectDataWorker.swift in Sources */,
+				AF163E842F719B46003A7C2C /* TaskListFeatureEvent.swift in Sources */,
 				29CF5D9B71166AF2A34087EF /* KanbanBoardPageView.swift in Sources */,
 				AF1928132F70542A004558EB /* ProjectRecord.swift in Sources */,
 				AF1928272F7054AC004558EB /* TaskDetailProjection.swift in Sources */,
@@ -553,8 +642,11 @@
 				AF19281B2F705467004558EB /* TaskRecord.swift in Sources */,
 				EB01AB5442118A6732B6E7D5 /* TaskPageView.swift in Sources */,
 				520EF04D77DF2917496CC53A /* TaskPageFeatureState.swift in Sources */,
+				AF163E7E2F719B14003A7C2C /* BoardFeatureEvent.swift in Sources */,
+				AF163E782F719AE3003A7C2C /* ProjectFeatureEvent.swift in Sources */,
 				AF19281F2F705487004558EB /* LocalStoreContract.swift in Sources */,
 				AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */,
+				AF163E8A2F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
