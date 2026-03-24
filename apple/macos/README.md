@@ -7,14 +7,17 @@ Bootstrap for the macOS application project.
 Before any implementation work in `apple/macos`, load the repository-level canonical documents:
 
 - `../../AGENTS.md`
-- `../../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
-- `../../docs/MVP_APP_STRUCTURE.md`
-- `../../docs/TYPES_AND_CONTRACTS.md`
-- `../../docs/SYNC_RULES.md`
-- `../../docs/DEVELOPMENT_RULES.md`
-- `../../docs/PROJECT_SETUP.md`
-- `../../docs/MACOS_MVP_TASK_BREAKDOWN.md`
 - `../README.md`
+- `../../docs/ARCHITECTURE.md`:
+  - `Layer model`
+  - `Default artifact placement`
+  - `Global Artifact Classification Workflow`
+  - relevant Apple and feature sections
+- `../../docs/TYPES_AND_CONTRACTS.md` only for touched entities
+- `../../docs/SYNC_RULES.md` when board, task, persistence, transport, or availability behavior is affected
+- `../../docs/MVP_APP_STRUCTURE.md` when screens, navigation, or UX flow responsibilities are affected
+- `../../docs/PROJECT_SETUP.md` when setup, build commands, or tooling matter
+- `../../docs/MACOS_MVP_TASK_BREAKDOWN.md` when working against the current macOS phase plan
 
 ## Planned ownership
 

@@ -7,11 +7,16 @@ Apple-only shared code for iOS and macOS lives here.
 Before implementation work in `apple/shared`, load:
 
 - `../../AGENTS.md`
-- `../../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
-- `../../docs/TYPES_AND_CONTRACTS.md`
-- `../../docs/SYNC_RULES.md`
-- `../../docs/DEVELOPMENT_RULES.md`
 - `../README.md`
+- `../../docs/ARCHITECTURE.md`:
+  - `Layer model`
+  - `Default artifact placement`
+  - `Global Artifact Classification Workflow`
+  - relevant Apple shared sections
+- `../../docs/TYPES_AND_CONTRACTS.md` only for touched entities
+- `../../docs/SYNC_RULES.md` when board, task, persistence, transport, or availability behavior is affected
+- `../../docs/MVP_APP_STRUCTURE.md` when shared UI or flow responsibilities are affected
+- `../../docs/PROJECT_SETUP.md` when setup, commands, or tooling matter
 
 ## Intended responsibilities
 

@@ -9,13 +9,17 @@ Canonical source of truth:
 Required global context before execution:
 
 - `../../AGENTS.md`
-- `../../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
-- `../../docs/MVP_APP_STRUCTURE.md`
-- `../../docs/TYPES_AND_CONTRACTS.md`
-- `../../docs/SYNC_RULES.md`
-- `../../docs/DEVELOPMENT_RULES.md`
-- `../../docs/PROJECT_SETUP.md`
 - `../README.md`
 - `README.md`
+- `../../docs/ARCHITECTURE.md`:
+  - `Layer model`
+  - `Default artifact placement`
+  - `Global Artifact Classification Workflow`
+  - relevant macOS and feature sections
+- `../../docs/TYPES_AND_CONTRACTS.md` only for touched entities and boundary rules
+- `../../docs/SYNC_RULES.md` when board authority, persistence, transport, or availability behavior is affected
+- `../../docs/MVP_APP_STRUCTURE.md` when UX flow or screen responsibilities are involved
+- `../../docs/PROJECT_SETUP.md` when setup, commands, or tooling matter
+- `../../docs/DEVELOPMENT_RULES.md` as an implementation checklist when validating completion
 
 Open the canonical file for task tracking and checkbox updates.

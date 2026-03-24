@@ -7,12 +7,16 @@ Canonical NestJS backend project for Altis.
 Before implementation work in `backend/api-nest`, load:
 
 - `../../AGENTS.md`
-- `../../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
-- `../../docs/BACKEND_ARCHITECTURE.md`
-- `../../docs/TYPES_AND_CONTRACTS.md`
-- `../../docs/SYNC_RULES.md`
-- `../../docs/DEVELOPMENT_RULES.md`
 - `../README.md`
+- `../../docs/ARCHITECTURE.md`:
+  - `Layer model`
+  - `Default artifact placement`
+  - `Global Artifact Classification Workflow`
+  - relevant backend sections
+- `../../docs/BACKEND_ARCHITECTURE.md`
+- `../../docs/TYPES_AND_CONTRACTS.md` only for touched entities and contracts
+- `../../docs/SYNC_RULES.md` when board authority or online write-path behavior is affected
+- `../../docs/PROJECT_SETUP.md` when setup, commands, or tooling matter
 
 ## Stack
 

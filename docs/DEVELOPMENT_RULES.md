@@ -1,70 +1,40 @@
 # Development Rules
 
-- Keep the repository structure stable and predictable.
-- Prefer small changes with clear ownership by layer.
-- Avoid introducing platform-specific logic into `shared/`.
-- Keep one canonical task model for list, kanban, and widget use cases.
-- Treat widget filtering as a product-critical capability and reflect it in shared contracts.
-- Treat board mode as a first-class rule: `offline` boards are local-only, `online` boards are backend-only.
-- Do not reintroduce sync metadata, outbox behavior, or reconciliation logic unless a new ADR explicitly does that.
-- Keep deferred features out of active implementation paths until explicitly activated.
-- Before adding a new file, check whether the intended target path exists.
-- If a required directory is missing, create it in the correct layer before adding the file.
-- Put shared assets and images in `common/assets/`.
-- Put shared configs in `shared/config/`.
-- Put shared reusable components in `shared/components/`.
-- Put shared style definitions in `shared/styles/`.
-- Put Apple-only shared components or wrappers in `apple/shared/`.
-- Put scripts, CI helpers, and templates in `tooling/scripts/`, `tooling/ci/`, and `tooling/templates/`.
-- After making code or configuration changes, run the most relevant build, test, lint, or diagnostics step for the affected project.
-- Fix errors and actionable warnings discovered during validation before considering the task complete.
+Use this file as an implementation checklist, not as a second architecture spec.
 
-## Documentation source of truth
+## Before editing
 
-- `docs/MVP_APP_STRUCTURE.md` is the source of truth for product-level UX architecture.
-- `docs/ARCHITECTURE.md` is the source of truth for repository, layer, module, component, and event-flow architecture.
-- `docs/TYPES_AND_CONTRACTS.md` is the source of truth for canonical entities, relations, and typed model boundaries.
-- `docs/SYNC_RULES.md` is the source of truth for offline-board vs online-board authority rules.
-- `docs/WIDGET_RULES.md` is the source of truth for widget-specific constraints and widget-to-app handoff rules.
+- Read `AGENTS.md`.
+- Load only the canonical docs needed for the task.
+- For platform work, read the nearest platform README and run `Global Artifact Classification Workflow` from `docs/ARCHITECTURE.md` before creating or moving files.
 
-## Mandatory classification preflight
+## During implementation
 
-- For any platform-scoped task, read canonical docs first, then the nearest platform README.
-- Before creating or moving files, run `Global Artifact Classification Workflow` in `docs/ARCHITECTURE.md`.
-- If the nearest platform README does not link back to canonical docs and classification workflow, update that README in the same change before implementation proceeds.
+- Prefer small, additive changes with clear ownership.
+- Keep one canonical task model across list, kanban, task detail, and widgets.
+- Respect `Board.mode`: offline is local-only, online is backend-only.
+- Do not add sync metadata, outbox logic, or hidden authority fallbacks.
+- Keep UI on typed projections or feature state, not raw transport payloads.
+- Keep persistence and transport behind typed services or workers.
+- Reuse an existing component before creating a new one.
+- Create a new component only in the narrowest correct ownership boundary.
 
-## Data and flow rule
+## Documentation sync
 
-- Visual components MUST render typed incoming data and MUST emit typed user intents.
-- Pages or containers MUST integrate visual components with the local or global event flows required for the feature.
-- Feature flows MUST subscribe to relevant user, lifecycle, and online result events through one explicit event-driven pipeline.
-- Feature flows MUST work with isolated data-facing classes or services rather than letting UI call persistence or transport directly.
-- Offline boards MUST render through local typed projections.
-- Online boards MUST render through typed feature state or explicit online read models.
-- All board-mode behavior MUST follow `docs/SYNC_RULES.md`.
+- Update `docs/ARCHITECTURE.md` when layer, placement, event-flow, or component-boundary rules change.
+- Update `docs/TYPES_AND_CONTRACTS.md` when entities, relations, or typed boundaries change.
+- Update `docs/SYNC_RULES.md` when authority or write-path behavior changes.
+- Update `docs/MVP_APP_STRUCTURE.md` when screens, navigation, or UX responsibilities change.
+- Update README files when local ownership or setup instructions change.
 
-## Component decision rule
+## Validation
 
-- Before creating a new component, classify the need using the component taxonomy in `docs/ARCHITECTURE.md`.
-- Before creating or moving a component, classify its placement level: `platform app`, `Apple shared`, or `global shared`.
-- Search for an existing component of the same type and ownership boundary before creating a new one.
-- If a suitable existing component exists, prefer reusing it.
-- If a close existing component exists but does not fully satisfy the need, evaluate whether it can be extended without breaking its ownership or semantics.
-- If no suitable existing component can be reused or extended, create a new component in the narrowest correct ownership boundary and document the new pattern when it becomes part of the architecture.
+- Run the most relevant build, test, lint, or diagnostics step for the touched scope.
+- Fix errors and actionable warnings before closing the task.
+- If full verification is not possible, record the limitation clearly.
 
-## Documentation maintenance rule
+## Review gate
 
-- If implementation changes architecture, flow boundaries, section responsibilities, page responsibilities, state ownership, data contracts, entry points, cross-layer contracts, board mode, or component taxonomy, update the relevant documentation in the same change.
-- If a change alters user flow at the product level, update `docs/MVP_APP_STRUCTURE.md`.
-- If a change alters repository, layer, placement, event-flow, or component boundaries, update `docs/ARCHITECTURE.md`.
-- If a change alters offline/online authority rules, local persistence scope, online API scope, or mode transition rules, update `docs/SYNC_RULES.md`.
-- Treat architecture, UX, or board-mode code changes without matching documentation updates as incomplete work.
-
-## Review gate for phase completion
-
-- Do not mark a phase item complete only because a type, stub, or file exists. Completion requires that the implemented semantics match the canonical docs.
-- Before closing a feature-flow task, compare the code against the relevant invariants in `docs/ARCHITECTURE.md`, `docs/TYPES_AND_CONTRACTS.md`, and `docs/SYNC_RULES.md`.
-- If a feature claims to support multiple authorities or modes, review both the success path and the failure/unavailable path for each claimed authority.
-- Do not emit unavailable, blocked, or reconnect-required UI state speculatively. That state must be triggered only when the flow has established that the online path is the required authority and is currently unusable.
-- If a project-, workspace-, or board-level surface is documented as mixed-mode, verify that the feature contract can represent all allowed entities on the read path. A warning-only side channel is not a substitute for a typed success path.
-- Validation records in task breakdown files MUST include any known residual gaps. If residual gaps remain, reopen the relevant checkbox or add explicit follow-up tasks in the same section instead of presenting the phase as fully closed.
+- Do not consider a task complete only because files or stubs exist.
+- Verify that implemented semantics still match the canonical docs.
+- If a feature claims to support multiple modes or authorities, review each claimed path, including unavailable states when relevant.

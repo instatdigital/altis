@@ -329,7 +329,32 @@ Platform-scope context rule:
   - `docs/ARCHITECTURE.md`
   - `docs/TYPES_AND_CONTRACTS.md`
   - `docs/SYNC_RULES.md`
-  - `docs/DEVELOPMENT_RULES.md`
+  - relevant local setup or scope-specific docs when needed
+
+## Lean Platform Context
+
+To keep implementation context small, platform work should load the minimum required canon instead of rereading every top-level doc on each task.
+
+Required baseline:
+
+- `AGENTS.md`
+- nearest platform README
+- `Global Artifact Classification Workflow`
+
+Load by concern:
+
+- placement, layers, component ownership, feature flow shape:
+  - relevant sections from this file
+- entities, identifiers, typed boundaries:
+  - relevant sections from `docs/TYPES_AND_CONTRACTS.md`
+- offline or online authority, persistence, transport, availability:
+  - `docs/SYNC_RULES.md`
+- screens, navigation, shells, task flow, board flow:
+  - relevant sections from `docs/MVP_APP_STRUCTURE.md`
+- build commands, environment, setup, tooling:
+  - `docs/PROJECT_SETUP.md`
+
+`docs/DEVELOPMENT_RULES.md` is an operational checklist and validation aid, not mandatory architecture preload.
 
 ## Event-driven app flow
 

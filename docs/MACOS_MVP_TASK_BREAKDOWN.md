@@ -22,11 +22,11 @@ Rules:
 Canonical references:
 
 - `AGENTS.md`
-- `docs/ARCHITECTURE.md`
-- `docs/MVP_APP_STRUCTURE.md`
-- `docs/TYPES_AND_CONTRACTS.md`
-- `docs/SYNC_RULES.md`
-- `docs/DEVELOPMENT_RULES.md`
+- `docs/ARCHITECTURE.md`: `Layer model`, `Default artifact placement`, `Global Artifact Classification Workflow`, and relevant feature-flow sections
+- `docs/MVP_APP_STRUCTURE.md` only when UX flow or screen responsibilities are involved
+- `docs/TYPES_AND_CONTRACTS.md` only for touched entities and boundary rules
+- `docs/SYNC_RULES.md` when board authority, persistence, transport, or availability behavior is affected
+- `docs/DEVELOPMENT_RULES.md` as an implementation checklist when validating completion
 
 ## Transition framing
 
