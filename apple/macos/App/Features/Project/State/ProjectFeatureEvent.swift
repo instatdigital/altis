@@ -12,9 +12,11 @@ enum ProjectFeatureEvent {
     /// User selected a project to navigate into.
     case projectSelected(ProjectID)
 
-    // MARK: Data results — implemented in Phase 6
-    /// Local persistence returned the current project list.
-    case projectsLoaded([Project])
+    // MARK: Data results
+    /// Local persistence returned the current project list as typed projections.
+    case projectsLoaded([ProjectListItemProjection])
     /// Local persistence returned an error while loading or saving projects.
     case loadFailed(Error)
+    /// User acknowledged and dismissed the error alert.
+    case errorAcknowledged
 }

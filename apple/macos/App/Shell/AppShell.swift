@@ -2,16 +2,32 @@ import SwiftUI
 
 /// Root application shell. Composes top-level navigation and feature entry points.
 ///
-/// Phase 5: Wires the Home feature flow into the macOS sidebar navigation.
-/// The detail area shows `HomePageView` which is placeholder-only — no live
-/// project, board, or dashboard data is loaded until later phases.
+/// Owns the `AppEnvironment` (SQLite store + workspace identity) and creates
+/// all top-level feature flows with their concrete data workers.
 ///
-/// Navigation items for Project, Board, TaskList, KanbanBoard, and TaskPage are
-/// structural stubs only; they are wired to real feature flows in Phases 6–13.
+/// Phase 5: Home feature flow wired into macOS `NavigationSplitView`.
+/// Phase 6: Project feature flow wired; real `ProjectPageView` with list and
+///          create-project sheet replaces the placeholder.
+///
+/// Navigation items for Board, TaskList, KanbanBoard, and TaskPage remain
+/// structural stubs wired to real flows in Phases 7–13.
 struct AppShell: View {
 
-    @StateObject private var homeFlow = HomeFeatureFlow()
+    @StateObject private var homeFlow: HomeFeatureFlow
+    @StateObject private var projectFlow: ProjectFeatureFlow
+
     @State private var selection: AppRoute? = .home
+
+    init(environment: AppEnvironment) {
+        _homeFlow = StateObject(wrappedValue: HomeFeatureFlow())
+        _projectFlow = StateObject(wrappedValue: ProjectFeatureFlow(
+            worker: OfflineProjectDataWorker(
+                store: environment.store,
+                workspaceId: environment.workspaceId
+            ),
+            workspaceId: environment.workspaceId
+        ))
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -37,7 +53,7 @@ struct AppShell: View {
         case .home, .none:
             HomePageView()
         case .project:
-            ProjectPageView()
+            ProjectPageView(flow: projectFlow)
         default:
             ContentUnavailableView(
                 "Not Available",
@@ -46,8 +62,4 @@ struct AppShell: View {
             )
         }
     }
-}
-
-#Preview {
-    AppShell()
 }

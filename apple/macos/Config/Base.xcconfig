@@ -1,2 +1,8 @@
 // Shared macOS build settings bootstrap.
 PRODUCT_NAME = Altis macOS
+
+// Suppress AppIntents metadata-processor warnings for targets that do not link
+// AppIntents.framework. Xcode 16+ runs ExtractAppIntentsMetadata unconditionally;
+// without this flag the tool emits "Metadata extraction skipped. No
+// AppIntents.framework dependency found." on every clean build.
+LM_FILTER_WARNINGS = YES

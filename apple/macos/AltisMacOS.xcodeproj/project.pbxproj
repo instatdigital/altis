@@ -41,6 +41,9 @@
 		AF163E942F719BD3003A7C2C /* TaskPageFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */; };
 		AF163E972F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */; };
 		AF163E9C2F72A452003A7C2C /* OnlineBoardGatewayContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */; };
+		AF163EA02F72B162003A7C2C /* OfflineLocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */; };
+		AF163EA22F72B17A003A7C2C /* OfflineProjectDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */; };
+		AF163EA42F72B1BB003A7C2C /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163EA32F72B1BB003A7C2C /* AppEnvironment.swift */; };
 		AF1927FB2F705268004558EB /* EntityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FA2F705268004558EB /* EntityID.swift */; };
 		AF1927FF2F705298004558EB /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FE2F705298004558EB /* Workspace.swift */; };
 		AF1928012F705298004558EB /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928002F705298004558EB /* Project.swift */; };
@@ -119,6 +122,9 @@
 		AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureFlow.swift; sourceTree = "<group>"; };
 		AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineBoardUnavailableReason.swift; sourceTree = "<group>"; };
 		AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineBoardGatewayContract.swift; sourceTree = "<group>"; };
+		AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineLocalStore.swift; sourceTree = "<group>"; };
+		AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineProjectDataWorker.swift; sourceTree = "<group>"; };
+		AF163EA32F72B1BB003A7C2C /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		AF1927FA2F705268004558EB /* EntityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityID.swift; sourceTree = "<group>"; };
 		AF1927FE2F705298004558EB /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
 		AF1928002F705298004558EB /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
@@ -193,6 +199,7 @@
 			isa = PBXGroup;
 			children = (
 				87DB719A28AC7DEFB229F10B /* AppShell.swift */,
+				AF163EA32F72B1BB003A7C2C /* AppEnvironment.swift */,
 			);
 			path = Shell;
 			sourceTree = "<group>";
@@ -275,6 +282,7 @@
 				C6A56C70AC07C59B57EC9309 /* Features */,
 				AF1927F82F70525A004558EB /* Models */,
 				AF163E952F7295D2003A7C2C /* SharedUI */,
+				AF163E9D2F72B139003A7C2C /* Platform */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -317,6 +325,23 @@
 				AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */,
 			);
 			path = Contracts;
+			sourceTree = "<group>";
+		};
+		AF163E9D2F72B139003A7C2C /* Platform */ = {
+			isa = PBXGroup;
+			children = (
+				AF163E9E2F72B13C003A7C2C /* Persistence */,
+			);
+			path = Platform;
+			sourceTree = "<group>";
+		};
+		AF163E9E2F72B13C003A7C2C /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */,
+				AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */,
+			);
+			path = Persistence;
 			sourceTree = "<group>";
 		};
 		AF1927F82F70525A004558EB /* Models */ = {
@@ -595,6 +620,7 @@
 				273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */,
 				AF163E802F719B26003A7C2C /* OfflineBoardDataWorker.swift in Sources */,
 				AF1928052F7052BC004558EB /* BoardStage.swift in Sources */,
+				AF163EA42F72B1BB003A7C2C /* AppEnvironment.swift in Sources */,
 				AF1928192F705456004558EB /* BoardStagePresetRecord.swift in Sources */,
 				AF163E902F719BBA003A7C2C /* TaskPageFeatureEvent.swift in Sources */,
 				AF1928252F7054A3004558EB /* TaskListItemProjection.swift in Sources */,
@@ -625,6 +651,8 @@
 				AF163E742F719AC7003A7C2C /* HomeFeatureEvent.swift in Sources */,
 				6E88F0153003105FB189507C /* BoardPageView.swift in Sources */,
 				AF1928152F705437004558EB /* BoardRecord.swift in Sources */,
+				AF163EA02F72B162003A7C2C /* OfflineLocalStore.swift in Sources */,
+				AF163EA22F72B17A003A7C2C /* OfflineProjectDataWorker.swift in Sources */,
 				1727A55FE22884D72B57E6C0 /* BoardFeatureState.swift in Sources */,
 				AF1928092F7052BE004558EB /* Task.swift in Sources */,
 				AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */,

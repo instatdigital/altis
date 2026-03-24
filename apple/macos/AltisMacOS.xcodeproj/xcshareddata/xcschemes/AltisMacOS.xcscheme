@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "46EC88EAD15DB7984CE39851"
-               BuildableName = "Altis macOS.app"
+               BuildableName = "Altis.app"
                BlueprintName = "AltisMacOS"
                ReferencedContainer = "container:AltisMacOS.xcodeproj">
             </BuildableReference>
@@ -72,7 +72,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "46EC88EAD15DB7984CE39851"
-            BuildableName = "Altis macOS.app"
+            BuildableName = "Altis.app"
             BlueprintName = "AltisMacOS"
             ReferencedContainer = "container:AltisMacOS.xcodeproj">
          </BuildableReference>
@@ -89,7 +89,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "46EC88EAD15DB7984CE39851"
-            BuildableName = "Altis macOS.app"
+            BuildableName = "Altis.app"
             BlueprintName = "AltisMacOS"
             ReferencedContainer = "container:AltisMacOS.xcodeproj">
          </BuildableReference>
