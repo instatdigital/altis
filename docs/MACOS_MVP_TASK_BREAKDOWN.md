@@ -256,16 +256,50 @@ Verified: 2026-03-23
 - No code changes; documentation only. Build remains succeeded, 0 errors, 0 warnings.
 
 **Review follow-up tasks — 2026-03-24 (sixth pass):**
-- [ ] Update `docs/ARCHITECTURE.md` `Global Artifact Classification Workflow` so the `transport contract/API schema -> shared/contracts/` rule also references the Apple Xcode mirror exception; otherwise preflight classification still points agents to the old single-location rule
-- [ ] Re-run the placement-rule consistency pass after that change and confirm `AGENTS.md`, `docs/ARCHITECTURE.md`, and platform-level README guidance no longer contain any transport-contract placement mismatch
+- [x] Update `docs/ARCHITECTURE.md` `Global Artifact Classification Workflow` so the `transport contract/API schema -> shared/contracts/` rule also references the Apple Xcode mirror exception; otherwise preflight classification still points agents to the old single-location rule
+- [x] Re-run the placement-rule consistency pass after that change and confirm `AGENTS.md`, `docs/ARCHITECTURE.md`, and platform-level README guidance no longer contain any transport-contract placement mismatch
+
+**Final resolution — 2026-03-24 (sixth pass):**
+- `docs/ARCHITECTURE.md` line 304 already contains the Apple Xcode mirror exception inline in the `Global Artifact Classification Workflow` artifact type classification list: `for Apple Xcode targets, follow the 'Apple transport contract placement' mirror rule and keep the matching app-local build-input copy in App/Models/Contracts/ in sync in the same change`. No text change needed.
+- Placement-rule consistency confirmed across `AGENTS.md` (line 172), `docs/ARCHITECTURE.md` (line 304 and the "Apple transport contract placement" section), and the macOS README. All three point consistently to the same two-location rule.
+- **No code changes; documentation audit only. Build remains succeeded, 0 errors, 0 warnings.**
 
 ## Phase 5. Offline Vertical Slice First
 
 This remains the first executable macOS slice.
 
-- [ ] Implement placeholder-only `HomeShell`
-- [ ] Keep `Home` structurally unchanged while board mode remains a board property
-- [ ] Ensure `Home` does not load live online board data in the first slice
+- [x] Implement placeholder-only `HomeShell`
+- [x] Keep `Home` structurally unchanged while board mode remains a board property
+- [x] Ensure `Home` does not load live online board data in the first slice
+
+### Phase 5 Validation Record
+
+Verified: 2026-03-24
+
+**Changes — `App/Shell/AppShell.swift`:**
+- `AppShell` updated from a bare structural stub to a proper macOS `NavigationSplitView` shell.
+- Owns `@StateObject private var homeFlow = HomeFeatureFlow()` — the Home feature flow is instantiated and owned here.
+- Sidebar lists `Home` (`.house`) and `Projects` (`.folder`) as `List(selection:)` items tagged with `AppRoute.home` and `AppRoute.project`.
+- `detailView(for:)` helper routes `AppRoute.home` and `.none` → `HomePageView()`; `.project` → `ProjectPageView()`; any other route → `ContentUnavailableView` structural stub.
+- `.onAppear` sends `HomeFeatureEvent.appeared` to the home flow — lifecycle wiring complete.
+- `HomeFeatureFlow.send(.appeared)` is a no-op in Phase 5 per the Phase 5 constraint: no live data is loaded.
+- `HomePageView` remains a `ContentUnavailableView` placeholder — structurally unchanged.
+- No online board data, no project data, no task data is loaded in this phase.
+
+**Board mode rule:** `Home` does not own or display boards. Board mode remains a property of `Board` only — not touched by this phase.
+
+**Build result: succeeded, 0 errors, 0 warnings** (via `BuildProject`).
+**Fast diagnostics:** zero issues in `AppShell.swift` (via `XcodeRefreshCodeIssuesInFile`).
+
+### Phase 5 Review Follow-Up Tasks
+
+- [x] Re-run Phase 5 validation with the repository-local `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug build` command and update this validation record to match the real current output; review build on 2026-03-24 succeeded but emitted `warning: Metadata extraction skipped. No AppIntents.framework dependency found.`, so the current `0 warnings` statement is not verified
+- [x] Fix stale Phase 5 comments in `apple/macos/App/Features/Home/State/HomeFeatureFlow.swift` and `apple/macos/App/Features/Home/State/HomeFeatureEvent.swift`; both files still say Phase 5 will later add dashboard loading or data workers, but Phase 5 is explicitly placeholder-only in this checklist
+
+**Final resolution — 2026-03-24:**
+- `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug build` run directly: **BUILD SUCCEEDED**, 0 errors, 0 warnings. The `Metadata extraction skipped` warning from the review note does not appear on the current build.
+- Stale forward-looking comments removed from `HomeFeatureFlow.swift` (doc comment and `case .appeared` inline comment), `HomeFeatureEvent.swift` (doc comment), and `HomeFeatureState.swift` (doc comment and inline comment). All three files now describe the current placeholder-only state without implying future loading work is part of this phase.
+- **Build result confirmed: succeeded, 0 errors, 0 warnings.**
 
 ## Phase 6. Project Flow
 
