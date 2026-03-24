@@ -8,23 +8,34 @@ import SwiftUI
 /// Phase 5: Home feature flow wired into macOS `NavigationSplitView`.
 /// Phase 6: Project feature flow wired; real `ProjectPageView` with list and
 ///          create-project sheet replaces the placeholder.
+/// Phase 7: Board feature flow wired; `BoardPageView` replaces the stub.
 ///
-/// Navigation items for Board, TaskList, KanbanBoard, and TaskPage remain
-/// structural stubs wired to real flows in Phases 7–13.
+/// Navigation items for TaskList, KanbanBoard, and TaskPage remain
+/// structural stubs wired to real flows in Phases 9–13.
 struct AppShell: View {
 
     @StateObject private var homeFlow: HomeFeatureFlow
     @StateObject private var projectFlow: ProjectFeatureFlow
+    @StateObject private var boardFlow: BoardFeatureFlow
+
+    private let environment: AppEnvironment
 
     @State private var selection: AppRoute? = .home
 
     init(environment: AppEnvironment) {
+        self.environment = environment
         _homeFlow = StateObject(wrappedValue: HomeFeatureFlow())
         _projectFlow = StateObject(wrappedValue: ProjectFeatureFlow(
             worker: OfflineProjectDataWorker(
                 store: environment.store,
                 workspaceId: environment.workspaceId
             ),
+            workspaceId: environment.workspaceId
+        ))
+        _boardFlow = StateObject(wrappedValue: BoardFeatureFlow(
+            offlineWorker: OfflineLocalBoardWorker(store: environment.store),
+            onlineGateway: NotImplementedOnlineBoardGateway(),
+            store: environment.store,
             workspaceId: environment.workspaceId
         ))
     }
@@ -53,7 +64,11 @@ struct AppShell: View {
         case .home, .none:
             HomePageView()
         case .project:
-            ProjectPageView(flow: projectFlow)
+            ProjectPageView(flow: projectFlow, onProjectSelected: { projectId in
+                selection = .boardList(projectId: projectId, workspaceId: environment.workspaceId)
+            })
+        case .boardList(let projectId, let workspaceId):
+            BoardPageView(flow: boardFlow, projectId: projectId, workspaceId: workspaceId)
         default:
             ContentUnavailableView(
                 "Not Available",

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -66,6 +66,7 @@
 		AF1928272F7054AC004558EB /* TaskDetailProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928262F7054AC004558EB /* TaskDetailProjection.swift */; };
 		AF1928292F7054B3004558EB /* KanbanColumnProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928282F7054B3004558EB /* KanbanColumnProjection.swift */; };
 		AF19282E2F705A0C004558EB /* PersistenceRecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */; };
+		AF92BD802F72D82C008225D7 /* OfflineLocalBoardWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF92BD7F2F72D82C008225D7 /* OfflineLocalBoardWorker.swift */; };
 		B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */; };
 		C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2CD785CA6B557085DD3209 /* HomePageView.swift */; };
 		E157B8C0C0CEDC007C80FF6D /* KanbanBoardFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */; };
@@ -93,7 +94,7 @@
 		4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KanbanBoardFeatureState.swift; sourceTree = "<group>"; };
 		58EAF51483D6191D8DDCBB6C /* Altis macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Altis macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Config/Release.xcconfig; sourceTree = "<group>"; };
-		6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltisMacOSTests.swift; path = Tests/AltisMacOSTests.swift; sourceTree = "<group>"; };
+		6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AltisMacOSTests.swift; sourceTree = "<group>"; };
 		687AF830925F835E854E0BF3 /* Debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Config/Debug.xcconfig; sourceTree = "<group>"; };
 		6C10A915EC8B78700F94841D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		87DB719A28AC7DEFB229F10B /* AppShell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppShell.swift; sourceTree = "<group>"; };
@@ -147,6 +148,16 @@
 		AF1928262F7054AC004558EB /* TaskDetailProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailProjection.swift; sourceTree = "<group>"; };
 		AF1928282F7054B3004558EB /* KanbanColumnProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanbanColumnProjection.swift; sourceTree = "<group>"; };
 		AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceRecordTests.swift; sourceTree = "<group>"; };
+		D48C12F12F71432100AA1001 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */,
+				AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		AF92BD7F2F72D82C008225D7 /* OfflineLocalBoardWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineLocalBoardWorker.swift; sourceTree = "<group>"; };
 		C44E51198C46F082AAE86750 /* MACOS_MVP_TASK_BREAKDOWN.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = MACOS_MVP_TASK_BREAKDOWN.md; sourceTree = "<group>"; };
 		C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureState.swift; sourceTree = "<group>"; };
 		CC903E4827950842973296FF /* BoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardFeatureState.swift; sourceTree = "<group>"; };
@@ -158,19 +169,15 @@
 /* Begin PBXFrameworksBuildPhase section */
 		14029AE8F7CF1209B3134039 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		63B24347855C5CC448735E73 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				15783A2F2356D5CA531C51B8 /* Cocoa.framework in Frameworks */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -211,13 +218,12 @@
 				E9C5559B631AE04C522F3A8B /* Frameworks */,
 				0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */,
 				009753DFF96FAF283F791733 /* RootView.swift */,
-				6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */,
+				D48C12F12F71432100AA1001 /* Tests */,
 				7A33D821EA5CF66D220493E7 /* Docs */,
 				F7113E2887FC076C1A652F1E /* Base.xcconfig */,
 				5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */,
 				687AF830925F835E854E0BF3 /* Debug.xcconfig */,
 				60EEF566E5A61DF93DBB9589 /* App */,
-				AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -340,6 +346,7 @@
 			children = (
 				AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */,
 				AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */,
+				AF92BD7F2F72D82C008225D7 /* OfflineLocalBoardWorker.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -553,8 +560,6 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			name = AltisMacOS;
 			productName = AltisMacOS;
 			productReference = 8DEC202A1A09109E913FEEFA /* Altis.app */;
@@ -575,7 +580,6 @@
 				};
 			};
 			buildConfigurationList = D79F99C19A8BECB350E0B878 /* Build configuration list for PBXProject "AltisMacOS" */;
-			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -583,6 +587,7 @@
 				Base,
 			);
 			mainGroup = 292DF1619795B3C977CF145E;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 10A65B9357836931365807A1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -596,24 +601,19 @@
 /* Begin PBXResourcesBuildPhase section */
 		2F7407FDB76ABE10001E3D9B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5B48E75E746FF2FE22F33667 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		35C29C2E51279E5DABE79E5A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				AF1928232F70549B004558EB /* BoardListItemProjection.swift in Sources */,
 				AF163E9C2F72A452003A7C2C /* OnlineBoardGatewayContract.swift in Sources */,
@@ -639,6 +639,7 @@
 				AF19280F2F70540E004558EB /* PersistenceRecord.swift in Sources */,
 				AF1928172F705445004558EB /* BoardStageRecord.swift in Sources */,
 				AF163E942F719BD3003A7C2C /* TaskPageFeatureFlow.swift in Sources */,
+				AF92BD802F72D82C008225D7 /* OfflineLocalBoardWorker.swift in Sources */,
 				2E9C63CDAB47FEE2003AA095 /* ProjectPageView.swift in Sources */,
 				AF163E882F719B63003A7C2C /* TaskListFeatureFlow.swift in Sources */,
 				B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */,
@@ -676,16 +677,13 @@
 				AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */,
 				AF163E8A2F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		46C948AB35F273AB8F9E9C65 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 				AF19282E2F705A0C004558EB /* PersistenceRecordTests.swift in Sources */,
 				57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -699,7 +697,7 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2A9295BE92A64608A7965212 /* Release */ = {
+		2A9295BE92A64608A7965212 /* Release configuration for PBXProject "AltisMacOS" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F7113E2887FC076C1A652F1E /* Base.xcconfig */;
 			buildSettings = {
@@ -748,12 +746,13 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
-		2C7B9B2130C5023FDE824CF8 /* Release */ = {
+		2C7B9B2130C5023FDE824CF8 /* Release configuration for PBXNativeTarget "AltisMacOS" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */;
 			buildSettings = {
@@ -762,7 +761,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Altis;
@@ -771,7 +773,7 @@
 			};
 			name = Release;
 		};
-		31631A17552088CA31B79228 /* Release */ = {
+		31631A17552088CA31B79228 /* Release configuration for PBXNativeTarget "AltisMacOSTests" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */;
 			buildSettings = {
@@ -787,7 +789,7 @@
 			};
 			name = Release;
 		};
-		37B02330ECD0E5AED4B57D30 /* Debug */ = {
+		37B02330ECD0E5AED4B57D30 /* Debug configuration for PBXNativeTarget "AltisMacOSTests" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 687AF830925F835E854E0BF3 /* Debug.xcconfig */;
 			buildSettings = {
@@ -803,7 +805,7 @@
 			};
 			name = Debug;
 		};
-		450A5BA9946066026D38350D /* Debug */ = {
+		450A5BA9946066026D38350D /* Debug configuration for PBXNativeTarget "AltisMacOS" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 687AF830925F835E854E0BF3 /* Debug.xcconfig */;
 			buildSettings = {
@@ -812,7 +814,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = Altis;
@@ -821,7 +826,7 @@
 			};
 			name = Debug;
 		};
-		C58E8EFF7640B054F7E9A746 /* Debug */ = {
+		C58E8EFF7640B054F7E9A746 /* Debug configuration for PBXProject "AltisMacOS" */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F7113E2887FC076C1A652F1E /* Base.xcconfig */;
 			buildSettings = {
@@ -889,28 +894,25 @@
 		56327154CB24C0F48AD8DE07 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				31631A17552088CA31B79228 /* Release */,
-				37B02330ECD0E5AED4B57D30 /* Debug */,
+				31631A17552088CA31B79228 /* Release configuration for PBXNativeTarget "AltisMacOSTests" */,
+				37B02330ECD0E5AED4B57D30 /* Debug configuration for PBXNativeTarget "AltisMacOSTests" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		6787B2EE53CBC99ACCA01C7B /* Build configuration list for PBXNativeTarget "AltisMacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2C7B9B2130C5023FDE824CF8 /* Release */,
-				450A5BA9946066026D38350D /* Debug */,
+				2C7B9B2130C5023FDE824CF8 /* Release configuration for PBXNativeTarget "AltisMacOS" */,
+				450A5BA9946066026D38350D /* Debug configuration for PBXNativeTarget "AltisMacOS" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		D79F99C19A8BECB350E0B878 /* Build configuration list for PBXProject "AltisMacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C58E8EFF7640B054F7E9A746 /* Debug */,
-				2A9295BE92A64608A7965212 /* Release */,
+				C58E8EFF7640B054F7E9A746 /* Debug configuration for PBXProject "AltisMacOS" */,
+				2A9295BE92A64608A7965212 /* Release configuration for PBXProject "AltisMacOS" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

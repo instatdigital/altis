@@ -13,9 +13,12 @@ private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self
 /// and serialises all access through a dedicated actor.
 ///
 /// Phase 6 implements the project table and the `ProjectDataWorker`-facing read
-/// and write methods. All other `LocalStoreContract` and `LocalWritePathContract`
-/// methods are present as stubs that throw `OfflineStoreError.notImplemented` —
-/// they are filled in during Phases 7–13.
+/// and write methods.
+/// Phase 7 implements the boards, board_stages, board_stage_presets, and
+/// board_stage_preset_stages tables with full CRUD.
+/// All remaining `LocalStoreContract` and `LocalWritePathContract` methods are
+/// present as stubs that throw `OfflineStoreError.notImplemented` — filled in
+/// during Phases 8–13.
 ///
 /// Rules (from `docs/ARCHITECTURE.md` and `docs/SYNC_RULES.md`):
 /// - Offline-board writes stay local-only.
@@ -33,6 +36,14 @@ final class OfflineLocalStore: Sendable {
         let a = try DatabaseActor(path: resolvedPath)
         try await a.setup()
         self.actor = a
+    }
+
+    /// Closes the underlying SQLite connection explicitly.
+    ///
+    /// Tests use this before deleting temporary database files so SQLite does
+    /// not keep an open vnode reference to an unlinked file.
+    func close() async {
+        await actor.close()
     }
 
     // MARK: - Default path
@@ -57,7 +68,7 @@ extension OfflineLocalStore: LocalStoreContract {
     }
 
     func fetchBoardListItems(projectId: ProjectID) async throws -> [BoardListItemProjection] {
-        throw OfflineStoreError.notImplemented("fetchBoardListItems — Phase 7")
+        try await actor.fetchBoardListItems(projectId: projectId.rawValue)
     }
 
     func fetchKanbanColumns(boardId: BoardID) async throws -> [KanbanColumnProjection] {
@@ -77,19 +88,19 @@ extension OfflineLocalStore: LocalStoreContract {
     }
 
     func fetchBoard(id: BoardID) async throws -> Board? {
-        throw OfflineStoreError.notImplemented("fetchBoard — Phase 7")
+        try await actor.fetchBoard(id: id.rawValue)
     }
 
     func fetchBoardStages(boardId: BoardID) async throws -> [BoardStage] {
-        throw OfflineStoreError.notImplemented("fetchBoardStages — Phase 8")
+        try await actor.fetchBoardStages(boardId: boardId.rawValue)
     }
 
     func fetchBoardStagePresetStages(stagePresetId: BoardStagePresetID) async throws -> [BoardStagePresetStage] {
-        throw OfflineStoreError.notImplemented("fetchBoardStagePresetStages — Phase 7")
+        try await actor.fetchBoardStagePresetStages(stagePresetId: stagePresetId.rawValue)
     }
 
     func fetchBoardStagePresets(workspaceId: WorkspaceID) async throws -> [BoardStagePreset] {
-        throw OfflineStoreError.notImplemented("fetchBoardStagePresets — Phase 7")
+        try await actor.fetchBoardStagePresets(workspaceId: workspaceId.rawValue)
     }
 
     func fetchTask(id: TaskID) async throws -> Task? {
@@ -114,39 +125,42 @@ extension OfflineLocalStore: LocalWritePathContract {
     }
 
     func createBoard(_ board: Board) async throws {
-        throw OfflineStoreError.notImplemented("createBoard — Phase 7")
+        try await actor.createBoard(BoardRecord(from: board))
     }
 
     func updateBoard(_ board: Board) async throws {
-        throw OfflineStoreError.notImplemented("updateBoard — Phase 7")
+        try await actor.updateBoard(BoardRecord(from: board))
     }
 
     func deleteBoard(id: BoardID) async throws {
-        throw OfflineStoreError.notImplemented("deleteBoard — Phase 7")
+        try await actor.deleteBoard(id: id.rawValue)
     }
 
     func createBoardStage(_ stage: BoardStage) async throws {
-        throw OfflineStoreError.notImplemented("createBoardStage — Phase 8")
+        try await actor.createBoardStage(BoardStageRecord(from: stage))
     }
 
     func updateBoardStage(_ stage: BoardStage) async throws {
-        throw OfflineStoreError.notImplemented("updateBoardStage — Phase 8")
+        try await actor.updateBoardStage(BoardStageRecord(from: stage))
     }
 
     func deleteBoardStage(id: BoardStageID) async throws {
-        throw OfflineStoreError.notImplemented("deleteBoardStage — Phase 8")
+        try await actor.deleteBoardStage(id: id.rawValue)
     }
 
     func createBoardStagePreset(_ preset: BoardStagePreset, stages: [BoardStagePresetStage]) async throws {
-        throw OfflineStoreError.notImplemented("createBoardStagePreset — Phase 7")
+        try await actor.createBoardStagePreset(
+            BoardStagePresetRecord(from: preset),
+            stages: stages.map { BoardStagePresetStageRecord(from: $0) }
+        )
     }
 
     func updateBoardStagePreset(_ preset: BoardStagePreset) async throws {
-        throw OfflineStoreError.notImplemented("updateBoardStagePreset — Phase 7")
+        try await actor.updateBoardStagePreset(BoardStagePresetRecord(from: preset))
     }
 
     func deleteBoardStagePreset(id: BoardStagePresetID) async throws {
-        throw OfflineStoreError.notImplemented("deleteBoardStagePreset — Phase 7")
+        try await actor.deleteBoardStagePreset(id: id.rawValue)
     }
 
     func createTask(_ task: Task) async throws {
@@ -214,6 +228,12 @@ private actor DatabaseActor {
         sqlite3_close_v2(db)
     }
 
+    func close() {
+        guard let db else { return }
+        sqlite3_close_v2(db)
+        self.db = nil
+    }
+
     /// Runs schema migrations. Must be called once immediately after `init`.
     func setup() throws {
         try migrate()
@@ -225,6 +245,10 @@ private actor DatabaseActor {
         try exec("PRAGMA journal_mode=WAL;")
         try exec("PRAGMA foreign_keys=ON;")
         try createProjectsTable()
+        try createBoardsTable()
+        try createBoardStagesTable()
+        try createBoardStagePresetsTable()
+        try createBoardStagePresetStagesTable()
     }
 
     private func createProjectsTable() throws {
@@ -239,14 +263,67 @@ private actor DatabaseActor {
             """)
     }
 
+    private func createBoardsTable() throws {
+        try exec("""
+            CREATE TABLE IF NOT EXISTS boards (
+                boardId     TEXT PRIMARY KEY NOT NULL,
+                workspaceId TEXT NOT NULL,
+                projectId   TEXT NOT NULL,
+                name        TEXT NOT NULL,
+                mode        TEXT NOT NULL,
+                createdAt   TEXT NOT NULL,
+                updatedAt   TEXT NOT NULL
+            );
+            """)
+    }
+
+    private func createBoardStagesTable() throws {
+        try exec("""
+            CREATE TABLE IF NOT EXISTS board_stages (
+                stageId    TEXT PRIMARY KEY NOT NULL,
+                boardId    TEXT NOT NULL,
+                name       TEXT NOT NULL,
+                orderIndex INTEGER NOT NULL,
+                kind       TEXT NOT NULL,
+                createdAt  TEXT NOT NULL,
+                updatedAt  TEXT NOT NULL
+            );
+            """)
+    }
+
+    private func createBoardStagePresetsTable() throws {
+        try exec("""
+            CREATE TABLE IF NOT EXISTS board_stage_presets (
+                stagePresetId TEXT PRIMARY KEY NOT NULL,
+                workspaceId   TEXT NOT NULL,
+                name          TEXT NOT NULL,
+                createdAt     TEXT NOT NULL,
+                updatedAt     TEXT NOT NULL
+            );
+            """)
+    }
+
+    private func createBoardStagePresetStagesTable() throws {
+        try exec("""
+            CREATE TABLE IF NOT EXISTS board_stage_preset_stages (
+                presetStageId TEXT PRIMARY KEY NOT NULL,
+                stagePresetId TEXT NOT NULL,
+                name          TEXT NOT NULL,
+                orderIndex    INTEGER NOT NULL,
+                kind          TEXT NOT NULL
+            );
+            """)
+    }
+
     // MARK: - Project reads
 
     func fetchProjectListItems(workspaceId: String) throws -> [ProjectListItemProjection] {
         let sql = """
-            SELECT projectId, name
-            FROM projects
-            WHERE workspaceId = ?
-            ORDER BY name ASC;
+            SELECT p.projectId, p.name,
+                   (SELECT COUNT(*) FROM boards b WHERE b.projectId = p.projectId) AS boardCount
+            FROM projects p
+            WHERE p.workspaceId = ?
+            ORDER BY p.name ASC;
             """
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
@@ -260,10 +337,11 @@ private actor DatabaseActor {
         while sqlite3_step(stmt) == SQLITE_ROW {
             let id = String(cString: sqlite3_column_text(stmt, 0))
             let name = String(cString: sqlite3_column_text(stmt, 1))
+            let boardCount = Int(sqlite3_column_int(stmt, 2))
             results.append(ProjectListItemProjection(
                 projectId: ProjectID(rawValue: id),
                 name: name,
-                boardCount: 0
+                boardCount: boardCount
             ))
         }
         return results
@@ -354,6 +432,395 @@ private actor DatabaseActor {
 
         guard sqlite3_step(stmt) == SQLITE_DONE else {
             throw sqliteError("deleteProject step")
+        }
+    }
+
+    // MARK: - Board reads
+
+    func fetchBoardListItems(projectId: String) throws -> [BoardListItemProjection] {
+        // Stage count is computed via a sub-query against `board_stages`.
+        // Task count is always 0 here because the `tasks` table is created in Phase 9.
+        // Once Phase 9 lands, replace the literal 0 with:
+        //   (SELECT COUNT(*) FROM tasks t WHERE t.boardId = b.boardId)
+        let sql = """
+            SELECT
+                b.boardId,
+                b.projectId,
+                b.name,
+                b.mode,
+                (SELECT COUNT(*) FROM board_stages s WHERE s.boardId = b.boardId) AS stageCount
+            FROM boards b
+            WHERE b.projectId = ?
+            ORDER BY b.name ASC;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchBoardListItems prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, projectId, -1, sqliteTransient)
+
+        var results: [BoardListItemProjection] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let boardId    = String(cString: sqlite3_column_text(stmt, 0))
+            let projId     = String(cString: sqlite3_column_text(stmt, 1))
+            let name       = String(cString: sqlite3_column_text(stmt, 2))
+            let modeRaw    = String(cString: sqlite3_column_text(stmt, 3))
+            let stageCount = Int(sqlite3_column_int(stmt, 4))
+            guard let mode = BoardMode(rawValue: modeRaw) else { continue }
+            results.append(BoardListItemProjection(
+                boardId: BoardID(rawValue: boardId),
+                projectId: ProjectID(rawValue: projId),
+                name: name,
+                mode: mode,
+                stageCount: stageCount,
+                taskCount: 0  // populated in Phase 9
+            ))
+        }
+        return results
+    }
+
+    func fetchBoard(id: String) throws -> Board? {
+        let sql = """
+            SELECT boardId, workspaceId, projectId, name, mode, createdAt, updatedAt
+            FROM boards
+            WHERE boardId = ?
+            LIMIT 1;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchBoard prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, id, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_ROW else { return nil }
+
+        let record = BoardRecord(
+            boardId:     String(cString: sqlite3_column_text(stmt, 0)),
+            workspaceId: String(cString: sqlite3_column_text(stmt, 1)),
+            projectId:   String(cString: sqlite3_column_text(stmt, 2)),
+            name:        String(cString: sqlite3_column_text(stmt, 3)),
+            mode:        String(cString: sqlite3_column_text(stmt, 4)),
+            createdAt:   String(cString: sqlite3_column_text(stmt, 5)),
+            updatedAt:   String(cString: sqlite3_column_text(stmt, 6))
+        )
+        return record.toDomain()
+    }
+
+    func fetchBoardStages(boardId: String) throws -> [BoardStage] {
+        let sql = """
+            SELECT stageId, boardId, name, orderIndex, kind, createdAt, updatedAt
+            FROM board_stages
+            WHERE boardId = ?
+            ORDER BY orderIndex ASC;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchBoardStages prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, boardId, -1, sqliteTransient)
+
+        var results: [BoardStage] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let record = BoardStageRecord(
+                stageId:    String(cString: sqlite3_column_text(stmt, 0)),
+                boardId:    String(cString: sqlite3_column_text(stmt, 1)),
+                name:       String(cString: sqlite3_column_text(stmt, 2)),
+                orderIndex: Int(sqlite3_column_int(stmt, 3)),
+                kind:       String(cString: sqlite3_column_text(stmt, 4)),
+                createdAt:  String(cString: sqlite3_column_text(stmt, 5)),
+                updatedAt:  String(cString: sqlite3_column_text(stmt, 6))
+            )
+            if let stage = record.toDomain() { results.append(stage) }
+        }
+        return results
+    }
+
+    func fetchBoardStagePresets(workspaceId: String) throws -> [BoardStagePreset] {
+        let sql = """
+            SELECT stagePresetId, workspaceId, name, createdAt, updatedAt
+            FROM board_stage_presets
+            WHERE workspaceId = ?
+            ORDER BY name ASC;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchBoardStagePresets prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, workspaceId, -1, sqliteTransient)
+
+        var results: [BoardStagePreset] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let record = BoardStagePresetRecord(
+                stagePresetId: String(cString: sqlite3_column_text(stmt, 0)),
+                workspaceId:   String(cString: sqlite3_column_text(stmt, 1)),
+                name:          String(cString: sqlite3_column_text(stmt, 2)),
+                createdAt:     String(cString: sqlite3_column_text(stmt, 3)),
+                updatedAt:     String(cString: sqlite3_column_text(stmt, 4))
+            )
+            if let preset = record.toDomain() { results.append(preset) }
+        }
+        return results
+    }
+
+    func fetchBoardStagePresetStages(stagePresetId: String) throws -> [BoardStagePresetStage] {
+        let sql = """
+            SELECT presetStageId, stagePresetId, name, orderIndex, kind
+            FROM board_stage_preset_stages
+            WHERE stagePresetId = ?
+            ORDER BY orderIndex ASC;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchBoardStagePresetStages prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, stagePresetId, -1, sqliteTransient)
+
+        var results: [BoardStagePresetStage] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let record = BoardStagePresetStageRecord(
+                presetStageId: String(cString: sqlite3_column_text(stmt, 0)),
+                stagePresetId: String(cString: sqlite3_column_text(stmt, 1)),
+                name:          String(cString: sqlite3_column_text(stmt, 2)),
+                orderIndex:    Int(sqlite3_column_int(stmt, 3)),
+                kind:          String(cString: sqlite3_column_text(stmt, 4))
+            )
+            if let stage = record.toDomain() { results.append(stage) }
+        }
+        return results
+    }
+
+    // MARK: - Board writes
+
+    func createBoard(_ record: BoardRecord) throws {
+        let sql = """
+            INSERT INTO boards (boardId, workspaceId, projectId, name, mode, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("createBoard prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, record.boardId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, record.workspaceId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, record.projectId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 4, record.name, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 5, record.mode, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 6, record.createdAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 7, record.updatedAt, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("createBoard step")
+        }
+    }
+
+    func updateBoard(_ record: BoardRecord) throws {
+        let sql = """
+            UPDATE boards
+            SET workspaceId = ?, projectId = ?, name = ?, mode = ?, updatedAt = ?
+            WHERE boardId = ?;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("updateBoard prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, record.workspaceId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, record.projectId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, record.name, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 4, record.mode, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 5, record.updatedAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 6, record.boardId, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("updateBoard step")
+        }
+    }
+
+    func deleteBoard(id: String) throws {
+        let sql = "DELETE FROM boards WHERE boardId = ?;"
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("deleteBoard prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, id, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("deleteBoard step")
+        }
+    }
+
+    // MARK: - BoardStage writes
+
+    func createBoardStage(_ record: BoardStageRecord) throws {
+        let sql = """
+            INSERT INTO board_stages (stageId, boardId, name, orderIndex, kind, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("createBoardStage prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, record.stageId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, record.boardId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, record.name, -1, sqliteTransient)
+        sqlite3_bind_int(stmt, 4, Int32(record.orderIndex))
+        sqlite3_bind_text(stmt, 5, record.kind, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 6, record.createdAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 7, record.updatedAt, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("createBoardStage step")
+        }
+    }
+
+    func updateBoardStage(_ record: BoardStageRecord) throws {
+        let sql = """
+            UPDATE board_stages
+            SET name = ?, orderIndex = ?, kind = ?, updatedAt = ?
+            WHERE stageId = ?;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("updateBoardStage prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, record.name, -1, sqliteTransient)
+        sqlite3_bind_int(stmt, 2, Int32(record.orderIndex))
+        sqlite3_bind_text(stmt, 3, record.kind, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 4, record.updatedAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 5, record.stageId, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("updateBoardStage step")
+        }
+    }
+
+    func deleteBoardStage(id: String) throws {
+        let sql = "DELETE FROM board_stages WHERE stageId = ?;"
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("deleteBoardStage prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, id, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("deleteBoardStage step")
+        }
+    }
+
+    // MARK: - BoardStagePreset writes
+
+    func createBoardStagePreset(_ preset: BoardStagePresetRecord, stages: [BoardStagePresetStageRecord]) throws {
+        let presetSQL = """
+            INSERT INTO board_stage_presets (stagePresetId, workspaceId, name, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?);
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, presetSQL, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("createBoardStagePreset prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, preset.stagePresetId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, preset.workspaceId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, preset.name, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 4, preset.createdAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 5, preset.updatedAt, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("createBoardStagePreset step")
+        }
+
+        for stage in stages {
+            try createBoardStagePresetStage(stage)
+        }
+    }
+
+    private func createBoardStagePresetStage(_ record: BoardStagePresetStageRecord) throws {
+        let sql = """
+            INSERT INTO board_stage_preset_stages (presetStageId, stagePresetId, name, orderIndex, kind)
+            VALUES (?, ?, ?, ?, ?);
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("createBoardStagePresetStage prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, record.presetStageId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, record.stagePresetId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, record.name, -1, sqliteTransient)
+        sqlite3_bind_int(stmt, 4, Int32(record.orderIndex))
+        sqlite3_bind_text(stmt, 5, record.kind, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("createBoardStagePresetStage step")
+        }
+    }
+
+    func updateBoardStagePreset(_ preset: BoardStagePresetRecord) throws {
+        let sql = """
+            UPDATE board_stage_presets
+            SET name = ?, updatedAt = ?
+            WHERE stagePresetId = ?;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("updateBoardStagePreset prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, preset.name, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, preset.updatedAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, preset.stagePresetId, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("updateBoardStagePreset step")
+        }
+    }
+
+    func deleteBoardStagePreset(id: String) throws {
+        // Delete preset stages first (no FK cascade in SQLite by default).
+        let stagesSQL = "DELETE FROM board_stage_preset_stages WHERE stagePresetId = ?;"
+        var stagesStmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, stagesSQL, -1, &stagesStmt, nil) == SQLITE_OK else {
+            throw sqliteError("deleteBoardStagePreset stages prepare")
+        }
+        defer { sqlite3_finalize(stagesStmt) }
+        sqlite3_bind_text(stagesStmt, 1, id, -1, sqliteTransient)
+        guard sqlite3_step(stagesStmt) == SQLITE_DONE else {
+            throw sqliteError("deleteBoardStagePreset stages step")
+        }
+
+        let presetSQL = "DELETE FROM board_stage_presets WHERE stagePresetId = ?;"
+        var presetStmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, presetSQL, -1, &presetStmt, nil) == SQLITE_OK else {
+            throw sqliteError("deleteBoardStagePreset preset prepare")
+        }
+        defer { sqlite3_finalize(presetStmt) }
+        sqlite3_bind_text(presetStmt, 1, id, -1, sqliteTransient)
+        guard sqlite3_step(presetStmt) == SQLITE_DONE else {
+            throw sqliteError("deleteBoardStagePreset preset step")
         }
     }
 

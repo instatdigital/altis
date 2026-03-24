@@ -366,15 +366,113 @@ CREATE TABLE IF NOT EXISTS projects (
 
 ## Phase 7. Offline Board Flow
 
-- [ ] Implement create offline board flow
-- [ ] Implement create offline board from preset copy
-- [ ] Add board mode choice to board creation flow without introducing a separate offline/online app branch
-- [ ] Ensure board creation records `mode = offline`
-- [ ] Ensure board creation always results in at least three stages
-- [ ] Ensure exactly one terminal success stage exists
-- [ ] Ensure exactly one terminal failure stage exists
-- [ ] Implement offline board list projection
-- [ ] Persist created offline boards locally
+- [x] Implement create offline board flow
+- [x] Implement create offline board from preset copy
+- [x] Add board mode choice to board creation flow without introducing a separate offline/online app branch
+- [x] Ensure board creation records `mode = offline`
+- [x] Ensure board creation always results in at least three stages
+- [x] Ensure exactly one terminal success stage exists
+- [x] Ensure exactly one terminal failure stage exists
+- [x] Implement offline board list projection
+- [x] Persist created offline boards locally
+
+### Phase 7 Validation Record
+
+Verified: 2026-03-24
+
+**New files — `App/Platform/Persistence/`:**
+- `OfflineLocalBoardWorker.swift` — Concrete `OfflineBoardDataWorker` backed by `OfflineLocalStore`. `createBoard` generates default three stages (`To Do / regular`, `Done / terminalSuccess`, `Cancelled / terminalFailure`) and validates invariants via `BoardStageInvariants.validate` before any write. `createBoardFromPreset` copies preset stages into board-local `BoardStage` entities, re-indexes them, and validates invariants. `loadBoards` delegates to `store.fetchBoardListItems(projectId:)` so projection-owned counts reach the flow intact.
+
+**Updated files — `App/Platform/Persistence/OfflineLocalStore.swift`:**
+- `DatabaseActor.migrate()` — now creates `boards`, `board_stages`, `board_stage_presets`, `board_stage_preset_stages` tables.
+- `DatabaseActor.fetchProjectListItems` — sub-query `boardCount` now computed from `boards` table (was hardcoded `0`).
+- `DatabaseActor` — new board read methods: `fetchBoardListItems`, `fetchBoard`, `fetchBoardStages`, `fetchBoardStagePresets`, `fetchBoardStagePresetStages`.
+- `DatabaseActor` — new board write methods: `createBoard`, `updateBoard`, `deleteBoard`, `createBoardStage`, `updateBoardStage`, `deleteBoardStage`, `createBoardStagePreset`, `updateBoardStagePreset`, `deleteBoardStagePreset`.
+- All Phase 7 stubs replaced; remaining Phase 8–13 stubs unchanged.
+- `DatabaseActor.fetchBoardListItems` no longer queries `tasks` in Phase 7; `taskCount` remains `0` until the Phase 9 task schema exists.
+
+**Updated files — `App/Features/Board/State/`:**
+- `BoardFeatureEvent` — `appeared` now carries `workspaceId`; added `errorAcknowledged`, `boardCreated`, `boardCreateFailed`, `presetsLoaded`.
+- `BoardFeatureState` — added `workspaceId`, `isCreating`, `errorMessage`, `availablePresets`.
+- `BoardFeatureFlow` — `createOfflineBoardRequested` and `createOfflineBoardFromPresetRequested` handlers implemented; `loadPresets` effect loads workspace presets on `appeared`; `boardCreated` reloads the offline list; offline board reads now consume `[BoardListItemProjection]` directly; the flow clears stale board-list state when switching projects.
+
+**Updated files — `App/Features/Board/Page/BoardPageView.swift`:**
+- Full implementation replacing the placeholder: board list with mode badge (Local / Online), empty state, toolbar "New Board" button, creation sheet with `BoardMode` segmented picker plus optional preset picker for offline boards only, and error alert with `errorAcknowledged` dismiss.
+
+**Updated files — `App/Shell/`:**
+- `AppEnvironment.swift` — `NotImplementedOnlineBoardGateway` added; throws `URLError(.notConnectedToInternet)` for all gateway calls, which maps to `OnlineBoardUnavailableReason.networkUnavailable` in `BoardFeatureFlow`.
+- `AppShell.swift` — owns `@StateObject private var boardFlow: BoardFeatureFlow`; created with `OfflineLocalBoardWorker` + `NotImplementedOnlineBoardGateway`; routes `.boardList(projectId:workspaceId:)` to `BoardPageView`.
+
+**Updated files — `App/Navigation/AppRoute.swift`:**
+- Added `.boardList(projectId: ProjectID, workspaceId: WorkspaceID)` case replacing the old flat `.board`.
+
+**Updated files — `App/Features/Project/Page/ProjectPageView.swift`:**
+- Added optional `onProjectSelected: ((ProjectID) -> Void)?` callback; called alongside `flow.send(.projectSelected)` so the shell can drive navigation to the board list.
+
+**Board creation schema:**
+```sql
+CREATE TABLE IF NOT EXISTS boards (
+    boardId     TEXT PRIMARY KEY NOT NULL,
+    workspaceId TEXT NOT NULL,
+    projectId   TEXT NOT NULL,
+    name        TEXT NOT NULL,
+    mode        TEXT NOT NULL,   -- "offline" or "online"
+    createdAt   TEXT NOT NULL,
+    updatedAt   TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS board_stages (
+    stageId    TEXT PRIMARY KEY NOT NULL,
+    boardId    TEXT NOT NULL,
+    name       TEXT NOT NULL,
+    orderIndex INTEGER NOT NULL,
+    kind       TEXT NOT NULL,   -- "regular", "terminalSuccess", "terminalFailure"
+    createdAt  TEXT NOT NULL,
+    updatedAt  TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS board_stage_presets (
+    stagePresetId TEXT PRIMARY KEY NOT NULL,
+    workspaceId   TEXT NOT NULL,
+    name          TEXT NOT NULL,
+    createdAt     TEXT NOT NULL,
+    updatedAt     TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS board_stage_preset_stages (
+    presetStageId TEXT PRIMARY KEY NOT NULL,
+    stagePresetId TEXT NOT NULL,
+    name          TEXT NOT NULL,
+    orderIndex    INTEGER NOT NULL,
+    kind          TEXT NOT NULL
+);
+```
+
+**Stage invariant enforcement:**
+- `OfflineLocalBoardWorker.createBoard` calls `BoardStageInvariants.validate` on the default three-stage set before writing; throws `OfflineBoardWorkerError.invariantViolation` if violated (cannot happen with the hardcoded defaults — serves as a compile-time regression guard).
+- `OfflineLocalBoardWorker.createBoardFromPreset` calls `BoardStageInvariants.validate` on the copied preset stages before writing; throws if the preset violates invariants.
+
+**Build result:** `BuildProject` succeeded with 0 compiler errors and 0 compiler warnings. Direct `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug build` also succeeds; Xcode still emits the existing destination-selection warning and the non-actionable `appintentsmetadataprocessor` warning `Metadata extraction skipped. No AppIntents.framework dependency found.`
+**Test run result:** direct `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug test` succeeded. Current output shows 1 XCTest bootstrap test plus 19 Swift Testing tests passing.
+
+### Phase 7 Review Follow-Up Tasks
+
+- [x] Rewire the offline board list read path to `LocalStoreContract.fetchBoardListItems(projectId:)` so `BoardFeatureFlow` stops rebuilding `BoardListItemProjection` from `[Board]` with `stageCount: 0` and `taskCount: 0`
+- [x] Make `DatabaseActor.fetchBoardListItems(projectId:)` executable in Phase 7 before Phase 9 task tables exist: either stop querying `tasks` until that schema exists or create the required table earlier, and add regression coverage for board-list reads on a fresh Phase 7 database
+- [x] Add a real board mode chooser to `BoardPageView`'s creation sheet and route the selected mode explicitly; the current sheet only offers a preset picker and always dispatches offline creation intents
+- [x] Reset `BoardFeatureFlow` board-list state on project change so the shared `boardFlow` in `AppShell` does not keep showing the previous project's rows while the next project's loads are in flight
+- [x] Add explicit Phase 7 regression coverage for the fixed board-list path: fresh-database `fetchBoardListItems(projectId:)` reads and `BoardFeatureFlow` project-switch state reset are still untested by the current suite
+- [x] Remove the stale duplicate test file at `apple/macos/Tests/PersistenceRecordTests.swift` and move the active regression suite into the canonical `apple/macos/Tests/` location so platform test placement matches the macOS README and Xcode target inputs stay unambiguous
+- [x] Fix temporary SQLite test cleanup in `PersistenceRecordTests.swift`: current regression tests unlink the database file while `OfflineLocalStore` still has it open, and `xcodebuild test` logs `BUG IN CLIENT OF libsqlite3.dylib: vnode unlinked while in use`
+
+**Final resolution — 2026-03-24:**
+- `OfflineBoardDataWorker.loadBoards` return type changed from `[Board]` to `[BoardListItemProjection]`. `OfflineLocalBoardWorker.loadBoards` now delegates directly to `store.fetchBoardListItems(projectId:)`. `BoardFeatureEvent.offlineBoardsLoaded` updated to carry `[BoardListItemProjection]`. `BoardFeatureFlow.offlineBoardsLoaded` assigns projections without rebuilding them.
+- `DatabaseActor.fetchBoardListItems` — removed `(SELECT COUNT(*) FROM tasks …)` sub-query; `taskCount` is set to literal `0` with a comment documenting the Phase 9 upgrade path. The `tasks` table does not exist until Phase 9; the old query would have caused a prepare-time SQL error on every fresh database.
+- `DatabaseActor.fetchBoardsForProject` and `OfflineLocalStore.fetchBoards(projectId:)` removed — no longer needed now that the read path uses projections.
+- `BoardPageView` creation sheet — added `BoardMode` segmented picker ("Local (offline)" / "Online (Phase 14)"). `selectedMode` defaults to `.offline`; selecting `.online` disables the Create button and shows an explanatory caption. `submitCreate()` guards on `selectedMode == .offline`. Preset picker is hidden when online mode is selected (presets are offline-only).
+- `BoardFeatureFlow.appeared` — clears `boards`, `offlineErrorMessage`, and `onlineBoardsUnavailable` when the incoming `projectId` differs from the current `state.projectId`, preventing stale rows from appearing while new loads are in flight.
+- Phase 7 regression coverage — added `OfflineLocalStoreBoardListRegressionTests.fetchBoardListItemsFreshDatabase()` to prove `fetchBoardListItems(projectId:)` works on a fresh Phase 7 database without a `tasks` table, and `BoardFeatureFlowRegressionTests.projectSwitchResetsState()` to prove project changes clear stale board-list state before the next loads finish.
+- Test placement cleanup — the active `PersistenceRecordTests.swift` suite now lives only at `apple/macos/Tests/PersistenceRecordTests.swift`; the root-level duplicate was removed and the Xcode project now references the canonical `Tests/` location via a dedicated `Tests` group, matching the macOS README and eliminating ambiguous test inputs.
+- Temporary SQLite cleanup — `OfflineLocalStore` now exposes an explicit async `close()` used by test helpers before deleting temporary database files. `PersistenceRecordTests.swift` regression suites now run through `withTemporaryStore(...)`, which closes the SQLite handle before unlinking the temp file, removing the `libsqlite3` `vnode unlinked while in use` test log noise.
+- **Build result:** `BuildProject` succeeded with 0 compiler errors and 0 compiler warnings. Direct `xcodebuild` build still emits the known destination-selection warning and the non-actionable `appintentsmetadataprocessor` warning.
+- **Test run result:** direct `xcodebuild` test succeeded. Current output shows 1 XCTest bootstrap test plus 21 Swift Testing tests passing.
 
 ## Phase 8. Offline Board Stage Management
 

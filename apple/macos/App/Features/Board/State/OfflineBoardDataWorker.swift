@@ -9,8 +9,11 @@ import Foundation
 /// - Offline board writes MUST stay local-only.
 /// - Data workers MUST encapsulate data access behind typed interfaces.
 protocol OfflineBoardDataWorker: Sendable {
-    /// Returns all offline boards for the given project, ordered by creation date.
-    func loadBoards(projectId: ProjectID) async throws -> [Board]
+    /// Returns typed list projections for all offline boards in the given project.
+    ///
+    /// Returns projections (not raw domain entities) so that store-computed
+    /// fields such as `stageCount` reach the feature flow intact.
+    func loadBoards(projectId: ProjectID) async throws -> [BoardListItemProjection]
 
     /// Persists a new offline board with default stage invariants and returns the saved entity.
     func createBoard(name: String, projectId: ProjectID, workspaceId: WorkspaceID) async throws -> Board

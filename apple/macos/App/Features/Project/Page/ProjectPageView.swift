@@ -5,9 +5,15 @@ import SwiftUI
 /// Renders the `ProjectFeatureState` provided by `ProjectFeatureFlow`.
 /// All user intents are emitted as `ProjectFeatureEvent` values — the view
 /// never mutates data directly.
+///
+/// Navigation to the board list for a selected project is delegated to the
+/// shell layer via `onProjectSelected`.
 struct ProjectPageView: View {
 
     @ObservedObject var flow: ProjectFeatureFlow
+
+    /// Called when the user selects a project. The shell layer routes to the board list.
+    var onProjectSelected: ((ProjectID) -> Void)? = nil
 
     @State private var isShowingCreateSheet = false
     @State private var newProjectName = ""
@@ -65,6 +71,7 @@ struct ProjectPageView: View {
             ProjectRowView(projection: project)
                 .onTapGesture {
                     flow.send(.projectSelected(project.projectId))
+                    onProjectSelected?(project.projectId)
                 }
         }
     }

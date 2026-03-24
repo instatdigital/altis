@@ -1,56 +1,6 @@
 import Testing
 import Foundation
-@testable import AltisMacOS
-
-// MARK: - SyncMetadataRecord
-
-@Suite("SyncMetadataRecord")
-struct SyncMetadataRecordTests {
-
-    @Test("round-trip preserves all fields")
-    func roundTripAllFields() {
-        let original = SyncMetadata(
-            syncState: .locallyModified,
-            lastSyncedAt: Date(timeIntervalSince1970: 1_700_000_000),
-            remoteVersion: "v42",
-            localRevision: 7,
-            isDirty: true
-        )
-        let restored = SyncMetadataRecord(from: original).toDomain()
-
-        #expect(restored.syncState == .locallyModified)
-        #expect(restored.remoteVersion == "v42")
-        #expect(restored.localRevision == 7)
-        #expect(restored.isDirty == true)
-        #expect(abs(restored.lastSyncedAt!.timeIntervalSince1970 - 1_700_000_000) < 1)
-    }
-
-    @Test("nil lastSyncedAt survives round-trip as nil")
-    func nilLastSyncedAt() {
-        let restored = SyncMetadataRecord(
-            from: SyncMetadata(syncState: .pendingUpload, lastSyncedAt: nil)
-        ).toDomain()
-        #expect(restored.lastSyncedAt == nil)
-    }
-
-    @Test("unknown syncState raw value falls back to syncError")
-    func unknownSyncStateRawValue() {
-        let record = SyncMetadataRecord(
-            syncState: "completelyUnknownState",
-            lastSyncedAt: nil,
-            remoteVersion: nil,
-            localRevision: 1,
-            isDirty: false
-        )
-        #expect(record.toDomain().syncState == .syncError)
-    }
-
-    @Test("all SyncState raw values round-trip correctly", arguments: SyncState.allCases)
-    func allSyncStates(state: SyncState) {
-        let restored = SyncMetadataRecord(from: SyncMetadata(syncState: state)).toDomain()
-        #expect(restored.syncState == state)
-    }
-}
+@testable import Altis
 
 // MARK: - ProjectRecord
 
@@ -97,19 +47,34 @@ struct BoardRecordTests {
 
     @Test("round-trip preserves all fields")
     func roundTrip() throws {
-        let board = Board(workspaceId: workspaceId, projectId: projectId, name: "Sprint 1")
+        let board = Board(workspaceId: workspaceId, projectId: projectId, name: "Sprint 1", mode: .offline)
         let restored = try #require(BoardRecord(from: board).toDomain())
 
         #expect(restored.boardId == board.boardId)
         #expect(restored.workspaceId == workspaceId)
         #expect(restored.projectId == projectId)
         #expect(restored.name == "Sprint 1")
+        #expect(restored.mode == .offline)
+    }
+
+    @Test("round-trip preserves online mode")
+    func roundTripOnlineMode() throws {
+        let board = Board(workspaceId: workspaceId, projectId: projectId, name: "Online Board", mode: .online)
+        let restored = try #require(BoardRecord(from: board).toDomain())
+        #expect(restored.mode == .online)
     }
 
     @Test("toDomain returns nil for malformed updatedAt")
     func malformedUpdatedAt() {
         var record = BoardRecord(from: Board(workspaceId: workspaceId, projectId: projectId, name: "X"))
         record.updatedAt = "bad"
+        #expect(record.toDomain() == nil)
+    }
+
+    @Test("toDomain returns nil for unknown mode raw value")
+    func unknownMode() {
+        var record = BoardRecord(from: Board(workspaceId: workspaceId, projectId: projectId, name: "X"))
+        record.mode = "hybrid"
         #expect(record.toDomain() == nil)
     }
 }
@@ -241,10 +206,231 @@ struct TaskRecordTests {
         #expect(record.toDomain() == nil)
     }
 
-    @Test("toDomain returns nil for malformed lastModifiedAt")
-    func malformedLastModifiedAt() {
+    @Test("toDomain returns nil for malformed updatedAt")
+    func malformedUpdatedAt() {
         var record = TaskRecord(from: Task(workspaceId: workspaceId, projectId: projectId, title: "T"))
-        record.lastModifiedAt = "not-a-date"
+        record.updatedAt = "not-a-date"
         #expect(record.toDomain() == nil)
+    }
+}
+
+// MARK: - OfflineLocalStore board-list regressions
+
+@Suite("OfflineLocalStore board list")
+struct OfflineLocalStoreBoardListRegressionTests {
+
+    @Test("fetchBoardListItems reads on a fresh Phase 7 database without tasks table")
+    func fetchBoardListItemsFreshDatabase() async throws {
+        let workspaceId = WorkspaceID()
+        let project = Project(workspaceId: workspaceId, name: "Alpha")
+        let now = Date(timeIntervalSince1970: 1_710_000_000)
+        let projections = try await withTemporaryStore(prefix: "altis-board-list") { store in
+            let emptyRead = try await store.fetchBoardListItems(projectId: project.projectId)
+            #expect(emptyRead.isEmpty)
+
+            try await store.createProject(project)
+
+            let betaBoard = Board(
+                workspaceId: workspaceId,
+                projectId: project.projectId,
+                name: "Beta Board",
+                mode: .offline,
+                createdAt: now,
+                updatedAt: now
+            )
+            let alphaBoard = Board(
+                workspaceId: workspaceId,
+                projectId: project.projectId,
+                name: "Alpha Board",
+                mode: .offline,
+                createdAt: now,
+                updatedAt: now
+            )
+
+            try await store.createBoard(betaBoard)
+            try await store.createBoard(alphaBoard)
+
+            try await store.createBoardStage(BoardStage(
+                boardId: betaBoard.boardId,
+                name: "To Do",
+                orderIndex: 0,
+                kind: .regular,
+                createdAt: now,
+                updatedAt: now
+            ))
+            try await store.createBoardStage(BoardStage(
+                boardId: betaBoard.boardId,
+                name: "Done",
+                orderIndex: 1,
+                kind: .terminalSuccess,
+                createdAt: now,
+                updatedAt: now
+            ))
+            try await store.createBoardStage(BoardStage(
+                boardId: betaBoard.boardId,
+                name: "Cancelled",
+                orderIndex: 2,
+                kind: .terminalFailure,
+                createdAt: now,
+                updatedAt: now
+            ))
+
+            try await store.createBoardStage(BoardStage(
+                boardId: alphaBoard.boardId,
+                name: "Backlog",
+                orderIndex: 0,
+                kind: .regular,
+                createdAt: now,
+                updatedAt: now
+            ))
+            try await store.createBoardStage(BoardStage(
+                boardId: alphaBoard.boardId,
+                name: "Ready",
+                orderIndex: 1,
+                kind: .regular,
+                createdAt: now,
+                updatedAt: now
+            ))
+            try await store.createBoardStage(BoardStage(
+                boardId: alphaBoard.boardId,
+                name: "Done",
+                orderIndex: 2,
+                kind: .terminalSuccess,
+                createdAt: now,
+                updatedAt: now
+            ))
+            try await store.createBoardStage(BoardStage(
+                boardId: alphaBoard.boardId,
+                name: "Cancelled",
+                orderIndex: 3,
+                kind: .terminalFailure,
+                createdAt: now,
+                updatedAt: now
+            ))
+
+            return try await store.fetchBoardListItems(projectId: project.projectId)
+        }
+
+        #expect(projections.map(\.name) == ["Alpha Board", "Beta Board"])
+        #expect(projections.map(\.stageCount) == [4, 3])
+        #expect(projections.map(\.taskCount) == [0, 0])
+        #expect(projections.allSatisfy { $0.projectId == project.projectId && $0.mode == .offline })
+    }
+}
+
+// MARK: - BoardFeatureFlow regressions
+
+@Suite("BoardFeatureFlow")
+struct BoardFeatureFlowRegressionTests {
+
+    @Test("appeared clears previous project board list state before next loads finish")
+    @MainActor
+    func projectSwitchResetsState() async throws {
+        let workspaceId = WorkspaceID()
+        let previousProjectId = ProjectID()
+        let nextProjectId = ProjectID()
+        let staleBoard = BoardListItemProjection(
+            boardId: BoardID(),
+            projectId: previousProjectId,
+            name: "Stale Board",
+            mode: .offline,
+            stageCount: 3,
+            taskCount: 0
+        )
+        try await withTemporaryStore(prefix: "altis-board-flow") { store in
+            let flow = BoardFeatureFlow(
+                offlineWorker: SuspendedOfflineBoardWorker(),
+                onlineGateway: SuspendedOnlineBoardGateway(),
+                store: store,
+                workspaceId: workspaceId
+            )
+
+            flow.send(.appeared(projectId: previousProjectId, workspaceId: workspaceId))
+            flow.send(.offlineBoardsLoaded([staleBoard]))
+            flow.send(.offlineLoadFailed(NSError(domain: "BoardFeatureFlowTests", code: 1)))
+            flow.send(.onlineBoardsFailed(.networkUnavailable))
+
+            #expect(flow.state.boards == [staleBoard])
+            #expect(flow.state.offlineErrorMessage != nil)
+            #expect(flow.state.onlineBoardsUnavailable == .networkUnavailable)
+
+            flow.send(.appeared(projectId: nextProjectId, workspaceId: workspaceId))
+
+            #expect(flow.state.projectId == nextProjectId)
+            #expect(flow.state.workspaceId == workspaceId)
+            #expect(flow.state.boards.isEmpty)
+            #expect(flow.state.offlineErrorMessage == nil)
+            #expect(flow.state.onlineBoardsUnavailable == nil)
+            #expect(flow.state.isLoadingOffline)
+            #expect(flow.state.isLoadingOnline)
+        }
+    }
+}
+
+private func withTemporaryStore<Result: Sendable>(
+    prefix: String,
+    operation: @MainActor @Sendable (OfflineLocalStore) async throws -> Result
+) async throws -> Result {
+    let dbPath = FileManager.default.temporaryDirectory
+        .appendingPathComponent("\(prefix)-\(UUID().uuidString).sqlite")
+        .path
+    let store = try await OfflineLocalStore(path: dbPath)
+    do {
+        let result = try await operation(store)
+        await store.close()
+        try? FileManager.default.removeItem(atPath: dbPath)
+        return result
+    } catch {
+        await store.close()
+        try? FileManager.default.removeItem(atPath: dbPath)
+        throw error
+    }
+}
+
+private struct SuspendedOfflineBoardWorker: OfflineBoardDataWorker {
+    func loadBoards(projectId: ProjectID) async throws -> [BoardListItemProjection] {
+        try await _Concurrency.Task.sleep(nanoseconds: 60_000_000_000)
+        return []
+    }
+
+    func createBoard(name: String, projectId: ProjectID, workspaceId: WorkspaceID) async throws -> Board {
+        throw CancellationError()
+    }
+
+    func createBoardFromPreset(
+        name: String,
+        projectId: ProjectID,
+        workspaceId: WorkspaceID,
+        preset: BoardStagePreset,
+        presetStages: [BoardStagePresetStage]
+    ) async throws -> Board {
+        throw CancellationError()
+    }
+}
+
+private struct SuspendedOnlineBoardGateway: OnlineBoardGatewayContract {
+    func fetchBoards(projectId: ProjectID) async throws -> [OnlineBoardReadModel] {
+        try await _Concurrency.Task.sleep(nanoseconds: 60_000_000_000)
+        return []
+    }
+
+    func fetchTasks(boardId: BoardID) async throws -> [OnlineTaskReadModel] {
+        throw CancellationError()
+    }
+
+    func fetchTask(taskId: TaskID) async throws -> OnlineTaskReadModel {
+        throw CancellationError()
+    }
+
+    func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+        throw CancellationError()
+    }
+
+    func completeTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+        throw CancellationError()
+    }
+
+    func failTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+        throw CancellationError()
     }
 }

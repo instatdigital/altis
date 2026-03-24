@@ -1,12 +1,39 @@
 import Foundation
 
+/// Phase-14 placeholder conformance for `OnlineBoardGatewayContract`.
+///
+/// Throws `URLError(.notConnectedToInternet)` for every call so that
+/// `BoardFeatureFlow.unavailableReason(for:)` maps it to `.networkUnavailable`
+/// and surfaces the correct UI state. Replaced by a real HTTP client in Phase 14.
+struct NotImplementedOnlineBoardGateway: OnlineBoardGatewayContract {
+    func fetchBoards(projectId: ProjectID) async throws -> [OnlineBoardReadModel] {
+        throw URLError(.notConnectedToInternet)
+    }
+    func fetchTasks(boardId: BoardID) async throws -> [OnlineTaskReadModel] {
+        throw URLError(.notConnectedToInternet)
+    }
+    func fetchTask(taskId: TaskID) async throws -> OnlineTaskReadModel {
+        throw URLError(.notConnectedToInternet)
+    }
+    func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+        throw URLError(.notConnectedToInternet)
+    }
+    func completeTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+        throw URLError(.notConnectedToInternet)
+    }
+    func failTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+        throw URLError(.notConnectedToInternet)
+    }
+}
+
 /// Shared application-level dependencies injected into the view hierarchy.
 ///
 /// `AppEnvironment` owns the single `OfflineLocalStore` instance and the
 /// default workspace identifier used for all local offline entities.
 ///
 /// Phase 6: project store and workspace identity.
-/// Later phases will extend this struct when board, task, and other stores are needed.
+/// Phase 7: board store and board creation worker.
+/// Later phases will extend this struct when task and other stores are needed.
 struct AppEnvironment {
 
     /// The single SQLite-backed offline store shared across all feature flows.
