@@ -26,4 +26,19 @@ protocol OfflineBoardDataWorker: Sendable {
         preset: BoardStagePreset,
         presetStages: [BoardStagePresetStage]
     ) async throws -> Board
+
+    /// Returns the ordered stages for an offline board.
+    func loadStages(boardId: BoardID) async throws -> [BoardStage]
+
+    /// Appends a new regular stage to the end of the board.
+    func addStage(boardId: BoardID, name: String) async throws -> [BoardStage]
+
+    /// Renames an existing stage. Terminal stages may also be renamed.
+    func renameStage(boardId: BoardID, stageId: BoardStageID, name: String) async throws -> [BoardStage]
+
+    /// Deletes a non-terminal stage and reassigns its tasks to the first remaining stage.
+    func deleteStage(boardId: BoardID, stageId: BoardStageID) async throws -> [BoardStage]
+
+    /// Persists a new `orderIndex` sequence for the board's stages.
+    func moveStage(boardId: BoardID, stageId: BoardStageID, to destinationIndex: Int) async throws -> [BoardStage]
 }

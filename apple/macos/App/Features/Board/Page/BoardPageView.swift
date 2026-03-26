@@ -20,6 +20,8 @@ struct BoardPageView: View {
     @State private var newBoardName = ""
     @State private var selectedMode: BoardMode = .offline
     @State private var selectedPresetId: BoardStagePresetID? = nil
+    @State private var isShowingStageEditor = false
+    @State private var newStageName = ""
 
     var body: some View {
         Group {
@@ -48,6 +50,12 @@ struct BoardPageView: View {
         .sheet(isPresented: $isShowingCreateSheet) {
             createBoardSheet
         }
+        .sheet(isPresented: $isShowingStageEditor, onDismiss: {
+            newStageName = ""
+            flow.send(.stageEditorDismissed)
+        }) {
+            stageEditorSheet
+        }
         .alert("Error", isPresented: Binding(
             get: { flow.state.errorMessage != nil },
             set: { if !$0 { flow.send(.errorAcknowledged) } }
@@ -73,10 +81,17 @@ struct BoardPageView: View {
 
     private var boardList: some View {
         List(flow.state.boards, id: \.boardId) { board in
-            BoardRowView(projection: board)
-                .onTapGesture {
-                    flow.send(.boardSelected(board.boardId))
-                }
+            BoardRowView(
+                projection: board,
+                onManageStages: board.mode == .offline ? {
+                    newStageName = ""
+                    flow.send(.stageEditorRequested(board))
+                    isShowingStageEditor = true
+                } : nil
+            )
+            .onTapGesture {
+                flow.send(.boardSelected(board.boardId))
+            }
         }
     }
 
@@ -170,6 +185,81 @@ struct BoardPageView: View {
             flow.send(.createOfflineBoardRequested(name: trimmed, projectId: projectId))
         }
     }
+
+    private var stageEditorSheet: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let board = flow.state.stageEditorBoard {
+                Text("Manage Stages")
+                    .font(.headline)
+                Text(board.name)
+                    .font(.title3)
+
+                if flow.state.isLoadingStages {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    stageEditorList
+                }
+
+                Divider()
+
+                HStack {
+                    TextField("New stage name", text: $newStageName)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit { submitAddStage(for: board.boardId) }
+                    Button("Add Stage") {
+                        submitAddStage(for: board.boardId)
+                    }
+                    .disabled(
+                        newStageName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || flow.state.isMutatingStages
+                    )
+                }
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 520, minHeight: 420)
+    }
+
+    private var stageEditorList: some View {
+        List {
+            ForEach(Array(flow.state.boardStages.enumerated()), id: \.element.stageId) { index, stage in
+                BoardStageEditorRow(
+                    stage: stage,
+                    index: index,
+                    totalCount: flow.state.boardStages.count,
+                    isMutating: flow.state.isMutatingStages,
+                    onRename: { newName in
+                        guard let boardId = flow.state.stageEditorBoard?.boardId else { return }
+                        flow.send(.renameStageRequested(boardId: boardId, stageId: stage.stageId, name: newName))
+                    },
+                    onMoveUp: {
+                        guard let boardId = flow.state.stageEditorBoard?.boardId else { return }
+                        flow.send(.moveStageRequested(boardId: boardId, stageId: stage.stageId, destinationIndex: index - 1))
+                    },
+                    onMoveDown: {
+                        guard let boardId = flow.state.stageEditorBoard?.boardId else { return }
+                        flow.send(.moveStageRequested(boardId: boardId, stageId: stage.stageId, destinationIndex: index + 1))
+                    },
+                    onDelete: {
+                        guard let boardId = flow.state.stageEditorBoard?.boardId else { return }
+                        flow.send(.deleteStageRequested(boardId: boardId, stageId: stage.stageId))
+                    }
+                )
+            }
+        }
+        .listStyle(.inset)
+    }
+
+    private func submitAddStage(for boardId: BoardID) {
+        let trimmed = newStageName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        newStageName = ""
+        flow.send(.addStageRequested(boardId: boardId, name: trimmed))
+    }
 }
 
 // MARK: - Board row
@@ -177,6 +267,7 @@ struct BoardPageView: View {
 private struct BoardRowView: View {
 
     let projection: BoardListItemProjection
+    let onManageStages: (() -> Void)?
 
     var body: some View {
         HStack {
@@ -199,6 +290,10 @@ private struct BoardRowView: View {
                 }
             }
             Spacer()
+            if let onManageStages {
+                Button("Stages", action: onManageStages)
+                    .buttonStyle(.borderless)
+            }
             modeBadge
         }
         .padding(.vertical, 4)
@@ -229,5 +324,116 @@ private struct BoardRowView: View {
                     : Color.blue.opacity(0.15))
             )
             .foregroundStyle(projection.mode == .offline ? Color.secondary : Color.blue)
+    }
+}
+
+private struct BoardStageEditorRow: View {
+
+    let stage: BoardStage
+    let index: Int
+    let totalCount: Int
+    let isMutating: Bool
+    let onRename: (String) -> Void
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
+    let onDelete: () -> Void
+
+    @State private var draftName: String
+
+    init(
+        stage: BoardStage,
+        index: Int,
+        totalCount: Int,
+        isMutating: Bool,
+        onRename: @escaping (String) -> Void,
+        onMoveUp: @escaping () -> Void,
+        onMoveDown: @escaping () -> Void,
+        onDelete: @escaping () -> Void
+    ) {
+        self.stage = stage
+        self.index = index
+        self.totalCount = totalCount
+        self.isMutating = isMutating
+        self.onRename = onRename
+        self.onMoveUp = onMoveUp
+        self.onMoveDown = onMoveDown
+        self.onDelete = onDelete
+        _draftName = State(initialValue: stage.name)
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            TextField("Stage name", text: $draftName)
+                .textFieldStyle(.roundedBorder)
+                .disabled(isMutating)
+                .onSubmit { submitRename() }
+
+            Text(kindLabel)
+                .font(.caption)
+                .foregroundStyle(kindColor)
+
+            Button {
+                submitRename()
+            } label: {
+                Image(systemName: "checkmark")
+            }
+            .buttonStyle(.borderless)
+            .disabled(isMutating || draftName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || draftName == stage.name)
+
+            Button {
+                onMoveUp()
+            } label: {
+                Image(systemName: "arrow.up")
+            }
+            .buttonStyle(.borderless)
+            .disabled(isMutating || index == 0)
+
+            Button {
+                onMoveDown()
+            } label: {
+                Image(systemName: "arrow.down")
+            }
+            .buttonStyle(.borderless)
+            .disabled(isMutating || index == totalCount - 1)
+
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Image(systemName: "trash")
+            }
+            .buttonStyle(.borderless)
+            .disabled(isMutating || stage.isTerminal)
+        }
+        .onChange(of: stage.name) { _, newValue in
+            draftName = newValue
+        }
+    }
+
+    private var kindLabel: String {
+        switch stage.kind {
+        case .regular:
+            return "Regular"
+        case .terminalSuccess:
+            return "Terminal Success"
+        case .terminalFailure:
+            return "Terminal Failure"
+        }
+    }
+
+    private var kindColor: Color {
+        switch stage.kind {
+        case .regular:
+            return .secondary
+        case .terminalSuccess:
+            return .green
+        case .terminalFailure:
+            return .red
+        }
+    }
+
+    private func submitRename() {
+        let trimmed = draftName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != stage.name else { return }
+        onRename(trimmed)
     }
 }

@@ -14,11 +14,10 @@ private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self
 ///
 /// Phase 6 implements the project table and the `ProjectDataWorker`-facing read
 /// and write methods.
-/// Phase 7 implements the boards, board_stages, board_stage_presets, and
-/// board_stage_preset_stages tables with full CRUD.
-/// All remaining `LocalStoreContract` and `LocalWritePathContract` methods are
-/// present as stubs that throw `OfflineStoreError.notImplemented` — filled in
-/// during Phases 8–13.
+/// Phase 7 implements the boards, board_stages, and preset tables with full CRUD.
+/// Phase 8 adds transactional stage-management helpers and introduces the `tasks`
+/// table so deleting a stage can immediately reassign any board-owned tasks.
+/// Projection reads for tasks and kanban remain deferred to Phases 9–13.
 ///
 /// Rules (from `docs/ARCHITECTURE.md` and `docs/SYNC_RULES.md`):
 /// - Offline-board writes stay local-only.
@@ -104,7 +103,7 @@ extension OfflineLocalStore: LocalStoreContract {
     }
 
     func fetchTask(id: TaskID) async throws -> Task? {
-        throw OfflineStoreError.notImplemented("fetchTask — Phase 9")
+        try await actor.fetchTask(id: id.rawValue)
     }
 }
 
@@ -164,15 +163,36 @@ extension OfflineLocalStore: LocalWritePathContract {
     }
 
     func createTask(_ task: Task) async throws {
-        throw OfflineStoreError.notImplemented("createTask — Phase 9")
+        try await actor.createTask(TaskRecord(from: task))
     }
 
     func updateTask(_ task: Task) async throws {
-        throw OfflineStoreError.notImplemented("updateTask — Phase 9")
+        try await actor.updateTask(TaskRecord(from: task))
     }
 
     func deleteTask(id: TaskID) async throws {
-        throw OfflineStoreError.notImplemented("deleteTask — Phase 9")
+        try await actor.deleteTask(id: id.rawValue)
+    }
+}
+
+// MARK: - Phase 8 board stage management
+
+extension OfflineLocalStore {
+
+    func appendBoardStage(boardId: BoardID, name: String) async throws -> [BoardStage] {
+        try await actor.appendBoardStage(boardId: boardId.rawValue, name: name)
+    }
+
+    func renameBoardStage(boardId: BoardID, stageId: BoardStageID, name: String) async throws -> [BoardStage] {
+        try await actor.renameBoardStage(boardId: boardId.rawValue, stageId: stageId.rawValue, name: name)
+    }
+
+    func deleteBoardStage(boardId: BoardID, stageId: BoardStageID) async throws -> [BoardStage] {
+        try await actor.deleteBoardStage(boardId: boardId.rawValue, stageId: stageId.rawValue)
+    }
+
+    func moveBoardStage(boardId: BoardID, stageId: BoardStageID, to destinationIndex: Int) async throws -> [BoardStage] {
+        try await actor.moveBoardStage(boardId: boardId.rawValue, stageId: stageId.rawValue, to: destinationIndex)
     }
 }
 
@@ -249,6 +269,7 @@ private actor DatabaseActor {
         try createBoardStagesTable()
         try createBoardStagePresetsTable()
         try createBoardStagePresetStagesTable()
+        try createTasksTable()
     }
 
     private func createProjectsTable() throws {
@@ -311,6 +332,22 @@ private actor DatabaseActor {
                 name          TEXT NOT NULL,
                 orderIndex    INTEGER NOT NULL,
                 kind          TEXT NOT NULL
+            );
+            """)
+    }
+
+    private func createTasksTable() throws {
+        try exec("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                taskId      TEXT PRIMARY KEY NOT NULL,
+                workspaceId TEXT NOT NULL,
+                projectId   TEXT NOT NULL,
+                boardId     TEXT,
+                stageId     TEXT,
+                title       TEXT NOT NULL,
+                status      TEXT NOT NULL,
+                createdAt   TEXT NOT NULL,
+                updatedAt   TEXT NOT NULL
             );
             """)
     }
@@ -438,17 +475,14 @@ private actor DatabaseActor {
     // MARK: - Board reads
 
     func fetchBoardListItems(projectId: String) throws -> [BoardListItemProjection] {
-        // Stage count is computed via a sub-query against `board_stages`.
-        // Task count is always 0 here because the `tasks` table is created in Phase 9.
-        // Once Phase 9 lands, replace the literal 0 with:
-        //   (SELECT COUNT(*) FROM tasks t WHERE t.boardId = b.boardId)
         let sql = """
             SELECT
                 b.boardId,
                 b.projectId,
                 b.name,
                 b.mode,
-                (SELECT COUNT(*) FROM board_stages s WHERE s.boardId = b.boardId) AS stageCount
+                (SELECT COUNT(*) FROM board_stages s WHERE s.boardId = b.boardId) AS stageCount,
+                (SELECT COUNT(*) FROM tasks t WHERE t.boardId = b.boardId) AS taskCount
             FROM boards b
             WHERE b.projectId = ?
             ORDER BY b.name ASC;
@@ -468,6 +502,7 @@ private actor DatabaseActor {
             let name       = String(cString: sqlite3_column_text(stmt, 2))
             let modeRaw    = String(cString: sqlite3_column_text(stmt, 3))
             let stageCount = Int(sqlite3_column_int(stmt, 4))
+            let taskCount = Int(sqlite3_column_int(stmt, 5))
             guard let mode = BoardMode(rawValue: modeRaw) else { continue }
             results.append(BoardListItemProjection(
                 boardId: BoardID(rawValue: boardId),
@@ -475,7 +510,7 @@ private actor DatabaseActor {
                 name: name,
                 mode: mode,
                 stageCount: stageCount,
-                taskCount: 0  // populated in Phase 9
+                taskCount: taskCount
             ))
         }
         return results
@@ -597,6 +632,37 @@ private actor DatabaseActor {
             if let stage = record.toDomain() { results.append(stage) }
         }
         return results
+    }
+
+    func fetchTask(id: String) throws -> Task? {
+        let sql = """
+            SELECT taskId, workspaceId, projectId, boardId, stageId, title, status, createdAt, updatedAt
+            FROM tasks
+            WHERE taskId = ?
+            LIMIT 1;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchTask prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, id, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_ROW else { return nil }
+
+        let record = TaskRecord(
+            taskId: String(cString: sqlite3_column_text(stmt, 0)),
+            workspaceId: String(cString: sqlite3_column_text(stmt, 1)),
+            projectId: String(cString: sqlite3_column_text(stmt, 2)),
+            boardId: sqliteText(stmt, column: 3),
+            stageId: sqliteText(stmt, column: 4),
+            title: String(cString: sqlite3_column_text(stmt, 5)),
+            status: String(cString: sqlite3_column_text(stmt, 6)),
+            createdAt: String(cString: sqlite3_column_text(stmt, 7)),
+            updatedAt: String(cString: sqlite3_column_text(stmt, 8))
+        )
+        return record.toDomain()
     }
 
     // MARK: - Board writes
@@ -728,6 +794,200 @@ private actor DatabaseActor {
         }
     }
 
+    // MARK: - Task writes
+
+    func createTask(_ record: TaskRecord) throws {
+        let sql = """
+            INSERT INTO tasks (taskId, workspaceId, projectId, boardId, stageId, title, status, createdAt, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("createTask prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        bindTaskRecord(record, to: stmt)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("createTask step")
+        }
+    }
+
+    func updateTask(_ record: TaskRecord) throws {
+        let sql = """
+            UPDATE tasks
+            SET workspaceId = ?, projectId = ?, boardId = ?, stageId = ?, title = ?, status = ?, updatedAt = ?
+            WHERE taskId = ?;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("updateTask prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, record.workspaceId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, record.projectId, -1, sqliteTransient)
+        bindOptionalText(record.boardId, to: stmt, index: 3)
+        bindOptionalText(record.stageId, to: stmt, index: 4)
+        sqlite3_bind_text(stmt, 5, record.title, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 6, record.status, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 7, record.updatedAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 8, record.taskId, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("updateTask step")
+        }
+    }
+
+    func deleteTask(id: String) throws {
+        let sql = "DELETE FROM tasks WHERE taskId = ?;"
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("deleteTask prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, id, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("deleteTask step")
+        }
+    }
+
+    // MARK: - Phase 8 stage management
+
+    func appendBoardStage(boardId: String, name: String) throws -> [BoardStage] {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw OfflineBoardWorkerError.invalidStageName }
+
+        guard let board = try fetchBoard(id: boardId) else {
+            throw OfflineBoardWorkerError.boardNotFound(BoardID(rawValue: boardId))
+        }
+        guard board.mode == .offline else {
+            throw OfflineBoardWorkerError.unsupportedBoardMode(board.mode)
+        }
+
+        let now = Date()
+        var stages = try fetchBoardStages(boardId: boardId)
+        let newStage = BoardStage(
+            boardId: BoardID(rawValue: boardId),
+            name: trimmed,
+            orderIndex: stages.count,
+            kind: .regular,
+            createdAt: now,
+            updatedAt: now
+        )
+        stages.append(newStage)
+        try validate(stages)
+
+        try inTransaction {
+            try createBoardStage(BoardStageRecord(from: newStage))
+            try touchBoard(board: board, updatedAt: now)
+        }
+        return stages
+    }
+
+    func renameBoardStage(boardId: String, stageId: String, name: String) throws -> [BoardStage] {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { throw OfflineBoardWorkerError.invalidStageName }
+
+        guard let board = try fetchBoard(id: boardId) else {
+            throw OfflineBoardWorkerError.boardNotFound(BoardID(rawValue: boardId))
+        }
+        guard board.mode == .offline else {
+            throw OfflineBoardWorkerError.unsupportedBoardMode(board.mode)
+        }
+
+        let now = Date()
+        var stages = try fetchBoardStages(boardId: boardId)
+        guard let index = stages.firstIndex(where: { $0.stageId.rawValue == stageId }) else {
+            throw OfflineBoardWorkerError.stageNotFound(BoardStageID(rawValue: stageId))
+        }
+
+        stages[index].name = trimmed
+        stages[index].updatedAt = now
+        try validate(stages)
+
+        try inTransaction {
+            try updateBoardStage(BoardStageRecord(from: stages[index]))
+            try touchBoard(board: board, updatedAt: now)
+        }
+        return stages
+    }
+
+    func deleteBoardStage(boardId: String, stageId: String) throws -> [BoardStage] {
+        guard let board = try fetchBoard(id: boardId) else {
+            throw OfflineBoardWorkerError.boardNotFound(BoardID(rawValue: boardId))
+        }
+        guard board.mode == .offline else {
+            throw OfflineBoardWorkerError.unsupportedBoardMode(board.mode)
+        }
+
+        let now = Date()
+        let stages = try fetchBoardStages(boardId: boardId)
+        guard let target = stages.first(where: { $0.stageId.rawValue == stageId }) else {
+            throw OfflineBoardWorkerError.stageNotFound(BoardStageID(rawValue: stageId))
+        }
+
+        switch BoardStageInvariants.canDelete(stage: target, from: stages) {
+        case .success:
+            break
+        case .failure(let violation):
+            throw OfflineBoardWorkerError.invariantViolation(violation.description)
+        }
+
+        let remaining = stages.filter { $0.stageId.rawValue != stageId }
+        guard let reassignmentStage = remaining.sorted(by: { $0.orderIndex < $1.orderIndex }).first else {
+            throw OfflineBoardWorkerError.invariantViolation("No remaining stage available for reassignment.")
+        }
+
+        let normalized = normalizeStageOrder(remaining, updatedAt: now)
+        try validate(normalized)
+
+        try inTransaction {
+            try reassignTasks(fromStageId: stageId, toStageId: reassignmentStage.stageId.rawValue, updatedAt: now)
+            for stage in normalized {
+                try updateBoardStage(BoardStageRecord(from: stage))
+            }
+            try deleteBoardStage(id: stageId)
+            try touchBoard(board: board, updatedAt: now)
+        }
+        return normalized
+    }
+
+    func moveBoardStage(boardId: String, stageId: String, to destinationIndex: Int) throws -> [BoardStage] {
+        guard let board = try fetchBoard(id: boardId) else {
+            throw OfflineBoardWorkerError.boardNotFound(BoardID(rawValue: boardId))
+        }
+        guard board.mode == .offline else {
+            throw OfflineBoardWorkerError.unsupportedBoardMode(board.mode)
+        }
+
+        let now = Date()
+        var stages = try fetchBoardStages(boardId: boardId)
+        guard let sourceIndex = stages.firstIndex(where: { $0.stageId.rawValue == stageId }) else {
+            throw OfflineBoardWorkerError.stageNotFound(BoardStageID(rawValue: stageId))
+        }
+        guard destinationIndex >= 0, destinationIndex < stages.count else {
+            throw OfflineBoardWorkerError.invariantViolation("Destination index \(destinationIndex) is out of bounds.")
+        }
+        guard sourceIndex != destinationIndex else { return stages }
+
+        let movingStage = stages.remove(at: sourceIndex)
+        stages.insert(movingStage, at: destinationIndex)
+        let normalized = normalizeStageOrder(stages, updatedAt: now)
+        try validate(normalized)
+
+        try inTransaction {
+            for stage in normalized {
+                try updateBoardStage(BoardStageRecord(from: stage))
+            }
+            try touchBoard(board: board, updatedAt: now)
+        }
+        return normalized
+    }
+
     // MARK: - BoardStagePreset writes
 
     func createBoardStagePreset(_ preset: BoardStagePresetRecord, stages: [BoardStagePresetStageRecord]) throws {
@@ -825,6 +1085,91 @@ private actor DatabaseActor {
     }
 
     // MARK: - Helpers
+
+    private func bindTaskRecord(_ record: TaskRecord, to stmt: OpaquePointer?) {
+        sqlite3_bind_text(stmt, 1, record.taskId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, record.workspaceId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, record.projectId, -1, sqliteTransient)
+        bindOptionalText(record.boardId, to: stmt, index: 4)
+        bindOptionalText(record.stageId, to: stmt, index: 5)
+        sqlite3_bind_text(stmt, 6, record.title, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 7, record.status, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 8, record.createdAt, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 9, record.updatedAt, -1, sqliteTransient)
+    }
+
+    private func bindOptionalText(_ value: String?, to stmt: OpaquePointer?, index: Int32) {
+        if let value {
+            sqlite3_bind_text(stmt, index, value, -1, sqliteTransient)
+        } else {
+            sqlite3_bind_null(stmt, index)
+        }
+    }
+
+    private func sqliteText(_ stmt: OpaquePointer?, column: Int32) -> String? {
+        guard let pointer = sqlite3_column_text(stmt, column) else { return nil }
+        return String(cString: pointer)
+    }
+
+    private func normalizeStageOrder(_ stages: [BoardStage], updatedAt: Date) -> [BoardStage] {
+        stages.enumerated().map { index, stage in
+            var normalized = stage
+            if normalized.orderIndex != index {
+                normalized.orderIndex = index
+                normalized.updatedAt = updatedAt
+            }
+            return normalized
+        }
+    }
+
+    private func validate(_ stages: [BoardStage]) throws {
+        switch BoardStageInvariants.validate(stages) {
+        case .success:
+            break
+        case .failure(let violation):
+            throw OfflineBoardWorkerError.invariantViolation(violation.description)
+        }
+    }
+
+    private func touchBoard(board: Board, updatedAt: Date) throws {
+        var updatedBoard = board
+        updatedBoard.updatedAt = updatedAt
+        try updateBoard(BoardRecord(from: updatedBoard))
+    }
+
+    private func reassignTasks(fromStageId: String, toStageId: String, updatedAt: Date) throws {
+        let sql = """
+            UPDATE tasks
+            SET stageId = ?, updatedAt = ?
+            WHERE stageId = ?;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("reassignTasks prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        let formatter = ISO8601DateFormatter()
+        let updatedAtString = formatter.string(from: updatedAt)
+        sqlite3_bind_text(stmt, 1, toStageId, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 2, updatedAtString, -1, sqliteTransient)
+        sqlite3_bind_text(stmt, 3, fromStageId, -1, sqliteTransient)
+
+        guard sqlite3_step(stmt) == SQLITE_DONE else {
+            throw sqliteError("reassignTasks step")
+        }
+    }
+
+    private func inTransaction(_ operation: () throws -> Void) throws {
+        try exec("BEGIN IMMEDIATE TRANSACTION;")
+        do {
+            try operation()
+            try exec("COMMIT;")
+        } catch {
+            try? exec("ROLLBACK;")
+            throw error
+        }
+    }
 
     private func exec(_ sql: String) throws {
         var errMsg: UnsafeMutablePointer<CChar>?

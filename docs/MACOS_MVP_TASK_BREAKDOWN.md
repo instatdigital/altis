@@ -464,7 +464,7 @@ CREATE TABLE IF NOT EXISTS board_stage_preset_stages (
 
 **Final resolution — 2026-03-24:**
 - `OfflineBoardDataWorker.loadBoards` return type changed from `[Board]` to `[BoardListItemProjection]`. `OfflineLocalBoardWorker.loadBoards` now delegates directly to `store.fetchBoardListItems(projectId:)`. `BoardFeatureEvent.offlineBoardsLoaded` updated to carry `[BoardListItemProjection]`. `BoardFeatureFlow.offlineBoardsLoaded` assigns projections without rebuilding them.
-- `DatabaseActor.fetchBoardListItems` — removed `(SELECT COUNT(*) FROM tasks …)` sub-query; `taskCount` is set to literal `0` with a comment documenting the Phase 9 upgrade path. The `tasks` table does not exist until Phase 9; the old query would have caused a prepare-time SQL error on every fresh database.
+- `DatabaseActor.fetchBoardListItems` — made safe on a fresh Phase 7 database. That interim `taskCount = 0` path was later superseded in Phase 8 when the local `tasks` table and raw task persistence landed earlier than Phase 9 to support stage-deletion reassignment.
 - `DatabaseActor.fetchBoardsForProject` and `OfflineLocalStore.fetchBoards(projectId:)` removed — no longer needed now that the read path uses projections.
 - `BoardPageView` creation sheet — added `BoardMode` segmented picker ("Local (offline)" / "Online (Phase 14)"). `selectedMode` defaults to `.offline`; selecting `.online` disables the Create button and shows an explanatory caption. `submitCreate()` guards on `selectedMode == .offline`. Preset picker is hidden when online mode is selected (presets are offline-only).
 - `BoardFeatureFlow.appeared` — clears `boards`, `offlineErrorMessage`, and `onlineBoardsUnavailable` when the incoming `projectId` differs from the current `state.projectId`, preventing stale rows from appearing while new loads are in flight.
@@ -476,13 +476,62 @@ CREATE TABLE IF NOT EXISTS board_stage_preset_stages (
 
 ## Phase 8. Offline Board Stage Management
 
-- [ ] Implement add stage to end
-- [ ] Implement rename stage
-- [ ] Implement delete non-terminal stage
-- [ ] Reassign tasks from deleted stage to first available stage
-- [ ] Prevent deletion of terminal stages
-- [ ] Allow rename of terminal stages
-- [ ] Persist stage order changes locally
+- [x] Implement add stage to end
+- [x] Implement rename stage
+- [x] Implement delete non-terminal stage
+- [x] Reassign tasks from deleted stage to first available stage
+- [x] Prevent deletion of terminal stages
+- [x] Allow rename of terminal stages
+- [x] Persist stage order changes locally
+
+### Phase 8 Validation Record
+
+Verified: 2026-03-25
+
+**Updated files — `apple/macos/App/Features/Board/State/`:**
+- `OfflineBoardDataWorker.swift` — stage-management contract expanded with typed `loadStages`, `addStage`, `renameStage`, `deleteStage`, and `moveStage` methods for offline boards.
+- `BoardFeatureEvent.swift` — added stage-editor lifecycle plus add/rename/delete/reorder intent and result events.
+- `BoardFeatureState.swift` — added stage-editor board context, ordered stage list, and loading/mutation flags.
+- `BoardFeatureFlow.swift` — implemented offline stage-management flow: opens a board-scoped stage editor, loads ordered stages through the worker, applies add/rename/delete/reorder mutations, updates local board `stageCount` projections, and routes failures through the existing typed error path.
+
+**Updated files — `apple/macos/App/Features/Board/Page/`:**
+- `BoardPageView.swift` — added an offline-only `Stages` action and a stage-management sheet with inline rename, add-stage-at-end, delete, and move-up/move-down controls. Terminal stages remain renameable but their delete action is disabled.
+
+**Updated files — `apple/macos/App/Platform/Persistence/`:**
+- `OfflineLocalBoardWorker.swift` — delegates stage-management operations to the store and returns the new ordered `[BoardStage]` after each mutation.
+- `OfflineLocalStore.swift` — added transactional stage-management helpers (`appendBoardStage`, `renameBoardStage`, `deleteBoardStage`, `moveBoardStage`) with invariant validation before write. Deleting a stage reassigns tasks on that stage to the first remaining stage and compacts `orderIndex`. Board `updatedAt` is touched on stage mutations.
+- `OfflineLocalStore.swift` — introduced the local `tasks` table plus raw `Task` CRUD/fetch earlier than Phase 9 so stage deletion can persist task reassignment correctly. `fetchBoardListItems(projectId:)` now computes real local `taskCount` values.
+
+**Updated files — `apple/macos/Tests/`:**
+- `PersistenceRecordTests.swift` — added regression coverage for offline board stage management: add stage to end, rename terminal stage, reject terminal deletion, delete non-terminal stage with task reassignment, and persist reordered stage order.
+
+**Review note:** the implementation is materially complete for the Phase 8 checklist. The one incorrect part of the agent handoff was validation reporting: the current direct test run is not `31 / 31`. The repository currently passes **1 XCTest bootstrap test + 26 Swift Testing tests**.
+
+**Build result:** direct `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug build` succeeded.
+**Test result:** direct `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug test` succeeded. Current output shows 1 XCTest bootstrap test plus 26 Swift Testing tests passing.
+
+### Phase 8 Review Follow-Up Tasks
+
+- [x] Cancel or scope `BoardFeatureFlow` background tasks (`loadPresets`, board loads, stage loads, stage mutations) so flow teardown or `OfflineLocalStore.close()` cannot leave async work calling SQLite on a closed connection; add regression coverage for the current `NULL database connection pointer` log seen during `xcodebuild test`
+
+**Final resolution — 2026-03-25:**
+- `spawnTask` now schedules an untracked cleanup `Task` that awaits `task.result` and then removes the finished task from `activeTasks` by identity. The array only holds genuinely in-flight work.
+- `cancelAndDrainActiveTasks()` added alongside `cancelActiveTasks()`. Drain cancels all tracked tasks and then `await`s each one to completion, ensuring no task can access the SQLite store after `store.close()` is called. This is the method tests must use before closing the store.
+- `LatchOfflineBoardWorker` updated to use `withTaskCancellationHandler` + `withCheckedThrowingContinuation` so that drain does not deadlock when the worker is suspended on a continuation.
+- `projectSwitchResetsState` now calls `await flow.cancelAndDrainActiveTasks()` at the end of its `withTemporaryStore` block, ensuring the `loadPresets` store task finishes before the store is closed.
+- `cancelStopsInflightTasksBeforeStoreClose` replaced with two new tests:
+  - `cancelPreventsResultDelivery`: uses `LatchOfflineBoardWorker`, drains after cancel, opens latch, yields twice, asserts `isLoadingOffline` stays `true` (cancelled task never delivered result).
+  - `cancelPreventsClosedStoreAccess`: drains before `withTemporaryStore` closes the store; if loadPresets were not stopped the NULL pointer log would appear.
+- Direct `xcodebuild test` output: **zero** `API call with NULL database connection pointer` lines. Build and tests pass with 0 errors and 0 warnings.
+
+**Residual review task — 2026-03-25:**
+- [x] Harden the cancellation regression so it fails automatically on the undesired path instead of relying on manual inspection of `xcodebuild` output or "no crash" as a proxy. The current tests are much better, but `cancelPreventsClosedStoreAccess` still proves the absence of the SQLite misuse log only indirectly.
+
+**Final resolution — 2026-03-25 (hardened assertion):**
+- `BoardFeatureFlow.store` property type changed from `OfflineLocalStore` to `any LocalStoreContract`. The `init` parameter was updated to match. `AppShell` is unaffected — `OfflineLocalStore` already conforms to `LocalStoreContract`.
+- `SpyLocalStoreContract` private actor added to `PersistenceRecordTests.swift`. It wraps a real `OfflineLocalStore`, suspends `fetchBoardStagePresets` on a `withTaskCancellationHandler`+`withCheckedThrowingContinuation` latch (preventing a race between task start and `markClosed()`), and increments `callsAfterClose` for any real fetch that proceeds after `markClosed()` was called.
+- `cancelPreventsClosedStoreAccess` rewritten: injects `SpyLocalStoreContract` as `BoardFeatureFlow`'s store, starts a `.appeared` load, awaits `markClosed()`, drains all tasks, then asserts `spy.callsAfterClose == 0`. The test fails automatically with a descriptive `#expect` message if the store is accessed post-close — no log inspection required.
+- Direct `xcodebuild test` verification on 2026-03-26 shows **1 XCTest bootstrap test + 28 Swift Testing tests passing**, with zero `API call with NULL database connection pointer` lines in the output. `cancelPreventsClosedStoreAccess` now fails automatically if post-close store access occurs.
 
 ## Phase 9. Offline Task Creation And Detail
 

@@ -112,6 +112,26 @@ struct OfflineLocalBoardWorker: OfflineBoardDataWorker {
         return board
     }
 
+    func loadStages(boardId: BoardID) async throws -> [BoardStage] {
+        try await store.fetchBoardStages(boardId: boardId)
+    }
+
+    func addStage(boardId: BoardID, name: String) async throws -> [BoardStage] {
+        try await store.appendBoardStage(boardId: boardId, name: name)
+    }
+
+    func renameStage(boardId: BoardID, stageId: BoardStageID, name: String) async throws -> [BoardStage] {
+        try await store.renameBoardStage(boardId: boardId, stageId: stageId, name: name)
+    }
+
+    func deleteStage(boardId: BoardID, stageId: BoardStageID) async throws -> [BoardStage] {
+        try await store.deleteBoardStage(boardId: boardId, stageId: stageId)
+    }
+
+    func moveStage(boardId: BoardID, stageId: BoardStageID, to destinationIndex: Int) async throws -> [BoardStage] {
+        try await store.moveBoardStage(boardId: boardId, stageId: stageId, to: destinationIndex)
+    }
+
     // MARK: - Default stages
 
     /// Returns the canonical three-stage default set for a new offline board.
@@ -152,11 +172,23 @@ struct OfflineLocalBoardWorker: OfflineBoardDataWorker {
 
 enum OfflineBoardWorkerError: LocalizedError {
     case invariantViolation(String)
+    case boardNotFound(BoardID)
+    case stageNotFound(BoardStageID)
+    case unsupportedBoardMode(BoardMode)
+    case invalidStageName
 
     var errorDescription: String? {
         switch self {
         case .invariantViolation(let message):
             return "Board stage invariant violated: \(message)"
+        case .boardNotFound(let boardId):
+            return "Board not found: \(boardId.rawValue)"
+        case .stageNotFound(let stageId):
+            return "Stage not found: \(stageId.rawValue)"
+        case .unsupportedBoardMode(let mode):
+            return "Unsupported board mode for offline stage management: \(mode.rawValue)"
+        case .invalidStageName:
+            return "Stage name cannot be empty."
         }
     }
 }

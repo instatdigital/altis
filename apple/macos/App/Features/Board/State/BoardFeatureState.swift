@@ -39,4 +39,16 @@ struct BoardFeatureState {
 
     /// Available workspace presets for the board creation sheet.
     var availablePresets: [BoardStagePreset] = []
+
+    /// Board currently being edited in the stage-management sheet.
+    var stageEditorBoard: BoardListItemProjection? = nil
+
+    /// Ordered stages for `stageEditorBoard`.
+    var boardStages: [BoardStage] = []
+
+    /// `true` while the stage list is loading.
+    var isLoadingStages: Bool = false
+
+    /// `true` while a stage add/rename/delete/reorder write is in progress.
+    var isMutatingStages: Bool = false
 }

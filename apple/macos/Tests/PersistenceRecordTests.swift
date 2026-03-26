@@ -318,6 +318,151 @@ struct OfflineLocalStoreBoardListRegressionTests {
     }
 }
 
+// MARK: - OfflineLocalBoardWorker stage management
+
+@Suite("OfflineLocalBoardWorker stage management")
+struct OfflineLocalBoardWorkerStageManagementTests {
+
+    @Test("addStage appends a regular stage to the end of the board")
+    func addStageToEnd() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-stage-add") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+
+            let stages = try await worker.addStage(boardId: board.boardId, name: "Review")
+
+            #expect(stages.map(\.name) == ["To Do", "Done", "Cancelled", "Review"])
+            #expect(stages.map(\.orderIndex) == [0, 1, 2, 3])
+            #expect(stages.last?.kind == .regular)
+        }
+    }
+
+    @Test("renameStage allows terminal stages to be renamed")
+    func renameTerminalStage() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-stage-rename") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let doneStage = try #require(
+                (try await worker.loadStages(boardId: board.boardId)).first(where: { $0.kind == .terminalSuccess })
+            )
+
+            let stages = try await worker.renameStage(
+                boardId: board.boardId,
+                stageId: doneStage.stageId,
+                name: "Completed"
+            )
+
+            #expect(stages.first(where: { $0.stageId == doneStage.stageId })?.name == "Completed")
+        }
+    }
+
+    @Test("deleteStage removes a non-terminal stage, reassigns its tasks, and compacts order")
+    func deleteStageReassignsTasks() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-stage-delete") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            _ = try await worker.addStage(boardId: board.boardId, name: "Review")
+            let stagesBeforeDelete = try await worker.loadStages(boardId: board.boardId)
+            let reviewStage = try #require(stagesBeforeDelete.first(where: { $0.name == "Review" }))
+            let firstRemainingStage = try #require(stagesBeforeDelete.first(where: { $0.name == "To Do" }))
+
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: reviewStage.stageId,
+                title: "Task assigned to deleted stage"
+            )
+            try await store.createTask(task)
+
+            let remainingStages = try await worker.deleteStage(
+                boardId: board.boardId,
+                stageId: reviewStage.stageId
+            )
+            let updatedTask = try #require(try await store.fetchTask(id: task.taskId))
+
+            #expect(remainingStages.map(\.name) == ["To Do", "Done", "Cancelled"])
+            #expect(remainingStages.map(\.orderIndex) == [0, 1, 2])
+            #expect(updatedTask.stageId == firstRemainingStage.stageId)
+        }
+    }
+
+    @Test("deleteStage rejects terminal stage deletion")
+    func deleteTerminalStageRejected() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-stage-terminal-delete") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let terminalStage = try #require(
+                (try await worker.loadStages(boardId: board.boardId)).first(where: { $0.kind == .terminalSuccess })
+            )
+
+            do {
+                _ = try await worker.deleteStage(boardId: board.boardId, stageId: terminalStage.stageId)
+                Issue.record("Expected terminal stage deletion to fail.")
+            } catch {
+                #expect(error.localizedDescription.contains("Cannot delete terminal stage"))
+            }
+        }
+    }
+
+    @Test("moveStage persists the new order locally")
+    func moveStagePersistsOrder() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-stage-move") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            _ = try await worker.addStage(boardId: board.boardId, name: "Review")
+            let currentStages = try await worker.loadStages(boardId: board.boardId)
+            let reviewStage = try #require(currentStages.first(where: { $0.name == "Review" }))
+
+            let movedStages = try await worker.moveStage(
+                boardId: board.boardId,
+                stageId: reviewStage.stageId,
+                to: 1
+            )
+            let persistedStages = try await worker.loadStages(boardId: board.boardId)
+
+            #expect(movedStages.map(\.name) == ["To Do", "Review", "Done", "Cancelled"])
+            #expect(persistedStages.map(\.name) == ["To Do", "Review", "Done", "Cancelled"])
+            #expect(persistedStages.map(\.orderIndex) == [0, 1, 2, 3])
+        }
+    }
+}
+
 // MARK: - BoardFeatureFlow regressions
 
 @Suite("BoardFeatureFlow")
@@ -363,6 +508,11 @@ struct BoardFeatureFlowRegressionTests {
             #expect(flow.state.onlineBoardsUnavailable == nil)
             #expect(flow.state.isLoadingOffline)
             #expect(flow.state.isLoadingOnline)
+
+            // Cancel and drain in-flight tasks before withTemporaryStore closes
+            // the store so no background work (e.g. loadPresets hitting SQLite)
+            // can resume against a closed connection.
+            await flow.cancelAndDrainActiveTasks()
         }
     }
 }
@@ -387,6 +537,72 @@ private func withTemporaryStore<Result: Sendable>(
     }
 }
 
+/// An `OfflineBoardDataWorker` whose `loadBoards` suspends until `open()` is called.
+/// After `open()` it returns an empty list so callers see a real result if not cancelled.
+///
+/// Cancellation is handled via `withTaskCancellationHandler` so that
+/// `cancelAndDrainActiveTasks()` can await task completion without deadlocking.
+private actor LatchOfflineBoardWorker: OfflineBoardDataWorker {
+    private var continuation: CheckedContinuation<Void, Error>?
+    private var isOpen = false
+
+    /// Releases any suspended `loadBoards` call, letting it return normally.
+    func open() async {
+        isOpen = true
+        continuation?.resume()
+        continuation = nil
+    }
+
+    func loadBoards(projectId: ProjectID) async throws -> [BoardListItemProjection] {
+        if !isOpen {
+            // Use a cancellation handler so that cancelling the enclosing task
+            // resumes the continuation and allows the task to exit cleanly.
+            // Without this, awaiting task.result in cancelAndDrainActiveTasks
+            // would deadlock because the continuation would never resume.
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+                    if _Concurrency.Task.isCancelled {
+                        cont.resume(throwing: CancellationError())
+                    } else {
+                        self.continuation = cont
+                    }
+                }
+            } onCancel: {
+                _Concurrency.Task {
+                    await self.cancelContinuation()
+                }
+            }
+        }
+        try _Concurrency.Task.checkCancellation()
+        return []
+    }
+
+    private func cancelContinuation() {
+        continuation?.resume(throwing: CancellationError())
+        continuation = nil
+    }
+
+    func createBoard(name: String, projectId: ProjectID, workspaceId: WorkspaceID) async throws -> Board {
+        throw CancellationError()
+    }
+
+    func createBoardFromPreset(
+        name: String,
+        projectId: ProjectID,
+        workspaceId: WorkspaceID,
+        preset: BoardStagePreset,
+        presetStages: [BoardStagePresetStage]
+    ) async throws -> Board {
+        throw CancellationError()
+    }
+
+    func loadStages(boardId: BoardID) async throws -> [BoardStage] { throw CancellationError() }
+    func addStage(boardId: BoardID, name: String) async throws -> [BoardStage] { throw CancellationError() }
+    func renameStage(boardId: BoardID, stageId: BoardStageID, name: String) async throws -> [BoardStage] { throw CancellationError() }
+    func deleteStage(boardId: BoardID, stageId: BoardStageID) async throws -> [BoardStage] { throw CancellationError() }
+    func moveStage(boardId: BoardID, stageId: BoardStageID, to destinationIndex: Int) async throws -> [BoardStage] { throw CancellationError() }
+}
+
 private struct SuspendedOfflineBoardWorker: OfflineBoardDataWorker {
     func loadBoards(projectId: ProjectID) async throws -> [BoardListItemProjection] {
         try await _Concurrency.Task.sleep(nanoseconds: 60_000_000_000)
@@ -404,6 +620,26 @@ private struct SuspendedOfflineBoardWorker: OfflineBoardDataWorker {
         preset: BoardStagePreset,
         presetStages: [BoardStagePresetStage]
     ) async throws -> Board {
+        throw CancellationError()
+    }
+
+    func loadStages(boardId: BoardID) async throws -> [BoardStage] {
+        throw CancellationError()
+    }
+
+    func addStage(boardId: BoardID, name: String) async throws -> [BoardStage] {
+        throw CancellationError()
+    }
+
+    func renameStage(boardId: BoardID, stageId: BoardStageID, name: String) async throws -> [BoardStage] {
+        throw CancellationError()
+    }
+
+    func deleteStage(boardId: BoardID, stageId: BoardStageID) async throws -> [BoardStage] {
+        throw CancellationError()
+    }
+
+    func moveStage(boardId: BoardID, stageId: BoardStageID, to destinationIndex: Int) async throws -> [BoardStage] {
         throw CancellationError()
     }
 }
@@ -434,3 +670,195 @@ private struct SuspendedOnlineBoardGateway: OnlineBoardGatewayContract {
         throw CancellationError()
     }
 }
+
+// MARK: - BoardFeatureFlow task cancellation regressions
+
+@Suite("BoardFeatureFlow task cancellation")
+struct BoardFeatureFlowCancellationTests {
+
+    /// Verifies that `cancelActiveTasks()` stops in-flight background tasks
+    /// before they can emit result events.
+    ///
+    /// Uses a `LatchOfflineBoardWorker` that suspends until its latch is opened,
+    /// then records whether it delivered a result. After `cancelActiveTasks()` is
+    /// called the latch is opened; if cancellation worked the result is never
+    /// delivered and `isLoadingOffline` stays `true`.
+    @Test("cancelActiveTasks prevents in-flight load from delivering results")
+    @MainActor
+    func cancelPreventsResultDelivery() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        let latch = LatchOfflineBoardWorker()
+
+        try await withTemporaryStore(prefix: "altis-cancel-latch") { store in
+            let flow = BoardFeatureFlow(
+                offlineWorker: latch,
+                onlineGateway: SuspendedOnlineBoardGateway(),
+                store: store,
+                workspaceId: workspaceId
+            )
+
+            flow.send(.appeared(projectId: projectId, workspaceId: workspaceId))
+            #expect(flow.state.isLoadingOffline)
+
+            // Cancel before opening the latch — the in-flight load must not
+            // deliver its result event after cancellation.
+            // Drain ensures the tasks have fully stopped before assertions run.
+            await flow.cancelAndDrainActiveTasks()
+
+            // Open the latch now. The suspended worker body resumes but Task.isCancelled
+            // is true, so the flow's guard discards the result.
+            await latch.open()
+
+            // Yield to let any still-live task run if cancellation failed.
+            await _Concurrency.Task.yield()
+            await _Concurrency.Task.yield()
+
+            // isLoadingOffline stays true: no offlineBoardsLoaded event was sent.
+            #expect(flow.state.isLoadingOffline,
+                    "expected isLoadingOffline to remain true because the cancelled task must not deliver a result")
+        }
+    }
+
+    /// Verifies that cancellation prevents `loadPresets` from calling the
+    /// store after it has been logically closed.
+    ///
+    /// Uses `SpyLocalStoreContract` which wraps a real store and counts any
+    /// `fetchBoardStagePresets` calls made after `markClosed()`. If the flow's
+    /// task is not drained before close, the in-flight `loadPresets` resumes
+    /// and increments the counter. The test asserts the counter stays at zero,
+    /// giving an automatic failure on the undesired path without relying on
+    /// manual inspection of the xcodebuild output.
+    @Test("cancelActiveTasks prevents loadPresets from calling the store after close")
+    @MainActor
+    func cancelPreventsClosedStoreAccess() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-cancel-store") { realStore in
+            let spy = SpyLocalStoreContract(wrapping: realStore)
+
+            let flow = BoardFeatureFlow(
+                offlineWorker: LatchOfflineBoardWorker(),
+                onlineGateway: SuspendedOnlineBoardGateway(),
+                store: spy,
+                workspaceId: workspaceId
+            )
+
+            flow.send(.appeared(projectId: projectId, workspaceId: workspaceId))
+
+            // Mark the spy closed before draining so any post-close store call
+            // is counted, then drain to ensure all tasks have fully exited.
+            await spy.markClosed()
+            await flow.cancelAndDrainActiveTasks()
+
+            let postCloseCalls = await spy.callsAfterClose
+            #expect(postCloseCalls == 0,
+                    "loadPresets must not call fetchBoardStagePresets after cancellation; got \(postCloseCalls) post-close call(s)")
+        }
+    }
+}
+
+// MARK: - SpyLocalStoreContract
+
+/// A `LocalStoreContract` spy that wraps a real store and counts calls to
+/// `fetchBoardStagePresets` made after `markClosed()` is called.
+///
+/// `fetchBoardStagePresets` suspends until `releasePresetFetch()` is called,
+/// giving the test a window to call `markClosed()` and then drain tasks before
+/// any preset fetch can proceed. This eliminates the race between task spawn
+/// and cancellation that would otherwise produce non-deterministic results.
+///
+/// Used by `cancelPreventsClosedStoreAccess` to assert automatically that
+/// no post-close store access occurs when tasks are properly drained.
+private actor SpyLocalStoreContract: LocalStoreContract {
+
+    private let wrapped: OfflineLocalStore
+    private var closed = false
+    private(set) var callsAfterClose = 0
+    private var presetFetchContinuation: CheckedContinuation<Void, Error>?
+
+    init(wrapping store: OfflineLocalStore) {
+        self.wrapped = store
+    }
+
+    /// Signals that the store is logically closed. Subsequent calls to
+    /// `fetchBoardStagePresets` increment `callsAfterClose`.
+    func markClosed() {
+        closed = true
+    }
+
+    /// Releases the suspended `fetchBoardStagePresets` call so it can proceed.
+    /// Call this only in tests that need the preset fetch to complete normally.
+    func releasePresetFetch() {
+        presetFetchContinuation?.resume()
+        presetFetchContinuation = nil
+    }
+
+    func fetchBoardStagePresets(workspaceId: WorkspaceID) async throws -> [BoardStagePreset] {
+        // Suspend here so the test can call markClosed() and drain tasks
+        // before any actual preset fetch executes.
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
+                if _Concurrency.Task.isCancelled {
+                    cont.resume(throwing: CancellationError())
+                } else {
+                    self.presetFetchContinuation = cont
+                }
+            }
+        } onCancel: {
+            _Concurrency.Task { await self.cancelPresetFetch() }
+        }
+        if closed { callsAfterClose += 1 }
+        return try await wrapped.fetchBoardStagePresets(workspaceId: workspaceId)
+    }
+
+    private func cancelPresetFetch() {
+        presetFetchContinuation?.resume(throwing: CancellationError())
+        presetFetchContinuation = nil
+    }
+
+    // MARK: - Delegating stubs (not under observation)
+
+    func fetchProjectListItems(workspaceId: WorkspaceID) async throws -> [ProjectListItemProjection] {
+        try await wrapped.fetchProjectListItems(workspaceId: workspaceId)
+    }
+
+    func fetchBoardListItems(projectId: ProjectID) async throws -> [BoardListItemProjection] {
+        try await wrapped.fetchBoardListItems(projectId: projectId)
+    }
+
+    func fetchKanbanColumns(boardId: BoardID) async throws -> [KanbanColumnProjection] {
+        try await wrapped.fetchKanbanColumns(boardId: boardId)
+    }
+
+    func fetchTaskListItems(projectId: ProjectID) async throws -> [TaskListItemProjection] {
+        try await wrapped.fetchTaskListItems(projectId: projectId)
+    }
+
+    func fetchTaskDetail(taskId: TaskID) async throws -> TaskDetailProjection? {
+        try await wrapped.fetchTaskDetail(taskId: taskId)
+    }
+
+    func fetchProject(id: ProjectID) async throws -> Project? {
+        try await wrapped.fetchProject(id: id)
+    }
+
+    func fetchBoard(id: BoardID) async throws -> Board? {
+        try await wrapped.fetchBoard(id: id)
+    }
+
+    func fetchBoardStages(boardId: BoardID) async throws -> [BoardStage] {
+        try await wrapped.fetchBoardStages(boardId: boardId)
+    }
+
+    func fetchBoardStagePresetStages(stagePresetId: BoardStagePresetID) async throws -> [BoardStagePresetStage] {
+        try await wrapped.fetchBoardStagePresetStages(stagePresetId: stagePresetId)
+    }
+
+    func fetchTask(id: TaskID) async throws -> Task? {
+        try await wrapped.fetchTask(id: id)
+    }
+}
+

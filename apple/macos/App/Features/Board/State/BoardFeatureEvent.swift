@@ -18,6 +18,18 @@ enum BoardFeatureEvent {
     case createOfflineBoardFromPresetRequested(name: String, projectId: ProjectID, presetId: BoardStagePresetID)
     /// User selected a board to open.
     case boardSelected(BoardID)
+    /// User opened stage management for a specific board.
+    case stageEditorRequested(BoardListItemProjection)
+    /// User dismissed the stage management sheet.
+    case stageEditorDismissed
+    /// User requested adding a stage to the end of the board.
+    case addStageRequested(boardId: BoardID, name: String)
+    /// User requested renaming a stage.
+    case renameStageRequested(boardId: BoardID, stageId: BoardStageID, name: String)
+    /// User requested deleting a stage.
+    case deleteStageRequested(boardId: BoardID, stageId: BoardStageID)
+    /// User requested moving a stage to a different index.
+    case moveStageRequested(boardId: BoardID, stageId: BoardStageID, destinationIndex: Int)
     /// User dismissed an error alert.
     case errorAcknowledged
 
@@ -32,6 +44,14 @@ enum BoardFeatureEvent {
     case boardCreateFailed(Error)
     /// Workspace presets loaded for the creation sheet.
     case presetsLoaded([BoardStagePreset])
+    /// Ordered stages loaded for the stage editor.
+    case boardStagesLoaded(boardId: BoardID, stages: [BoardStage])
+    /// Local persistence failed while loading board stages.
+    case boardStagesLoadFailed(Error)
+    /// A stage mutation succeeded and produced the new ordered stage list.
+    case boardStagesUpdated(boardId: BoardID, stages: [BoardStage])
+    /// A stage mutation failed.
+    case boardStageMutationFailed(Error)
 
     // MARK: Online data results
     /// The gateway returned online boards for the active project.
