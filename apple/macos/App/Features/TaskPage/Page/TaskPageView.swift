@@ -58,6 +58,11 @@ struct TaskPageView: View {
                 // Status badge
                 statusBadge(task.status)
 
+                // Terminal actions — only shown for open tasks on offline boards
+                if task.status == .open && flow.state.boardMode == .offline {
+                    terminalActionButtons
+                }
+
                 Divider()
 
                 // Stage progress line
@@ -74,6 +79,30 @@ struct TaskPageView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .navigationTitle(task.title)
+    }
+
+    // MARK: - Terminal actions
+
+    private var terminalActionButtons: some View {
+        HStack(spacing: 12) {
+            Button {
+                flow.send(.completeRequested)
+            } label: {
+                Label("Complete", systemImage: "checkmark.circle.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.green)
+            .disabled(flow.state.isLoading)
+
+            Button {
+                flow.send(.failRequested)
+            } label: {
+                Label("Fail", systemImage: "xmark.circle.fill")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+            .disabled(flow.state.isLoading)
+        }
     }
 
     // MARK: - Stage progress

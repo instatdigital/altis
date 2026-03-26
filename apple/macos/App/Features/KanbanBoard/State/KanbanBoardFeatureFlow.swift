@@ -48,9 +48,13 @@ final class KanbanBoardFeatureFlow: ObservableObject {
             guard let boardId = state.boardId else { break }
             moveTask(taskId: taskId, toStageId: toStageId, boardId: boardId, boardMode: state.boardMode)
 
-        case .taskCompleteRequested, .taskFailRequested:
-            // Phase 13 implementation.
-            break
+        case .taskCompleteRequested(let taskId):
+            guard let boardId = state.boardId else { break }
+            terminalAction(taskId: taskId, boardId: boardId, isComplete: true)
+
+        case .taskFailRequested(let taskId):
+            guard let boardId = state.boardId else { break }
+            terminalAction(taskId: taskId, boardId: boardId, isComplete: false)
 
         case .offlineColumnsLoaded(let columns):
             state.columns = columns
@@ -103,6 +107,30 @@ final class KanbanBoardFeatureFlow: ObservableObject {
                     try await self.offlineWorker.moveTask(taskId: taskId, toStageId: toStageId, boardId: boardId)
                     guard !_Concurrency.Task.isCancelled else { return }
                     // Reload columns so all views reflect the updated projection.
+                    let columns = try await self.offlineWorker.loadColumns(boardId: boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineColumnsLoaded(columns))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.loadFailed(error))
+                }
+            }
+        case .online:
+            send(.onlineUnavailable(.notImplemented))
+        }
+    }
+
+    private func terminalAction(taskId: TaskID, boardId: BoardID, isComplete: Bool) {
+        switch state.boardMode {
+        case .offline:
+            spawnTask {
+                do {
+                    if isComplete {
+                        try await self.offlineWorker.completeTask(taskId: taskId, boardId: boardId)
+                    } else {
+                        try await self.offlineWorker.failTask(taskId: taskId, boardId: boardId)
+                    }
+                    guard !_Concurrency.Task.isCancelled else { return }
                     let columns = try await self.offlineWorker.loadColumns(boardId: boardId)
                     guard !_Concurrency.Task.isCancelled else { return }
                     self.send(.offlineColumnsLoaded(columns))

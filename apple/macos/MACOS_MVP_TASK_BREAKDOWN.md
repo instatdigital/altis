@@ -209,13 +209,13 @@ This remains the first executable macOS slice.
 
 ## Phase 13. Offline Terminal Actions
 
-- [ ] Add complete action on task card
-- [ ] Add fail action on task card
-- [ ] Add complete action on task page
-- [ ] Add fail action on task page
-- [ ] Move task into terminal success stage on complete
-- [ ] Move task into terminal failure stage on fail
-- [ ] Ensure terminal actions stay consistent across list, card, and detail projections
+- [x] Add complete action on task card
+- [x] Add fail action on task card
+- [x] Add complete action on task page
+- [x] Add fail action on task page
+- [x] Move task into terminal success stage on complete
+- [x] Move task into terminal failure stage on fail
+- [x] Ensure terminal actions stay consistent across list, card, and detail projections
 
 ## Phase 14. Online Architecture Stub
 

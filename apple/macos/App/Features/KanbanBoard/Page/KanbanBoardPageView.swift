@@ -40,12 +40,22 @@ struct KanbanBoardPageView: View {
         ScrollView(.horizontal, showsIndicators: true) {
             HStack(alignment: .top, spacing: 12) {
                 ForEach(flow.state.columns) { column in
-                    KanbanColumnView(column: column) { taskId in
-                        flow.send(.taskSelected(taskId))
-                        onTaskSelected?(taskId)
-                    } onTaskDropped: { taskId in
-                        flow.send(.taskMoved(taskId: taskId, toStageId: column.stageId))
-                    }
+                    KanbanColumnView(
+                        column: column,
+                        onTaskSelected: { taskId in
+                            flow.send(.taskSelected(taskId))
+                            onTaskSelected?(taskId)
+                        },
+                        onTaskDropped: { taskId in
+                            flow.send(.taskMoved(taskId: taskId, toStageId: column.stageId))
+                        },
+                        onTaskComplete: { taskId in
+                            flow.send(.taskCompleteRequested(taskId))
+                        },
+                        onTaskFail: { taskId in
+                            flow.send(.taskFailRequested(taskId))
+                        }
+                    )
                 }
             }
             .padding(16)
@@ -90,6 +100,8 @@ private struct KanbanColumnView: View {
     let column: KanbanColumnProjection
     let onTaskSelected: (TaskID) -> Void
     let onTaskDropped: (TaskID) -> Void
+    let onTaskComplete: (TaskID) -> Void
+    let onTaskFail: (TaskID) -> Void
 
     /// Tracks whether a drag is hovering over this column for visual feedback.
     @State private var isDropTargeted = false
@@ -100,10 +112,14 @@ private struct KanbanColumnView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 LazyVStack(spacing: 8) {
                     ForEach(column.tasks, id: \.taskId) { task in
-                        KanbanTaskCardView(task: task)
-                            .contentShape(Rectangle())
-                            .onTapGesture { onTaskSelected(task.taskId) }
-                            .draggable(task.taskId.rawValue)
+                        KanbanTaskCardView(
+                            task: task,
+                            onComplete: { onTaskComplete(task.taskId) },
+                            onFail: { onTaskFail(task.taskId) }
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture { onTaskSelected(task.taskId) }
+                        .draggable(task.taskId.rawValue)
                     }
                     if column.tasks.isEmpty {
                         emptyColumn
@@ -171,6 +187,8 @@ private struct KanbanColumnView: View {
 private struct KanbanTaskCardView: View {
 
     let task: TaskListItemProjection
+    let onComplete: () -> Void
+    let onFail: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -182,11 +200,31 @@ private struct KanbanTaskCardView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             stageProgress
+            if task.status == .open {
+                terminalActionButtons
+            }
         }
         .padding(10)
         .background(Color(nsColor: .windowBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.06), radius: 2, x: 0, y: 1)
+    }
+
+    private var terminalActionButtons: some View {
+        HStack(spacing: 6) {
+            Button(action: onComplete) {
+                Label("Complete", systemImage: "checkmark.circle")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+            }
+            .buttonStyle(.borderless)
+            Button(action: onFail) {
+                Label("Fail", systemImage: "xmark.circle")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+            .buttonStyle(.borderless)
+        }
     }
 
     private var statusIcon: some View {
