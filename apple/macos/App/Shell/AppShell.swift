@@ -9,14 +9,15 @@ import SwiftUI
 /// Phase 6: Project feature flow wired; real `ProjectPageView` with list and
 ///          create-project sheet replaces the placeholder.
 /// Phase 7: Board feature flow wired; `BoardPageView` replaces the stub.
-///
-/// Navigation items for TaskList, KanbanBoard, and TaskPage remain
-/// structural stubs wired to real flows in Phases 9–13.
+/// Phase 9: Task page flow wired; `TaskPageView` replaces the stub.
+///          Board rows navigate to a task list (Phase 10 renders tasks;
+///          Phase 9 provides the create-task entry point).
 struct AppShell: View {
 
     @StateObject private var homeFlow: HomeFeatureFlow
     @StateObject private var projectFlow: ProjectFeatureFlow
     @StateObject private var boardFlow: BoardFeatureFlow
+    @StateObject private var taskPageFlow: TaskPageFeatureFlow
 
     private let environment: AppEnvironment
 
@@ -37,6 +38,10 @@ struct AppShell: View {
             onlineGateway: NotImplementedOnlineBoardGateway(),
             store: environment.store,
             workspaceId: environment.workspaceId
+        ))
+        _taskPageFlow = StateObject(wrappedValue: TaskPageFeatureFlow(
+            offlineWorker: OfflineTaskPageWorker(store: environment.store),
+            store: environment.store
         ))
     }
 
@@ -68,7 +73,29 @@ struct AppShell: View {
                 selection = .boardList(projectId: projectId, workspaceId: environment.workspaceId)
             })
         case .boardList(let projectId, let workspaceId):
-            BoardPageView(flow: boardFlow, projectId: projectId, workspaceId: workspaceId)
+            BoardPageView(
+                flow: boardFlow,
+                projectId: projectId,
+                workspaceId: workspaceId,
+                onBoardSelected: { boardId, boardMode in
+                    selection = .taskList(boardId: boardId, boardMode: boardMode)
+                }
+            )
+        case .taskList(let boardId, let boardMode):
+            TaskListPageView(
+                flow: taskPageFlow,
+                boardId: boardId,
+                boardMode: boardMode,
+                workspaceId: environment.workspaceId,
+                onTaskSelected: { taskId in
+                    selection = .taskPage(taskId: taskId, boardMode: boardMode)
+                }
+            )
+        case .taskPage(let taskId, let boardMode):
+            TaskPageView(flow: taskPageFlow)
+                .onAppear {
+                    taskPageFlow.send(.appeared(taskId: taskId, boardMode: boardMode))
+                }
         default:
             ContentUnavailableView(
                 "Not Available",
