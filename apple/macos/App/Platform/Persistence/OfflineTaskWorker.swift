@@ -95,6 +95,63 @@ struct OfflineTaskListWorker: OfflineTaskListDataWorker {
     }
 }
 
+/// Concrete `OfflineKanbanDataWorker` backed by `OfflineLocalStore`.
+///
+/// Returns kanban column projections and applies write mutations for offline boards.
+struct OfflineKanbanWorker: OfflineKanbanDataWorker {
+
+    private let store: OfflineLocalStore
+
+    init(store: OfflineLocalStore) {
+        self.store = store
+    }
+
+    func loadColumns(boardId: BoardID) async throws -> [KanbanColumnProjection] {
+        try await store.fetchKanbanColumns(boardId: boardId)
+    }
+
+    func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID) async throws {
+        guard var task = try await store.fetchTask(id: taskId) else {
+            throw OfflineTaskWorkerError.taskNotFound(taskId)
+        }
+        let stages = try await store.fetchBoardStages(boardId: boardId)
+        guard stages.contains(where: { $0.stageId == toStageId }) else {
+            throw OfflineTaskWorkerError.stageNotFound(toStageId)
+        }
+        task.stageId = toStageId
+        task.updatedAt = Date()
+        try await store.updateTask(task)
+    }
+
+    func completeTask(taskId: TaskID, boardId: BoardID) async throws {
+        guard var task = try await store.fetchTask(id: taskId) else {
+            throw OfflineTaskWorkerError.taskNotFound(taskId)
+        }
+        let stages = try await store.fetchBoardStages(boardId: boardId)
+        guard let successStage = stages.first(where: { $0.kind == .terminalSuccess }) else {
+            throw OfflineTaskWorkerError.terminalStageNotFound(boardId)
+        }
+        task.stageId = successStage.stageId
+        task.status = .completed
+        task.updatedAt = Date()
+        try await store.updateTask(task)
+    }
+
+    func failTask(taskId: TaskID, boardId: BoardID) async throws {
+        guard var task = try await store.fetchTask(id: taskId) else {
+            throw OfflineTaskWorkerError.taskNotFound(taskId)
+        }
+        let stages = try await store.fetchBoardStages(boardId: boardId)
+        guard let failureStage = stages.first(where: { $0.kind == .terminalFailure }) else {
+            throw OfflineTaskWorkerError.terminalStageNotFound(boardId)
+        }
+        task.stageId = failureStage.stageId
+        task.status = .failed
+        task.updatedAt = Date()
+        try await store.updateTask(task)
+    }
+}
+
 // MARK: - Errors
 
 enum OfflineTaskWorkerError: LocalizedError {

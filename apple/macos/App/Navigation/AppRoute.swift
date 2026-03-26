@@ -8,7 +8,8 @@ enum AppRoute: Hashable {
     case boardList(projectId: ProjectID, workspaceId: WorkspaceID)
     /// Shows the task list for an offline board.
     case taskList(boardId: BoardID, boardMode: BoardMode)
-    case kanbanBoard
+    /// Shows the kanban board for the given board.
+    case kanbanBoard(boardId: BoardID, boardMode: BoardMode)
     /// Shows the full detail page for a task.
     case taskPage(taskId: TaskID, boardMode: BoardMode)
 }

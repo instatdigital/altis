@@ -71,7 +71,7 @@ extension OfflineLocalStore: LocalStoreContract {
     }
 
     func fetchKanbanColumns(boardId: BoardID) async throws -> [KanbanColumnProjection] {
-        throw OfflineStoreError.notImplemented("fetchKanbanColumns — Phase 11")
+        try await actor.fetchKanbanColumns(boardId: boardId.rawValue)
     }
 
     func fetchTaskListItems(boardId: BoardID) async throws -> [TaskListItemProjection] {
@@ -719,6 +719,49 @@ private actor DatabaseActor {
             stages = []
         }
         return TaskDetailProjection(task: task, boardStages: stages)
+    }
+
+    // MARK: - Phase 11 kanban column projection read
+
+    func fetchKanbanColumns(boardId: String) throws -> [KanbanColumnProjection] {
+        let stages = try fetchBoardStages(boardId: boardId)
+        let totalStageCount = stages.count
+
+        let sql = """
+            SELECT taskId, workspaceId, projectId, boardId, stageId, title, status, createdAt, updatedAt
+            FROM tasks
+            WHERE boardId = ?
+            ORDER BY createdAt ASC;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchKanbanColumns prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, boardId, -1, sqliteTransient)
+
+        var tasksByStage: [String: [Task]] = [:]
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let record = TaskRecord(
+                taskId: String(cString: sqlite3_column_text(stmt, 0)),
+                workspaceId: String(cString: sqlite3_column_text(stmt, 1)),
+                projectId: String(cString: sqlite3_column_text(stmt, 2)),
+                boardId: sqliteText(stmt, column: 3),
+                stageId: sqliteText(stmt, column: 4),
+                title: String(cString: sqlite3_column_text(stmt, 5)),
+                status: String(cString: sqlite3_column_text(stmt, 6)),
+                createdAt: String(cString: sqlite3_column_text(stmt, 7)),
+                updatedAt: String(cString: sqlite3_column_text(stmt, 8))
+            )
+            guard let task = record.toDomain(), let stageId = task.stageId?.rawValue else { continue }
+            tasksByStage[stageId, default: []].append(task)
+        }
+
+        return stages.map { stage in
+            let tasks = tasksByStage[stage.stageId.rawValue] ?? []
+            return KanbanColumnProjection(stage: stage, tasks: tasks, totalStageCount: totalStageCount)
+        }
     }
 
     // MARK: - Board writes

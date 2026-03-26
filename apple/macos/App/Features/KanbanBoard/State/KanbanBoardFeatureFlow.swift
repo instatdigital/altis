@@ -44,8 +44,12 @@ final class KanbanBoardFeatureFlow: ObservableObject {
             // Navigation handled by the page/shell layer.
             break
 
-        case .taskMoved, .taskCompleteRequested, .taskFailRequested:
-            // Phase 12 / Phase 13 implementation.
+        case .taskMoved(let taskId, let toStageId):
+            guard let boardId = state.boardId else { break }
+            moveTask(taskId: taskId, toStageId: toStageId, boardId: boardId, boardMode: state.boardMode)
+
+        case .taskCompleteRequested, .taskFailRequested:
+            // Phase 13 implementation.
             break
 
         case .offlineColumnsLoaded(let columns):
@@ -90,6 +94,27 @@ final class KanbanBoardFeatureFlow: ObservableObject {
     }
 
     // MARK: - Effects
+
+    private func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID, boardMode: BoardMode) {
+        switch boardMode {
+        case .offline:
+            spawnTask {
+                do {
+                    try await self.offlineWorker.moveTask(taskId: taskId, toStageId: toStageId, boardId: boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    // Reload columns so all views reflect the updated projection.
+                    let columns = try await self.offlineWorker.loadColumns(boardId: boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineColumnsLoaded(columns))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.loadFailed(error))
+                }
+            }
+        case .online:
+            send(.onlineUnavailable(.notImplemented))
+        }
+    }
 
     private func loadColumns(boardId: BoardID, boardMode: BoardMode) {
         state.isLoading = true

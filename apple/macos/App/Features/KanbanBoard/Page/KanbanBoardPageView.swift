@@ -43,6 +43,8 @@ struct KanbanBoardPageView: View {
                     KanbanColumnView(column: column) { taskId in
                         flow.send(.taskSelected(taskId))
                         onTaskSelected?(taskId)
+                    } onTaskDropped: { taskId in
+                        flow.send(.taskMoved(taskId: taskId, toStageId: column.stageId))
                     }
                 }
             }
@@ -59,10 +61,16 @@ struct KanbanBoardPageView: View {
     }
 
     private func onlineUnavailableView(reason: OnlineBoardUnavailableReason) -> some View {
-        ContentUnavailableView(
+        let message: String
+        switch reason {
+        case .networkUnavailable:   message = "Network is not available."
+        case .notAuthenticated:     message = "Sign in to access online boards."
+        case .notImplemented:       message = "Online boards are available in Phase 14."
+        }
+        return ContentUnavailableView(
             "Online Board Unavailable",
             systemImage: "network.slash",
-            description: Text(reason.localizedDescription)
+            description: Text(message)
         )
     }
 
@@ -81,6 +89,10 @@ private struct KanbanColumnView: View {
 
     let column: KanbanColumnProjection
     let onTaskSelected: (TaskID) -> Void
+    let onTaskDropped: (TaskID) -> Void
+
+    /// Tracks whether a drag is hovering over this column for visual feedback.
+    @State private var isDropTargeted = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -91,6 +103,7 @@ private struct KanbanColumnView: View {
                         KanbanTaskCardView(task: task)
                             .contentShape(Rectangle())
                             .onTapGesture { onTaskSelected(task.taskId) }
+                            .draggable(task.taskId.rawValue)
                     }
                     if column.tasks.isEmpty {
                         emptyColumn
@@ -100,8 +113,25 @@ private struct KanbanColumnView: View {
         }
         .frame(width: 240, alignment: .top)
         .padding(12)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(isDropTargeted
+            ? Color.accentColor.opacity(0.12)
+            : Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .strokeBorder(
+                    isDropTargeted ? Color.accentColor : Color.clear,
+                    lineWidth: 2
+                )
+        )
+        .dropDestination(for: String.self) { droppedItems, _ in
+            guard let rawValue = droppedItems.first else { return false }
+            let taskId = TaskID(rawValue: rawValue)
+            onTaskDropped(taskId)
+            return true
+        } isTargeted: { targeted in
+            isDropTargeted = targeted
+        }
     }
 
     private var columnHeader: some View {

@@ -192,20 +192,20 @@ This remains the first executable macOS slice.
 
 ## Phase 11. Offline Kanban
 
-- [ ] Implement offline `KanbanBoard` page
-- [ ] Group tasks by current stage
-- [ ] Render stage columns in order
-- [ ] Render task cards with compact stage-progress line
-- [ ] Support opening `TaskPage` from kanban card
-- [ ] Ensure kanban reads from offline local typed projections only
+- [x] Implement offline `KanbanBoard` page
+- [x] Group tasks by current stage
+- [x] Render stage columns in order
+- [x] Render task cards with compact stage-progress line
+- [x] Support opening `TaskPage` from kanban card
+- [x] Ensure kanban reads from offline local typed projections only
 
 ## Phase 12. Offline Drag And Drop
 
-- [ ] Implement drag source for task cards
-- [ ] Implement drop target for stage columns
-- [ ] Update task stage through event flow, not direct view mutation
-- [ ] Persist stage movement locally
-- [ ] Re-render list, task detail, and kanban from updated local projections
+- [x] Implement drag source for task cards
+- [x] Implement drop target for stage columns
+- [x] Update task stage through event flow, not direct view mutation
+- [x] Persist stage movement locally
+- [x] Re-render list, task detail, and kanban from updated local projections
 
 ## Phase 13. Offline Terminal Actions
 

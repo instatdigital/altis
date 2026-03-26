@@ -19,6 +19,8 @@ struct TaskListPageView: View {
     let workspaceId: WorkspaceID
     /// Called when the user taps a task row to open its detail page.
     var onTaskSelected: ((TaskID) -> Void)?
+    /// Called when the user requests the kanban view for this board.
+    var onKanbanRequested: (() -> Void)?
 
     @State private var isShowingCreateSheet = false
     @State private var newTaskTitle = ""
@@ -46,6 +48,13 @@ struct TaskListPageView: View {
                     Label("New Task", systemImage: "plus")
                 }
                 .disabled(boardMode == .online || taskPageFlow.state.boardStages.isEmpty)
+            }
+            ToolbarItem(placement: .secondaryAction) {
+                Button {
+                    onKanbanRequested?()
+                } label: {
+                    Label("Kanban View", systemImage: "rectangle.split.3x1")
+                }
             }
         }
         .sheet(isPresented: $isShowingCreateSheet) {

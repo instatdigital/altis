@@ -14,6 +14,8 @@ import SwiftUI
 ///          Phase 9 provides the create-task entry point).
 /// Phase 10: Task list flow wired; `TaskListPageView` renders tasks from
 ///           offline local typed projections.
+/// Phase 11: Kanban flow wired; `KanbanBoardPageView` renders columns from
+///           offline local typed projections.
 struct AppShell: View {
 
     @StateObject private var homeFlow: HomeFeatureFlow
@@ -21,6 +23,7 @@ struct AppShell: View {
     @StateObject private var boardFlow: BoardFeatureFlow
     @StateObject private var taskPageFlow: TaskPageFeatureFlow
     @StateObject private var taskListFlow: TaskListFeatureFlow
+    @StateObject private var kanbanFlow: KanbanBoardFeatureFlow
 
     private let environment: AppEnvironment
 
@@ -48,6 +51,9 @@ struct AppShell: View {
         ))
         _taskListFlow = StateObject(wrappedValue: TaskListFeatureFlow(
             offlineWorker: OfflineTaskListWorker(store: environment.store)
+        ))
+        _kanbanFlow = StateObject(wrappedValue: KanbanBoardFeatureFlow(
+            offlineWorker: OfflineKanbanWorker(store: environment.store)
         ))
     }
 
@@ -96,6 +102,18 @@ struct AppShell: View {
                 workspaceId: environment.workspaceId,
                 onTaskSelected: { taskId in
                     selection = .taskPage(taskId: taskId, boardMode: boardMode)
+                },
+                onKanbanRequested: {
+                    selection = .kanbanBoard(boardId: boardId, boardMode: boardMode)
+                }
+            )
+        case .kanbanBoard(let boardId, let boardMode):
+            KanbanBoardPageView(
+                flow: kanbanFlow,
+                boardId: boardId,
+                boardMode: boardMode,
+                onTaskSelected: { taskId in
+                    selection = .taskPage(taskId: taskId, boardMode: boardMode)
                 }
             )
         case .taskPage(let taskId, let boardMode):
@@ -103,12 +121,6 @@ struct AppShell: View {
                 .onAppear {
                     taskPageFlow.send(.appeared(taskId: taskId, boardMode: boardMode))
                 }
-        default:
-            ContentUnavailableView(
-                "Not Available",
-                systemImage: "exclamationmark.circle",
-                description: Text("This section is available in a later phase.")
-            )
         }
     }
 }
