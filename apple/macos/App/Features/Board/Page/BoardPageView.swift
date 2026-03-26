@@ -15,6 +15,8 @@ struct BoardPageView: View {
 
     let projectId: ProjectID
     let workspaceId: WorkspaceID
+    /// Called when the user taps a board row, carrying the board id and mode.
+    var onBoardSelected: ((BoardID, BoardMode) -> Void)?
 
     @State private var isShowingCreateSheet = false
     @State private var newBoardName = ""
@@ -91,6 +93,7 @@ struct BoardPageView: View {
             )
             .onTapGesture {
                 flow.send(.boardSelected(board.boardId))
+                onBoardSelected?(board.boardId, board.mode)
             }
         }
     }

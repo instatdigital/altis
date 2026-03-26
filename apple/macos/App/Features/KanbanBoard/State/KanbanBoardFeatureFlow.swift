@@ -15,9 +15,14 @@ final class KanbanBoardFeatureFlow: ObservableObject {
     @Published private(set) var state = KanbanBoardFeatureState()
 
     private let offlineWorker: OfflineKanbanDataWorker
+    private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
     init(offlineWorker: OfflineKanbanDataWorker) {
         self.offlineWorker = offlineWorker
+    }
+
+    deinit {
+        for task in activeTasks { task.cancel() }
     }
 
     // MARK: - Event entry point
@@ -25,6 +30,12 @@ final class KanbanBoardFeatureFlow: ObservableObject {
     func send(_ event: KanbanBoardFeatureEvent) {
         switch event {
         case .appeared(let boardId, let boardMode):
+            if state.boardId != boardId {
+                cancelActiveTasks()
+                state.columns = []
+                state.onlineUnavailable = nil
+                state.errorMessage = nil
+            }
             state.boardId = boardId
             state.boardMode = boardMode
             loadColumns(boardId: boardId, boardMode: boardMode)
@@ -51,18 +62,47 @@ final class KanbanBoardFeatureFlow: ObservableObject {
         }
     }
 
+    // MARK: - Task lifecycle
+
+    func cancelActiveTasks() {
+        for task in activeTasks { task.cancel() }
+        activeTasks.removeAll()
+    }
+
+    func cancelAndDrainActiveTasks() async {
+        let snapshot = activeTasks
+        activeTasks.removeAll()
+        for task in snapshot {
+            task.cancel()
+            _ = await task.result
+        }
+    }
+
+    @discardableResult
+    private func spawnTask(_ body: @escaping () async -> Void) -> _Concurrency.Task<Void, Never> {
+        let task = _Concurrency.Task { await body() }
+        activeTasks.append(task)
+        _Concurrency.Task {
+            _ = await task.result
+            self.activeTasks.removeAll(where: { $0 == task })
+        }
+        return task
+    }
+
     // MARK: - Effects
 
     private func loadColumns(boardId: BoardID, boardMode: BoardMode) {
         state.isLoading = true
         switch boardMode {
         case .offline:
-            _Concurrency.Task {
+            spawnTask {
                 do {
-                    let columns = try await offlineWorker.loadColumns(boardId: boardId)
-                    send(.offlineColumnsLoaded(columns))
+                    let columns = try await self.offlineWorker.loadColumns(boardId: boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineColumnsLoaded(columns))
                 } catch {
-                    send(.loadFailed(error))
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.loadFailed(error))
                 }
             }
         case .online:

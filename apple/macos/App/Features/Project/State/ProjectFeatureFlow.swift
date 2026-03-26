@@ -13,10 +13,15 @@ final class ProjectFeatureFlow: ObservableObject {
 
     private let worker: ProjectDataWorker
     private let workspaceId: WorkspaceID
+    private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
     init(worker: ProjectDataWorker, workspaceId: WorkspaceID) {
         self.worker = worker
         self.workspaceId = workspaceId
+    }
+
+    deinit {
+        for task in activeTasks { task.cancel() }
     }
 
     // MARK: - Event entry point
@@ -24,6 +29,7 @@ final class ProjectFeatureFlow: ObservableObject {
     func send(_ event: ProjectFeatureEvent) {
         switch event {
         case .appeared:
+            cancelActiveTasks()
             loadProjects()
 
         case .createProjectRequested(let name):
@@ -48,17 +54,46 @@ final class ProjectFeatureFlow: ObservableObject {
         }
     }
 
+    // MARK: - Task lifecycle
+
+    func cancelActiveTasks() {
+        for task in activeTasks { task.cancel() }
+        activeTasks.removeAll()
+    }
+
+    func cancelAndDrainActiveTasks() async {
+        let snapshot = activeTasks
+        activeTasks.removeAll()
+        for task in snapshot {
+            task.cancel()
+            _ = await task.result
+        }
+    }
+
+    @discardableResult
+    private func spawnTask(_ body: @escaping () async -> Void) -> _Concurrency.Task<Void, Never> {
+        let task = _Concurrency.Task { await body() }
+        activeTasks.append(task)
+        _Concurrency.Task {
+            _ = await task.result
+            self.activeTasks.removeAll(where: { $0 == task })
+        }
+        return task
+    }
+
     // MARK: - Effects
 
     private func loadProjects() {
         state.isLoading = true
         state.errorMessage = nil
-        _Concurrency.Task {
+        spawnTask {
             do {
-                let projections = try await worker.loadProjects()
-                send(.projectsLoaded(projections))
+                let projections = try await self.worker.loadProjects()
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.projectsLoaded(projections))
             } catch {
-                send(.loadFailed(error))
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.loadFailed(error))
             }
         }
     }
@@ -68,14 +103,17 @@ final class ProjectFeatureFlow: ObservableObject {
         guard !trimmed.isEmpty else { return }
         state.isLoading = true
         state.errorMessage = nil
-        _Concurrency.Task {
+        spawnTask {
             do {
-                _ = try await worker.createProject(name: trimmed, workspaceId: workspaceId)
+                _ = try await self.worker.createProject(name: trimmed, workspaceId: self.workspaceId)
+                guard !_Concurrency.Task.isCancelled else { return }
                 // Reload the list after creation so the projection is fresh.
-                let projections = try await worker.loadProjects()
-                send(.projectsLoaded(projections))
+                let projections = try await self.worker.loadProjects()
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.projectsLoaded(projections))
             } catch {
-                send(.loadFailed(error))
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.loadFailed(error))
             }
         }
     }

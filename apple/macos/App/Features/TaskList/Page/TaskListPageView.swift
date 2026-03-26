@@ -36,7 +36,7 @@ struct TaskListPageView: View {
                 } label: {
                     Label("New Task", systemImage: "plus")
                 }
-                .disabled(boardMode == .online)
+                .disabled(boardMode == .online || flow.state.boardStages.isEmpty)
             }
         }
         .sheet(isPresented: $isShowingCreateSheet) {
@@ -49,6 +49,11 @@ struct TaskListPageView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(flow.state.errorMessage ?? "")
+        }
+        .onAppear {
+            if boardMode == .offline {
+                flow.send(.boardContextLoaded(boardId: boardId, boardMode: boardMode))
+            }
         }
     }
 
@@ -73,10 +78,8 @@ struct TaskListPageView: View {
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { submitCreate() }
 
-            // Stage picker — only shown when the task page flow has a loaded task
-            // with stage context. For creation we derive stages from the board.
-            if let task = flow.state.task, !task.boardStages.isEmpty {
-                stagePicker(stages: task.boardStages)
+            if !flow.state.boardStages.isEmpty {
+                stagePicker(stages: flow.state.boardStages)
             }
 
             HStack {
@@ -126,16 +129,14 @@ struct TaskListPageView: View {
         let targetStageId: BoardStageID
         if let sid = selectedStageId {
             targetStageId = sid
-        } else if let firstStage = flow.state.task?.boardStages.first {
+        } else if let firstStage = flow.state.boardStages.first {
             targetStageId = firstStage.stageId
         } else {
-            // No stage context available yet — need to load it first.
-            // This is the creation sheet without prior task load context.
-            // We need the board's first stage. Defer to store-level default.
-            // For Phase 9 with the initial task load, stages come from a loaded task.
-            // This path should not be reached once the board has stages.
+            // Stage context not yet loaded — button should be disabled in this state.
             return
         }
+
+        guard let projectId = flow.state.activeProjectId else { return }
 
         isShowingCreateSheet = false
         flow.send(.createTaskRequested(
@@ -143,7 +144,7 @@ struct TaskListPageView: View {
             boardId: boardId,
             stageId: targetStageId,
             workspaceId: workspaceId,
-            projectId: flow.state.task?.projectId ?? ProjectID()
+            projectId: projectId
         ))
     }
 }
@@ -152,7 +153,7 @@ struct TaskListPageView: View {
     TaskListPageView(
         flow: TaskPageFeatureFlow(
             offlineWorker: PreviewOfflineTaskPageDataWorker(),
-            store: PreviewLocalWritePathContract()
+            store: PreviewStore()
         ),
         boardId: BoardID(),
         boardMode: .offline,
@@ -177,7 +178,20 @@ private struct PreviewOfflineTaskPageDataWorker: OfflineTaskPageDataWorker {
     }
 }
 
-private struct PreviewLocalWritePathContract: LocalWritePathContract {
+private struct PreviewStore: LocalStoreContract, LocalWritePathContract {
+    // LocalStoreContract
+    func fetchProjectListItems(workspaceId: WorkspaceID) async throws -> [ProjectListItemProjection] { [] }
+    func fetchBoardListItems(projectId: ProjectID) async throws -> [BoardListItemProjection] { [] }
+    func fetchKanbanColumns(boardId: BoardID) async throws -> [KanbanColumnProjection] { [] }
+    func fetchTaskListItems(boardId: BoardID) async throws -> [TaskListItemProjection] { [] }
+    func fetchTaskDetail(taskId: TaskID) async throws -> TaskDetailProjection? { nil }
+    func fetchProject(id: ProjectID) async throws -> Project? { nil }
+    func fetchBoard(id: BoardID) async throws -> Board? { nil }
+    func fetchBoardStages(boardId: BoardID) async throws -> [BoardStage] { [] }
+    func fetchBoardStagePresetStages(stagePresetId: BoardStagePresetID) async throws -> [BoardStagePresetStage] { [] }
+    func fetchBoardStagePresets(workspaceId: WorkspaceID) async throws -> [BoardStagePreset] { [] }
+    func fetchTask(id: TaskID) async throws -> Task? { nil }
+    // LocalWritePathContract
     func createProject(_ project: Project) async throws {}
     func updateProject(_ project: Project) async throws {}
     func deleteProject(id: ProjectID) async throws {}

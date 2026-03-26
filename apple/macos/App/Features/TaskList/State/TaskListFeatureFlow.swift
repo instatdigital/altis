@@ -15,9 +15,14 @@ final class TaskListFeatureFlow: ObservableObject {
     @Published private(set) var state = TaskListFeatureState()
 
     private let offlineWorker: OfflineTaskListDataWorker
+    private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
     init(offlineWorker: OfflineTaskListDataWorker) {
         self.offlineWorker = offlineWorker
+    }
+
+    deinit {
+        for task in activeTasks { task.cancel() }
     }
 
     // MARK: - Event entry point
@@ -25,6 +30,12 @@ final class TaskListFeatureFlow: ObservableObject {
     func send(_ event: TaskListFeatureEvent) {
         switch event {
         case .appeared(let boardId, let boardMode):
+            if state.boardId != boardId {
+                cancelActiveTasks()
+                state.tasks = []
+                state.onlineUnavailable = nil
+                state.errorMessage = nil
+            }
             state.boardId = boardId
             state.boardMode = boardMode
             loadTasks(boardId: boardId, boardMode: boardMode)
@@ -47,18 +58,47 @@ final class TaskListFeatureFlow: ObservableObject {
         }
     }
 
+    // MARK: - Task lifecycle
+
+    func cancelActiveTasks() {
+        for task in activeTasks { task.cancel() }
+        activeTasks.removeAll()
+    }
+
+    func cancelAndDrainActiveTasks() async {
+        let snapshot = activeTasks
+        activeTasks.removeAll()
+        for task in snapshot {
+            task.cancel()
+            _ = await task.result
+        }
+    }
+
+    @discardableResult
+    private func spawnTask(_ body: @escaping () async -> Void) -> _Concurrency.Task<Void, Never> {
+        let task = _Concurrency.Task { await body() }
+        activeTasks.append(task)
+        _Concurrency.Task {
+            _ = await task.result
+            self.activeTasks.removeAll(where: { $0 == task })
+        }
+        return task
+    }
+
     // MARK: - Effects
 
     private func loadTasks(boardId: BoardID, boardMode: BoardMode) {
         state.isLoading = true
         switch boardMode {
         case .offline:
-            _Concurrency.Task {
+            spawnTask {
                 do {
-                    let tasks = try await offlineWorker.loadTasks(boardId: boardId)
-                    send(.offlineTasksLoaded(tasks))
+                    let tasks = try await self.offlineWorker.loadTasks(boardId: boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineTasksLoaded(tasks))
                 } catch {
-                    send(.loadFailed(error))
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.loadFailed(error))
                 }
             }
         case .online:

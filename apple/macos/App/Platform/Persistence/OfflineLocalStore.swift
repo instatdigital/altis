@@ -74,12 +74,12 @@ extension OfflineLocalStore: LocalStoreContract {
         throw OfflineStoreError.notImplemented("fetchKanbanColumns — Phase 11")
     }
 
-    func fetchTaskListItems(projectId: ProjectID) async throws -> [TaskListItemProjection] {
-        throw OfflineStoreError.notImplemented("fetchTaskListItems — Phase 10")
+    func fetchTaskListItems(boardId: BoardID) async throws -> [TaskListItemProjection] {
+        try await actor.fetchTaskListItems(boardId: boardId.rawValue)
     }
 
     func fetchTaskDetail(taskId: TaskID) async throws -> TaskDetailProjection? {
-        throw OfflineStoreError.notImplemented("fetchTaskDetail — Phase 9")
+        try await actor.fetchTaskDetail(taskId: taskId.rawValue)
     }
 
     func fetchProject(id: ProjectID) async throws -> Project? {
@@ -663,6 +663,62 @@ private actor DatabaseActor {
             updatedAt: String(cString: sqlite3_column_text(stmt, 8))
         )
         return record.toDomain()
+    }
+
+    // MARK: - Phase 9 task projection reads
+
+    func fetchTaskListItems(boardId: String) throws -> [TaskListItemProjection] {
+        let stages = try fetchBoardStages(boardId: boardId)
+        let totalStageCount = stages.count
+        let stageMap = Dictionary(uniqueKeysWithValues: stages.map { ($0.stageId.rawValue, $0) })
+
+        let sql = """
+            SELECT taskId, workspaceId, projectId, boardId, stageId, title, status, createdAt, updatedAt
+            FROM tasks
+            WHERE boardId = ?
+            ORDER BY createdAt DESC;
+            """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else {
+            throw sqliteError("fetchTaskListItems prepare")
+        }
+        defer { sqlite3_finalize(stmt) }
+
+        sqlite3_bind_text(stmt, 1, boardId, -1, sqliteTransient)
+
+        var results: [TaskListItemProjection] = []
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let record = TaskRecord(
+                taskId: String(cString: sqlite3_column_text(stmt, 0)),
+                workspaceId: String(cString: sqlite3_column_text(stmt, 1)),
+                projectId: String(cString: sqlite3_column_text(stmt, 2)),
+                boardId: sqliteText(stmt, column: 3),
+                stageId: sqliteText(stmt, column: 4),
+                title: String(cString: sqlite3_column_text(stmt, 5)),
+                status: String(cString: sqlite3_column_text(stmt, 6)),
+                createdAt: String(cString: sqlite3_column_text(stmt, 7)),
+                updatedAt: String(cString: sqlite3_column_text(stmt, 8))
+            )
+            guard let task = record.toDomain() else { continue }
+            let currentStage = task.stageId.flatMap { stageMap[$0.rawValue] }
+            results.append(TaskListItemProjection(
+                task: task,
+                currentStage: currentStage,
+                totalStageCount: totalStageCount > 0 ? totalStageCount : nil
+            ))
+        }
+        return results
+    }
+
+    func fetchTaskDetail(taskId: String) throws -> TaskDetailProjection? {
+        guard let task = try fetchTask(id: taskId) else { return nil }
+        let stages: [BoardStage]
+        if let boardId = task.boardId {
+            stages = try fetchBoardStages(boardId: boardId.rawValue)
+        } else {
+            stages = []
+        }
+        return TaskDetailProjection(task: task, boardStages: stages)
     }
 
     // MARK: - Board writes

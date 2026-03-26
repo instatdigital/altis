@@ -82,6 +82,7 @@ Apple contract mirror rule:
 - Components render typed input and emit typed intents.
 - UI code must not call transport clients directly.
 - Feature flows own event handling, state transitions, and effects.
+- Feature flows MUST track and explicitly cancel background tasks on context change or teardown to prevent stale SQLite calls.
 - Initial load and later updates must enter the same explicit event pipeline for the active mode.
 
 ## Documentation and validation

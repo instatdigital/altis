@@ -833,8 +833,8 @@ private actor SpyLocalStoreContract: LocalStoreContract {
         try await wrapped.fetchKanbanColumns(boardId: boardId)
     }
 
-    func fetchTaskListItems(projectId: ProjectID) async throws -> [TaskListItemProjection] {
-        try await wrapped.fetchTaskListItems(projectId: projectId)
+    func fetchTaskListItems(boardId: BoardID) async throws -> [TaskListItemProjection] {
+        try await wrapped.fetchTaskListItems(boardId: boardId)
     }
 
     func fetchTaskDetail(taskId: TaskID) async throws -> TaskDetailProjection? {
@@ -861,4 +861,217 @@ private actor SpyLocalStoreContract: LocalStoreContract {
         try await wrapped.fetchTask(id: id)
     }
 }
+
+// MARK: - Phase 9: Offline task creation and detail
+@Suite("OfflineLocalStore task creation and detail")
+struct OfflineLocalStoreTaskTests {
+
+    @Test("createTask persists a task and fetchTask retrieves it")
+    func createAndFetchTask() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+        let boardId = BoardID()
+
+        try await withTemporaryStore(prefix: "altis-task-create") { store in
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: boardId,
+                title: "First task"
+            )
+            try await store.createTask(task)
+
+            let fetched = try #require(try await store.fetchTask(id: task.taskId))
+            #expect(fetched.taskId == task.taskId)
+            #expect(fetched.title == "First task")
+            #expect(fetched.boardId == boardId)
+            #expect(fetched.status == .open)
+        }
+    }
+
+    @Test("fetchTaskListItems returns tasks for the board ordered by createdAt descending")
+    func fetchTaskListItemsOrdered() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+        let now = Date(timeIntervalSince1970: 1_710_000_000)
+
+        try await withTemporaryStore(prefix: "altis-task-list") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            try await store.createProject(Project(workspaceId: workspaceId, name: "P"))
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+            let firstStage = try #require(stages.first)
+
+            let older = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Older task",
+                createdAt: now,
+                updatedAt: now
+            )
+            let newer = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Newer task",
+                createdAt: now.addingTimeInterval(60),
+                updatedAt: now.addingTimeInterval(60)
+            )
+            try await store.createTask(older)
+            try await store.createTask(newer)
+
+            let projections = try await store.fetchTaskListItems(boardId: board.boardId)
+            #expect(projections.map(\.title) == ["Newer task", "Older task"])
+            #expect(projections.allSatisfy { $0.stageName == firstStage.name })
+            #expect(projections.allSatisfy { $0.totalStageCount == stages.count })
+        }
+    }
+
+    @Test("fetchTaskDetail returns full projection with all board stages")
+    func fetchTaskDetail() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-task-detail") { store in
+            let worker = OfflineLocalBoardWorker(store: store)
+            try await store.createProject(Project(workspaceId: workspaceId, name: "P"))
+            let board = try await worker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+            let firstStage = try #require(stages.first)
+
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Detail task"
+            )
+            try await store.createTask(task)
+
+            let detail = try #require(try await store.fetchTaskDetail(taskId: task.taskId))
+            #expect(detail.taskId == task.taskId)
+            #expect(detail.title == "Detail task")
+            #expect(detail.boardId == board.boardId)
+            #expect(detail.currentStage?.stageId == firstStage.stageId)
+            #expect(detail.boardStages.count == stages.count)
+        }
+    }
+
+    @Test("OfflineTaskPageWorker.moveTask persists new stage")
+    func moveTask() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-task-move") { store in
+            let boardWorker = OfflineLocalBoardWorker(store: store)
+            try await store.createProject(Project(workspaceId: workspaceId, name: "P"))
+            let board = try await boardWorker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+            let firstStage = try #require(stages.first(where: { $0.kind == .regular }))
+            let doneStage = try #require(stages.first(where: { $0.kind == .terminalSuccess }))
+
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Moveable task"
+            )
+            try await store.createTask(task)
+
+            let taskWorker = OfflineTaskPageWorker(store: store)
+            let updated = try await taskWorker.moveTask(taskId: task.taskId, toStageId: doneStage.stageId)
+
+            #expect(updated.currentStage?.stageId == doneStage.stageId)
+            let persisted = try #require(try await store.fetchTask(id: task.taskId))
+            #expect(persisted.stageId == doneStage.stageId)
+        }
+    }
+
+    @Test("OfflineTaskPageWorker.completeTask moves task to terminalSuccess stage and sets status")
+    func completeTask() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-task-complete") { store in
+            let boardWorker = OfflineLocalBoardWorker(store: store)
+            try await store.createProject(Project(workspaceId: workspaceId, name: "P"))
+            let board = try await boardWorker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+            let firstStage = try #require(stages.first(where: { $0.kind == .regular }))
+
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Task to complete"
+            )
+            try await store.createTask(task)
+
+            let taskWorker = OfflineTaskPageWorker(store: store)
+            let updated = try await taskWorker.completeTask(taskId: task.taskId)
+
+            #expect(updated.status == .completed)
+            #expect(updated.currentStage?.kind == .terminalSuccess)
+            let persisted = try #require(try await store.fetchTask(id: task.taskId))
+            #expect(persisted.status == .completed)
+        }
+    }
+
+    @Test("OfflineTaskPageWorker.failTask moves task to terminalFailure stage and sets status")
+    func failTask() async throws {
+        let workspaceId = WorkspaceID()
+        let projectId = ProjectID()
+
+        try await withTemporaryStore(prefix: "altis-task-fail") { store in
+            let boardWorker = OfflineLocalBoardWorker(store: store)
+            try await store.createProject(Project(workspaceId: workspaceId, name: "P"))
+            let board = try await boardWorker.createBoard(
+                name: "Board",
+                projectId: projectId,
+                workspaceId: workspaceId
+            )
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+            let firstStage = try #require(stages.first(where: { $0.kind == .regular }))
+
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Task to fail"
+            )
+            try await store.createTask(task)
+
+            let taskWorker = OfflineTaskPageWorker(store: store)
+            let updated = try await taskWorker.failTask(taskId: task.taskId)
+
+            #expect(updated.status == .failed)
+            #expect(updated.currentStage?.kind == .terminalFailure)
+            let persisted = try #require(try await store.fetchTask(id: task.taskId))
+            #expect(persisted.status == .failed)
+        }
+    }
+}
+
 

@@ -16,6 +16,7 @@ final class TaskPageFeatureFlow: ObservableObject {
 
     private let offlineWorker: OfflineTaskPageDataWorker
     private let store: any LocalStoreContract & LocalWritePathContract
+    private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
     init(
         offlineWorker: OfflineTaskPageDataWorker,
@@ -25,16 +26,31 @@ final class TaskPageFeatureFlow: ObservableObject {
         self.store = store
     }
 
+    deinit {
+        for task in activeTasks { task.cancel() }
+    }
+
     // MARK: - Event entry point
 
     func send(_ event: TaskPageFeatureEvent) {
         switch event {
         case .boardContextLoaded(let boardId, let boardMode):
+            // Only cancel active tasks if the board context entirely changed. Otherwise,
+            // we might be just presenting the create sheet over an existing page.
+            if state.activeBoardId != boardId {
+                cancelActiveTasks()
+            }
             state.activeBoardId = boardId
             state.boardMode = boardMode
             loadBoardContext(boardId: boardId)
 
         case .appeared(let taskId, let boardMode):
+            if state.task?.taskId != taskId {
+                cancelActiveTasks()
+                state.task = nil
+                state.errorMessage = nil
+                state.onlineUnavailable = nil
+            }
             state.boardMode = boardMode
             loadTask(taskId: taskId, boardMode: boardMode)
 
@@ -97,20 +113,50 @@ final class TaskPageFeatureFlow: ObservableObject {
         }
     }
 
+    // MARK: - Task lifecycle
+
+    func cancelActiveTasks() {
+        for task in activeTasks { task.cancel() }
+        activeTasks.removeAll()
+    }
+
+    func cancelAndDrainActiveTasks() async {
+        let snapshot = activeTasks
+        activeTasks.removeAll()
+        for task in snapshot {
+            task.cancel()
+            _ = await task.result
+        }
+    }
+
+    @discardableResult
+    private func spawnTask(_ body: @escaping () async -> Void) -> _Concurrency.Task<Void, Never> {
+        let task = _Concurrency.Task { await body() }
+        activeTasks.append(task)
+        _Concurrency.Task {
+            _ = await task.result
+            self.activeTasks.removeAll(where: { $0 == task })
+        }
+        return task
+    }
+
     // MARK: - Effects
 
     private func loadBoardContext(boardId: BoardID) {
-        _Concurrency.Task {
+        spawnTask {
             do {
-                let stages = try await store.fetchBoardStages(boardId: boardId)
+                let stages = try await self.store.fetchBoardStages(boardId: boardId)
+                guard !_Concurrency.Task.isCancelled else { return }
                 // Update state with stage context for the create-task sheet.
-                if let board = try await store.fetchBoard(id: boardId) {
-                    state.activeProjectId = board.projectId
+                if let board = try await self.store.fetchBoard(id: boardId) {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.state.activeProjectId = board.projectId
                 }
-                state.boardStages = stages
+                self.state.boardStages = stages
             } catch {
+                guard !_Concurrency.Task.isCancelled else { return }
                 // Non-fatal: stage context failed to load. Create sheet will be disabled.
-                state.errorMessage = error.localizedDescription
+                self.state.errorMessage = error.localizedDescription
             }
         }
     }
@@ -119,12 +165,14 @@ final class TaskPageFeatureFlow: ObservableObject {
         state.isLoading = true
         switch boardMode {
         case .offline:
-            _Concurrency.Task {
+            spawnTask {
                 do {
-                    let projection = try await offlineWorker.loadTask(taskId: taskId)
-                    send(.offlineTaskLoaded(projection))
+                    let projection = try await self.offlineWorker.loadTask(taskId: taskId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineTaskLoaded(projection))
                 } catch {
-                    send(.loadFailed(error))
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.loadFailed(error))
                 }
             }
         case .online:
@@ -143,7 +191,7 @@ final class TaskPageFeatureFlow: ObservableObject {
         guard !trimmed.isEmpty else { return }
         state.isCreating = true
 
-        _Concurrency.Task {
+        spawnTask {
             do {
                 let now = Date()
                 let task = Task(
@@ -155,47 +203,56 @@ final class TaskPageFeatureFlow: ObservableObject {
                     createdAt: now,
                     updatedAt: now
                 )
-                try await store.createTask(task)
-                let projection = try await offlineWorker.loadTask(taskId: task.taskId)
-                send(.taskCreated(projection))
+                try await self.store.createTask(task)
+                guard !_Concurrency.Task.isCancelled else { return }
+                let projection = try await self.offlineWorker.loadTask(taskId: task.taskId)
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.taskCreated(projection))
             } catch {
-                send(.writeFailed(error))
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.writeFailed(error))
             }
         }
     }
 
     private func moveTask(taskId: TaskID, toStageId: BoardStageID) {
         state.isLoading = true
-        _Concurrency.Task {
+        spawnTask {
             do {
-                let projection = try await offlineWorker.moveTask(taskId: taskId, toStageId: toStageId)
-                send(.offlineTaskLoaded(projection))
+                let projection = try await self.offlineWorker.moveTask(taskId: taskId, toStageId: toStageId)
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.offlineTaskLoaded(projection))
             } catch {
-                send(.writeFailed(error))
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.writeFailed(error))
             }
         }
     }
 
     private func completeTask(taskId: TaskID) {
         state.isLoading = true
-        _Concurrency.Task {
+        spawnTask {
             do {
-                let projection = try await offlineWorker.completeTask(taskId: taskId)
-                send(.offlineTaskLoaded(projection))
+                let projection = try await self.offlineWorker.completeTask(taskId: taskId)
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.offlineTaskLoaded(projection))
             } catch {
-                send(.writeFailed(error))
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.writeFailed(error))
             }
         }
     }
 
     private func failTask(taskId: TaskID) {
         state.isLoading = true
-        _Concurrency.Task {
+        spawnTask {
             do {
-                let projection = try await offlineWorker.failTask(taskId: taskId)
-                send(.offlineTaskLoaded(projection))
+                let projection = try await self.offlineWorker.failTask(taskId: taskId)
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.offlineTaskLoaded(projection))
             } catch {
-                send(.writeFailed(error))
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.writeFailed(error))
             }
         }
     }

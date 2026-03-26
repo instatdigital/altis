@@ -41,7 +41,7 @@ struct AppShell: View {
         ))
         _taskPageFlow = StateObject(wrappedValue: TaskPageFeatureFlow(
             offlineWorker: OfflineTaskPageWorker(store: environment.store),
-            store: environment.store
+            store: environment.store as any LocalStoreContract & LocalWritePathContract
         ))
     }
 
