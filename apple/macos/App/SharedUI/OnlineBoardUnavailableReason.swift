@@ -14,3 +14,43 @@ enum OnlineBoardUnavailableReason {
     /// Online board support is not yet implemented (Phase 14 stub).
     case notImplemented
 }
+
+enum OnlineBoardAccessError: Error, Sendable {
+    case networkUnavailable
+    case notAuthenticated
+    case notImplemented
+}
+
+extension OnlineBoardUnavailableReason {
+    init(error: Error) {
+        if let accessError = error as? OnlineBoardAccessError {
+            switch accessError {
+            case .networkUnavailable: self = .networkUnavailable
+            case .notAuthenticated: self = .notAuthenticated
+            case .notImplemented: self = .notImplemented
+            }
+            return
+        }
+
+        let nsError = error as NSError
+        let authErrorCodes: Set<Int> = [
+            NSURLErrorUserAuthenticationRequired,
+            NSURLErrorUserCancelledAuthentication
+        ]
+        if nsError.domain == NSURLErrorDomain && authErrorCodes.contains(nsError.code) {
+            self = .notAuthenticated
+        } else if nsError.domain == NSURLErrorDomain {
+            self = .networkUnavailable
+        } else {
+            self = .networkUnavailable
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .networkUnavailable: return "Network is not available."
+        case .notAuthenticated: return "Sign in to access online boards."
+        case .notImplemented: return "Online boards are not implemented yet."
+        }
+    }
+}

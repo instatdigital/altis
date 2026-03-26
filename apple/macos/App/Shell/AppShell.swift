@@ -41,19 +41,26 @@ struct AppShell: View {
         ))
         _boardFlow = StateObject(wrappedValue: BoardFeatureFlow(
             offlineWorker: OfflineLocalBoardWorker(store: environment.store),
-            onlineGateway: NotImplementedOnlineBoardGateway(),
+            onlineAuthGate: environment.onlineBoardAuthGate,
+            onlineGateway: environment.onlineBoardGateway,
             store: environment.store,
             workspaceId: environment.workspaceId
         ))
         _taskPageFlow = StateObject(wrappedValue: TaskPageFeatureFlow(
             offlineWorker: OfflineTaskPageWorker(store: environment.store),
+            onlineAuthGate: environment.onlineBoardAuthGate,
+            onlineGateway: environment.onlineBoardGateway,
             store: environment.store as any LocalStoreContract & LocalWritePathContract
         ))
         _taskListFlow = StateObject(wrappedValue: TaskListFeatureFlow(
-            offlineWorker: OfflineTaskListWorker(store: environment.store)
+            offlineWorker: OfflineTaskListWorker(store: environment.store),
+            onlineAuthGate: environment.onlineBoardAuthGate,
+            onlineGateway: environment.onlineBoardGateway
         ))
         _kanbanFlow = StateObject(wrappedValue: KanbanBoardFeatureFlow(
-            offlineWorker: OfflineKanbanWorker(store: environment.store)
+            offlineWorker: OfflineKanbanWorker(store: environment.store),
+            onlineAuthGate: environment.onlineBoardAuthGate,
+            onlineGateway: environment.onlineBoardGateway
         ))
     }
 

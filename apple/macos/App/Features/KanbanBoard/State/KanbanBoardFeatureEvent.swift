@@ -23,6 +23,8 @@ enum KanbanBoardFeatureEvent {
     // MARK: Data results
     /// Local persistence returned the column projections for the active offline board.
     case offlineColumnsLoaded([KanbanColumnProjection])
+    /// Online transport returned the column projections for the active online board.
+    case onlineColumnsLoaded([KanbanColumnProjection])
     /// The active board is online but the online path is unavailable.
     case onlineUnavailable(OnlineBoardUnavailableReason)
     /// A data operation failed.

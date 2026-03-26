@@ -1,28 +1,28 @@
 import Foundation
 
+struct PermissiveOnlineBoardAuthGate: OnlineBoardAuthGateContract {
+    func requireAccess() async throws {}
+}
+
 /// Phase-14 placeholder conformance for `OnlineBoardGatewayContract`.
 ///
-/// Throws `URLError(.notConnectedToInternet)` for every call so that
-/// `BoardFeatureFlow.unavailableReason(for:)` maps it to `.networkUnavailable`
-/// and surfaces the correct UI state. Replaced by a real HTTP client in Phase 14.
+/// Throws a typed network-unavailable error for every call so the online path
+/// stays explicit without falling back to local durable writes.
 struct NotImplementedOnlineBoardGateway: OnlineBoardGatewayContract {
     func fetchBoards(projectId: ProjectID) async throws -> [OnlineBoardReadModel] {
-        throw URLError(.notConnectedToInternet)
+        throw OnlineBoardAccessError.networkUnavailable
     }
-    func fetchTasks(boardId: BoardID) async throws -> [OnlineTaskReadModel] {
-        throw URLError(.notConnectedToInternet)
+    func fetchBoardContent(boardId: BoardID) async throws -> OnlineBoardContentReadModel {
+        throw OnlineBoardAccessError.networkUnavailable
     }
     func fetchTask(taskId: TaskID) async throws -> OnlineTaskReadModel {
-        throw URLError(.notConnectedToInternet)
+        throw OnlineBoardAccessError.networkUnavailable
     }
-    func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID) async throws -> OnlineTaskReadModel {
-        throw URLError(.notConnectedToInternet)
+    func moveTask(_ request: OnlineTaskStageMoveWriteModel) async throws -> OnlineTaskReadModel {
+        throw OnlineBoardAccessError.networkUnavailable
     }
-    func completeTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
-        throw URLError(.notConnectedToInternet)
-    }
-    func failTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
-        throw URLError(.notConnectedToInternet)
+    func applyTerminalAction(_ request: OnlineTaskTerminalActionWriteModel) async throws -> OnlineTaskReadModel {
+        throw OnlineBoardAccessError.networkUnavailable
     }
 }
 
@@ -46,6 +46,9 @@ struct AppEnvironment {
     /// persisted in `UserDefaults` so it remains stable across restarts.
     let workspaceId: WorkspaceID
 
+    let onlineBoardAuthGate: OnlineBoardAuthGateContract
+    let onlineBoardGateway: OnlineBoardGatewayContract
+
     // MARK: - Factory
 
     /// Creates the production environment, opening (or creating) the SQLite
@@ -53,7 +56,12 @@ struct AppEnvironment {
     static func production() async throws -> AppEnvironment {
         let store = try await OfflineLocalStore()
         let workspaceId = resolvedWorkspaceId()
-        return AppEnvironment(store: store, workspaceId: workspaceId)
+        return AppEnvironment(
+            store: store,
+            workspaceId: workspaceId,
+            onlineBoardAuthGate: PermissiveOnlineBoardAuthGate(),
+            onlineBoardGateway: NotImplementedOnlineBoardGateway()
+        )
     }
 
     // MARK: - Workspace identity

@@ -28,6 +28,8 @@ enum TaskPageFeatureEvent {
     // MARK: Data results
     /// Local persistence returned the detail projection for the active offline task.
     case offlineTaskLoaded(TaskDetailProjection)
+    /// Online transport returned the detail projection for the active online task.
+    case onlineTaskLoaded(TaskDetailProjection)
     /// A task was successfully created and persisted.
     case taskCreated(TaskDetailProjection)
     /// The active board is online but the online path is unavailable.

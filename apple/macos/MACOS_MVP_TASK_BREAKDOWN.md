@@ -221,12 +221,12 @@ This remains the first executable macOS slice.
 
 This phase is about making the online path architecturally ready without pretending sync exists.
 
-- [ ] Define online board API client boundary
-- [ ] Define online board read models
-- [ ] Define online board write models
-- [ ] Define auth gate for online boards
-- [ ] Define unavailable/offline state for online boards when network is missing
-- [ ] Ensure no online feature falls back to local durable writes
+- [x] Define online board API client boundary
+- [x] Define online board read models
+- [x] Define online board write models
+- [x] Define auth gate for online boards
+- [x] Define unavailable/offline state for online boards when network is missing
+- [x] Ensure no online feature falls back to local durable writes
 
 ## Phase 15. Cleanup Of Old Sync Direction
 

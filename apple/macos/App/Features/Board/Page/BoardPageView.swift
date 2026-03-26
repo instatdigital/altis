@@ -77,23 +77,34 @@ struct BoardPageView: View {
         ContentUnavailableView(
             "No Boards",
             systemImage: "square.grid.3x1.below.line.grid.1x2",
-            description: Text("Create your first board to organise tasks.")
+            description: Text(flow.state.onlineBoardsUnavailable == nil
+                ? "Create your first board to organise tasks."
+                : "Offline boards are still available locally. \(flow.state.onlineBoardsUnavailable?.message ?? "")")
         )
     }
 
     private var boardList: some View {
-        List(flow.state.boards, id: \.boardId) { board in
-            BoardRowView(
-                projection: board,
-                onManageStages: board.mode == .offline ? {
-                    newStageName = ""
-                    flow.send(.stageEditorRequested(board))
-                    isShowingStageEditor = true
-                } : nil
-            )
-            .onTapGesture {
-                flow.send(.boardSelected(board.boardId))
-                onBoardSelected?(board.boardId, board.mode)
+        List {
+            if let reason = flow.state.onlineBoardsUnavailable {
+                Section {
+                    Label(reason.message, systemImage: "network.slash")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            ForEach(flow.state.boards, id: \.boardId) { board in
+                BoardRowView(
+                    projection: board,
+                    onManageStages: board.mode == .offline ? {
+                        newStageName = ""
+                        flow.send(.stageEditorRequested(board))
+                        isShowingStageEditor = true
+                    } : nil
+                )
+                .onTapGesture {
+                    flow.send(.boardSelected(board.boardId))
+                    onBoardSelected?(board.boardId, board.mode)
+                }
             }
         }
     }

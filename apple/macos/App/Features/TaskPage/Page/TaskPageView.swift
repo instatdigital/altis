@@ -231,7 +231,7 @@ struct TaskPageView: View {
         ContentUnavailableView(
             "Online Board Unavailable",
             systemImage: "cloud.slash",
-            description: Text(onlineUnavailableDescription(reason))
+            description: Text(reason.message)
         )
     }
 
@@ -284,32 +284,9 @@ struct TaskPageView: View {
         }
     }
 
-    private func onlineUnavailableDescription(_ reason: OnlineBoardUnavailableReason) -> String {
-        switch reason {
-        case .networkUnavailable: return "Network is not available. This task requires an online connection."
-        case .notAuthenticated: return "Sign in to access this board."
-        case .notImplemented: return "Online boards are available in a later phase."
-        }
-    }
 }
 
 #Preview {
-    let stage1 = BoardStage(boardId: BoardID(), name: "To Do", orderIndex: 0, kind: .regular)
-    let stage2 = BoardStage(boardId: BoardID(), name: "In Progress", orderIndex: 1, kind: .regular)
-    let stage3 = BoardStage(boardId: BoardID(), name: "Done", orderIndex: 2, kind: .terminalSuccess)
-    let projection = TaskDetailProjection(
-        task: Task(
-            workspaceId: WorkspaceID(),
-            projectId: ProjectID(),
-            boardId: stage1.boardId,
-            stageId: stage2.stageId,
-            title: "Sample Task"
-        ),
-        boardStages: [stage1, stage2, stage3]
-    )
-
-    // Create a preview-only flow that has the projection pre-loaded.
-    // We can't inject state directly, so use a helper view that triggers appeared.
     Text("Preview requires a live store — see TaskPageView implementation")
         .frame(width: 400, height: 300)
 }

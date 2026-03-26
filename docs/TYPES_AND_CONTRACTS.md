@@ -272,3 +272,18 @@ These are projections, not canonical entities.
 - Workspace-scoped presets and filters MUST NOT be treated as backend-owned unless that contract is documented separately.
 - Client-owned grouping references such as `projectId` MUST NOT be treated as proof that `Project` is backend-owned.
 - OpenAPI-first contracts remain the preferred backend-client boundary.
+
+Required online-board transport families in the current phase:
+
+- auth gate contract for online-board access before backend reads or writes
+- board list read model for project-scoped online board discovery
+- board content read model carrying ordered stages plus board-scoped tasks
+- task detail read model carrying task metadata plus board ownership references
+- task stage-move write model
+- task terminal-action write model
+
+Rules:
+
+- feature flows MUST map online read models into typed UI projections before rendering
+- online board writes MUST cross typed write models rather than ad hoc parameter lists
+- auth-gate failure MUST surface as blocked or unavailable online state, not as a local durable fallback

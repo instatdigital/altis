@@ -71,16 +71,10 @@ struct KanbanBoardPageView: View {
     }
 
     private func onlineUnavailableView(reason: OnlineBoardUnavailableReason) -> some View {
-        let message: String
-        switch reason {
-        case .networkUnavailable:   message = "Network is not available."
-        case .notAuthenticated:     message = "Sign in to access online boards."
-        case .notImplemented:       message = "Online boards are available in Phase 14."
-        }
         return ContentUnavailableView(
             "Online Board Unavailable",
             systemImage: "network.slash",
-            description: Text(message)
+            description: Text(reason.message)
         )
     }
 
@@ -278,7 +272,9 @@ private struct KanbanTaskCardView: View {
 #Preview {
     KanbanBoardPageView(
         flow: KanbanBoardFeatureFlow(
-            offlineWorker: PreviewOfflineKanbanWorker()
+            offlineWorker: PreviewOfflineKanbanWorker(),
+            onlineAuthGate: PermissiveOnlineBoardAuthGate(),
+            onlineGateway: NotImplementedOnlineBoardGateway()
         ),
         boardId: BoardID(),
         boardMode: .offline

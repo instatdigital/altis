@@ -31,6 +31,10 @@ struct TaskListPageView: View {
             if taskListFlow.state.isLoading && taskListFlow.state.tasks.isEmpty {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let reason = taskListFlow.state.onlineUnavailable {
+                onlineUnavailableView(reason)
+            } else if let error = taskListFlow.state.errorMessage {
+                errorView(message: error)
             } else if taskListFlow.state.tasks.isEmpty {
                 emptyState
             } else {
@@ -69,8 +73,8 @@ struct TaskListPageView: View {
             Text(taskPageFlow.state.errorMessage ?? "")
         }
         .onAppear {
+            taskListFlow.send(.appeared(boardId: boardId, boardMode: boardMode))
             if boardMode == .offline {
-                taskListFlow.send(.appeared(boardId: boardId, boardMode: boardMode))
                 taskPageFlow.send(.boardContextLoaded(boardId: boardId, boardMode: boardMode))
             }
         }
@@ -84,7 +88,23 @@ struct TaskListPageView: View {
             systemImage: "checklist",
             description: Text(boardMode == .offline
                 ? "Create your first task using the + button."
-                : "Online task list — available in Phase 14.")
+                : "No online tasks were returned for this board.")
+        )
+    }
+
+    private func onlineUnavailableView(_ reason: OnlineBoardUnavailableReason) -> some View {
+        ContentUnavailableView(
+            "Online Board Unavailable",
+            systemImage: "network.slash",
+            description: Text(reason.message)
+        )
+    }
+
+    private func errorView(message: String) -> some View {
+        ContentUnavailableView(
+            "Error",
+            systemImage: "exclamationmark.triangle",
+            description: Text(message)
         )
     }
 
@@ -260,10 +280,14 @@ private struct TaskListRowView: View {
 #Preview {
     TaskListPageView(
         taskListFlow: TaskListFeatureFlow(
-            offlineWorker: PreviewOfflineTaskListWorker()
+            offlineWorker: PreviewOfflineTaskListWorker(),
+            onlineAuthGate: PermissiveOnlineBoardAuthGate(),
+            onlineGateway: NotImplementedOnlineBoardGateway()
         ),
         taskPageFlow: TaskPageFeatureFlow(
             offlineWorker: PreviewOfflineTaskPageDataWorker(),
+            onlineAuthGate: PermissiveOnlineBoardAuthGate(),
+            onlineGateway: NotImplementedOnlineBoardGateway(),
             store: PreviewStore()
         ),
         boardId: BoardID(),

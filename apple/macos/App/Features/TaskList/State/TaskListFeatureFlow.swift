@@ -7,18 +7,26 @@ import _Concurrency
 ///
 /// Board-mode routing (from `docs/SYNC_RULES.md`):
 /// - `offline` boards: data loaded via `OfflineTaskListDataWorker` (local SQLite).
-/// - `online` boards: data loaded via an online gateway — routing point defined here,
-///   gateway attached in Phase 14.
+/// - `online` boards: access gated by `OnlineBoardAuthGateContract`, then loaded
+///   from `OnlineBoardGatewayContract`.
 @MainActor
 final class TaskListFeatureFlow: ObservableObject {
 
     @Published private(set) var state = TaskListFeatureState()
 
     private let offlineWorker: OfflineTaskListDataWorker
+    private let onlineAuthGate: OnlineBoardAuthGateContract
+    private let onlineGateway: OnlineBoardGatewayContract
     private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
-    init(offlineWorker: OfflineTaskListDataWorker) {
+    init(
+        offlineWorker: OfflineTaskListDataWorker,
+        onlineAuthGate: OnlineBoardAuthGateContract,
+        onlineGateway: OnlineBoardGatewayContract
+    ) {
         self.offlineWorker = offlineWorker
+        self.onlineAuthGate = onlineAuthGate
+        self.onlineGateway = onlineGateway
     }
 
     deinit {
@@ -45,10 +53,19 @@ final class TaskListFeatureFlow: ObservableObject {
             break
 
         case .offlineTasksLoaded(let tasks):
+            state.onlineUnavailable = nil
+            state.errorMessage = nil
+            state.tasks = tasks
+            state.isLoading = false
+
+        case .onlineTasksLoaded(let tasks):
+            state.onlineUnavailable = nil
+            state.errorMessage = nil
             state.tasks = tasks
             state.isLoading = false
 
         case .onlineUnavailable(let reason):
+            state.tasks = []
             state.isLoading = false
             state.onlineUnavailable = reason
 
@@ -102,7 +119,19 @@ final class TaskListFeatureFlow: ObservableObject {
                 }
             }
         case .online:
-            send(.onlineUnavailable(.notImplemented))
+            spawnTask {
+                do {
+                    try await self.onlineAuthGate.requireAccess()
+                    let content = try await self.onlineGateway.fetchBoardContent(boardId: boardId)
+                    let orderedStages = content.stages.sorted(by: { $0.orderIndex < $1.orderIndex })
+                    let tasks = content.tasks.map { TaskListItemProjection(onlineTask: $0, stages: orderedStages) }
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.onlineTasksLoaded(tasks))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.onlineUnavailable(OnlineBoardUnavailableReason(error: error)))
+                }
+            }
         }
     }
 }

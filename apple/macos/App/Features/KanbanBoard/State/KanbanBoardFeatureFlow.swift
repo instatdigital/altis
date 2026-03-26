@@ -7,18 +7,26 @@ import _Concurrency
 ///
 /// Board-mode routing (from `docs/SYNC_RULES.md`):
 /// - `offline` boards: data loaded and mutations persisted via `OfflineKanbanDataWorker`.
-/// - `online` boards: data loaded via an online gateway — routing point defined here,
-///   gateway attached in Phase 14.
+/// - `online` boards: access gated by `OnlineBoardAuthGateContract`; reads and
+///   writes go through `OnlineBoardGatewayContract`.
 @MainActor
 final class KanbanBoardFeatureFlow: ObservableObject {
 
     @Published private(set) var state = KanbanBoardFeatureState()
 
     private let offlineWorker: OfflineKanbanDataWorker
+    private let onlineAuthGate: OnlineBoardAuthGateContract
+    private let onlineGateway: OnlineBoardGatewayContract
     private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
-    init(offlineWorker: OfflineKanbanDataWorker) {
+    init(
+        offlineWorker: OfflineKanbanDataWorker,
+        onlineAuthGate: OnlineBoardAuthGateContract,
+        onlineGateway: OnlineBoardGatewayContract
+    ) {
         self.offlineWorker = offlineWorker
+        self.onlineAuthGate = onlineAuthGate
+        self.onlineGateway = onlineGateway
     }
 
     deinit {
@@ -57,10 +65,19 @@ final class KanbanBoardFeatureFlow: ObservableObject {
             terminalAction(taskId: taskId, boardId: boardId, isComplete: false)
 
         case .offlineColumnsLoaded(let columns):
+            state.onlineUnavailable = nil
+            state.errorMessage = nil
+            state.columns = columns
+            state.isLoading = false
+
+        case .onlineColumnsLoaded(let columns):
+            state.onlineUnavailable = nil
+            state.errorMessage = nil
             state.columns = columns
             state.isLoading = false
 
         case .onlineUnavailable(let reason):
+            state.columns = []
             state.isLoading = false
             state.onlineUnavailable = reason
 
@@ -116,7 +133,13 @@ final class KanbanBoardFeatureFlow: ObservableObject {
                 }
             }
         case .online:
-            send(.onlineUnavailable(.notImplemented))
+            mutateOnlineBoard(boardId: boardId) {
+                _ = try await self.onlineGateway.moveTask(.init(
+                    taskId: taskId,
+                    boardId: boardId,
+                    destinationStageId: toStageId
+                ))
+            }
         }
     }
 
@@ -140,7 +163,13 @@ final class KanbanBoardFeatureFlow: ObservableObject {
                 }
             }
         case .online:
-            send(.onlineUnavailable(.notImplemented))
+            mutateOnlineBoard(boardId: boardId) {
+                _ = try await self.onlineGateway.applyTerminalAction(.init(
+                    taskId: taskId,
+                    boardId: boardId,
+                    resolution: isComplete ? .completed : .failed
+                ))
+            }
         }
     }
 
@@ -159,7 +188,36 @@ final class KanbanBoardFeatureFlow: ObservableObject {
                 }
             }
         case .online:
-            send(.onlineUnavailable(.notImplemented))
+            spawnTask {
+                do {
+                    try await self.onlineAuthGate.requireAccess()
+                    let content = try await self.onlineGateway.fetchBoardContent(boardId: boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.onlineColumnsLoaded(KanbanColumnProjection.onlineColumns(content: content)))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.onlineUnavailable(OnlineBoardUnavailableReason(error: error)))
+                }
+            }
+        }
+    }
+
+    private func mutateOnlineBoard(
+        boardId: BoardID,
+        operation: @escaping @Sendable () async throws -> Void
+    ) {
+        state.isLoading = true
+        spawnTask {
+            do {
+                try await self.onlineAuthGate.requireAccess()
+                try await operation()
+                let content = try await self.onlineGateway.fetchBoardContent(boardId: boardId)
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.onlineColumnsLoaded(KanbanColumnProjection.onlineColumns(content: content)))
+            } catch {
+                guard !_Concurrency.Task.isCancelled else { return }
+                self.send(.onlineUnavailable(OnlineBoardUnavailableReason(error: error)))
+            }
         }
     }
 }

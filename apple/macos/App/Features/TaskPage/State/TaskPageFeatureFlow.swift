@@ -7,22 +7,28 @@ import _Concurrency
 ///
 /// Board-mode routing (from `docs/SYNC_RULES.md`):
 /// - `offline` boards: data loaded and mutations persisted via `OfflineTaskPageDataWorker`.
-/// - `online` boards: data loaded via an online gateway — routing point defined here,
-///   gateway attached in Phase 14.
+/// - `online` boards: access gated by `OnlineBoardAuthGateContract`; reads and
+///   writes go through `OnlineBoardGatewayContract`.
 @MainActor
 final class TaskPageFeatureFlow: ObservableObject {
 
     @Published private(set) var state = TaskPageFeatureState()
 
     private let offlineWorker: OfflineTaskPageDataWorker
+    private let onlineAuthGate: OnlineBoardAuthGateContract
+    private let onlineGateway: OnlineBoardGatewayContract
     private let store: any LocalStoreContract & LocalWritePathContract
     private var activeTasks: [_Concurrency.Task<Void, Never>] = []
 
     init(
         offlineWorker: OfflineTaskPageDataWorker,
+        onlineAuthGate: OnlineBoardAuthGateContract,
+        onlineGateway: OnlineBoardGatewayContract,
         store: any LocalStoreContract & LocalWritePathContract
     ) {
         self.offlineWorker = offlineWorker
+        self.onlineAuthGate = onlineAuthGate
+        self.onlineGateway = onlineGateway
         self.store = store
     }
 
@@ -79,6 +85,20 @@ final class TaskPageFeatureFlow: ObservableObject {
             state.errorMessage = nil
 
         case .offlineTaskLoaded(let projection):
+            state.onlineUnavailable = nil
+            state.errorMessage = nil
+            state.task = projection
+            state.activeBoardId = projection.boardId
+            state.activeProjectId = projection.projectId
+            // Sync board stages from the loaded task.
+            if !projection.boardStages.isEmpty {
+                state.boardStages = projection.boardStages
+            }
+            state.isLoading = false
+
+        case .onlineTaskLoaded(let projection):
+            state.onlineUnavailable = nil
+            state.errorMessage = nil
             state.task = projection
             state.activeBoardId = projection.boardId
             state.activeProjectId = projection.projectId
@@ -99,6 +119,7 @@ final class TaskPageFeatureFlow: ObservableObject {
             state.isLoading = false
 
         case .onlineUnavailable(let reason):
+            state.task = nil
             state.isLoading = false
             state.onlineUnavailable = reason
 
@@ -176,7 +197,18 @@ final class TaskPageFeatureFlow: ObservableObject {
                 }
             }
         case .online:
-            send(.onlineUnavailable(.notImplemented))
+            spawnTask {
+                do {
+                    try await self.onlineAuthGate.requireAccess()
+                    let task = try await self.onlineGateway.fetchTask(taskId: taskId)
+                    let content = try await self.onlineGateway.fetchBoardContent(boardId: task.boardId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.onlineTaskLoaded(TaskDetailProjection(onlineTask: task, stages: content.stages)))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.onlineUnavailable(OnlineBoardUnavailableReason(error: error)))
+                }
+            }
         }
     }
 
@@ -217,42 +249,107 @@ final class TaskPageFeatureFlow: ObservableObject {
 
     private func moveTask(taskId: TaskID, toStageId: BoardStageID) {
         state.isLoading = true
-        spawnTask {
-            do {
-                let projection = try await self.offlineWorker.moveTask(taskId: taskId, toStageId: toStageId)
-                guard !_Concurrency.Task.isCancelled else { return }
-                self.send(.offlineTaskLoaded(projection))
-            } catch {
-                guard !_Concurrency.Task.isCancelled else { return }
-                self.send(.writeFailed(error))
+        switch state.boardMode {
+        case .offline:
+            spawnTask {
+                do {
+                    let projection = try await self.offlineWorker.moveTask(taskId: taskId, toStageId: toStageId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineTaskLoaded(projection))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.writeFailed(error))
+                }
+            }
+        case .online:
+            guard let boardId = state.task?.boardId else {
+                send(.onlineUnavailable(.networkUnavailable))
+                return
+            }
+            mutateOnlineTask(taskId: taskId, boardId: boardId) {
+                _ = try await self.onlineGateway.moveTask(.init(
+                    taskId: taskId,
+                    boardId: boardId,
+                    destinationStageId: toStageId
+                ))
             }
         }
     }
 
     private func completeTask(taskId: TaskID) {
         state.isLoading = true
-        spawnTask {
-            do {
-                let projection = try await self.offlineWorker.completeTask(taskId: taskId)
-                guard !_Concurrency.Task.isCancelled else { return }
-                self.send(.offlineTaskLoaded(projection))
-            } catch {
-                guard !_Concurrency.Task.isCancelled else { return }
-                self.send(.writeFailed(error))
+        switch state.boardMode {
+        case .offline:
+            spawnTask {
+                do {
+                    let projection = try await self.offlineWorker.completeTask(taskId: taskId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineTaskLoaded(projection))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.writeFailed(error))
+                }
+            }
+        case .online:
+            guard let boardId = state.task?.boardId else {
+                send(.onlineUnavailable(.networkUnavailable))
+                return
+            }
+            mutateOnlineTask(taskId: taskId, boardId: boardId) {
+                _ = try await self.onlineGateway.applyTerminalAction(.init(
+                    taskId: taskId,
+                    boardId: boardId,
+                    resolution: .completed
+                ))
             }
         }
     }
 
     private func failTask(taskId: TaskID) {
         state.isLoading = true
+        switch state.boardMode {
+        case .offline:
+            spawnTask {
+                do {
+                    let projection = try await self.offlineWorker.failTask(taskId: taskId)
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.offlineTaskLoaded(projection))
+                } catch {
+                    guard !_Concurrency.Task.isCancelled else { return }
+                    self.send(.writeFailed(error))
+                }
+            }
+        case .online:
+            guard let boardId = state.task?.boardId else {
+                send(.onlineUnavailable(.networkUnavailable))
+                return
+            }
+            mutateOnlineTask(taskId: taskId, boardId: boardId) {
+                _ = try await self.onlineGateway.applyTerminalAction(.init(
+                    taskId: taskId,
+                    boardId: boardId,
+                    resolution: .failed
+                ))
+            }
+        }
+    }
+
+    private func mutateOnlineTask(
+        taskId: TaskID,
+        boardId: BoardID,
+        operation: @escaping @Sendable () async throws -> Void
+    ) {
         spawnTask {
             do {
-                let projection = try await self.offlineWorker.failTask(taskId: taskId)
+                try await self.onlineAuthGate.requireAccess()
+                try await operation()
+                let task = try await self.onlineGateway.fetchTask(taskId: taskId)
+                let content = try await self.onlineGateway.fetchBoardContent(boardId: boardId)
                 guard !_Concurrency.Task.isCancelled else { return }
-                self.send(.offlineTaskLoaded(projection))
+                self.send(.onlineTaskLoaded(TaskDetailProjection(onlineTask: task, stages: content.stages)))
             } catch {
                 guard !_Concurrency.Task.isCancelled else { return }
-                self.send(.writeFailed(error))
+                self.send(.onlineUnavailable(OnlineBoardUnavailableReason(error: error)))
             }
         }
     }

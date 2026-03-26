@@ -1,5 +1,9 @@
 import Foundation
 
+protocol OnlineBoardAuthGateContract: Sendable {
+    func requireAccess() async throws
+}
+
 /// Contract for online-board transport operations.
 ///
 /// Online boards are backend-only. No local durable storage is used.
@@ -20,10 +24,10 @@ protocol OnlineBoardGatewayContract: Sendable {
     /// Returns all online boards for the given project.
     func fetchBoards(projectId: ProjectID) async throws -> [OnlineBoardReadModel]
 
-    // MARK: - Task reads
+    /// Returns the ordered stage list and board-scoped tasks for one online board.
+    func fetchBoardContent(boardId: BoardID) async throws -> OnlineBoardContentReadModel
 
-    /// Returns all tasks for the given online board.
-    func fetchTasks(boardId: BoardID) async throws -> [OnlineTaskReadModel]
+    // MARK: - Task reads
 
     /// Returns the detail of one online task.
     func fetchTask(taskId: TaskID) async throws -> OnlineTaskReadModel
@@ -31,13 +35,10 @@ protocol OnlineBoardGatewayContract: Sendable {
     // MARK: - Task writes
 
     /// Moves a task to the specified stage on an online board.
-    func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID) async throws -> OnlineTaskReadModel
+    func moveTask(_ request: OnlineTaskStageMoveWriteModel) async throws -> OnlineTaskReadModel
 
-    /// Marks a task as completed on an online board.
-    func completeTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel
-
-    /// Marks a task as failed on an online board.
-    func failTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel
+    /// Applies a terminal task action on an online board.
+    func applyTerminalAction(_ request: OnlineTaskTerminalActionWriteModel) async throws -> OnlineTaskReadModel
 }
 
 // MARK: - Online read models
@@ -55,16 +56,53 @@ struct OnlineBoardReadModel: Sendable {
     let taskCount: Int
 }
 
+struct OnlineBoardStageReadModel: Sendable {
+    let stageId: BoardStageID
+    let boardId: BoardID
+    let name: String
+    let orderIndex: Int
+    let kind: BoardStageKind
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct OnlineBoardContentReadModel: Sendable {
+    let boardId: BoardID
+    let projectId: ProjectID
+    let stages: [OnlineBoardStageReadModel]
+    let tasks: [OnlineTaskReadModel]
+}
+
 /// Lightweight transport read model for an online task.
 ///
 /// Maps to the API response shape. Feature flows MUST map this into a typed
 /// projection before rendering.
 struct OnlineTaskReadModel: Sendable {
     let taskId: TaskID
+    let projectId: ProjectID
     let boardId: BoardID
     let stageId: BoardStageID?
     let title: String
-    let status: String
+    let status: TaskStatus
+    let createdAt: Date
+    let updatedAt: Date
+}
+
+struct OnlineTaskStageMoveWriteModel: Sendable {
+    let taskId: TaskID
+    let boardId: BoardID
+    let destinationStageId: BoardStageID
+}
+
+enum OnlineTaskTerminalResolution: Sendable {
+    case completed
+    case failed
+}
+
+struct OnlineTaskTerminalActionWriteModel: Sendable {
+    let taskId: TaskID
+    let boardId: BoardID
+    let resolution: OnlineTaskTerminalResolution
 }
 
 // MARK: - BoardListItemProjection mapping
@@ -78,5 +116,68 @@ extension BoardListItemProjection {
         self.mode = .online
         self.stageCount = onlineBoard.stageCount
         self.taskCount = onlineBoard.taskCount
+    }
+}
+
+extension BoardStage {
+    init(onlineStage: OnlineBoardStageReadModel) {
+        self.stageId = onlineStage.stageId
+        self.boardId = onlineStage.boardId
+        self.name = onlineStage.name
+        self.orderIndex = onlineStage.orderIndex
+        self.kind = onlineStage.kind
+        self.createdAt = onlineStage.createdAt
+        self.updatedAt = onlineStage.updatedAt
+    }
+}
+
+extension TaskListItemProjection {
+    init(onlineTask: OnlineTaskReadModel, stages: [OnlineBoardStageReadModel]) {
+        let currentStage = onlineTask.stageId.flatMap { stageId in
+            stages.first(where: { $0.stageId == stageId })
+        }
+        self.taskId = onlineTask.taskId
+        self.title = onlineTask.title
+        self.status = onlineTask.status
+        self.stageName = currentStage?.name
+        self.stageKind = currentStage?.kind
+        self.stageOrderIndex = currentStage?.orderIndex
+        self.totalStageCount = stages.count
+    }
+}
+
+extension TaskDetailProjection {
+    init(onlineTask: OnlineTaskReadModel, stages: [OnlineBoardStageReadModel]) {
+        let boardStages = stages
+            .sorted(by: { $0.orderIndex < $1.orderIndex })
+            .map(BoardStage.init(onlineStage:))
+        self.taskId = onlineTask.taskId
+        self.title = onlineTask.title
+        self.status = onlineTask.status
+        self.boardStages = boardStages
+        self.currentStage = onlineTask.stageId.flatMap { stageId in
+            boardStages.first(where: { $0.stageId == stageId })
+        }
+        self.projectId = onlineTask.projectId
+        self.boardId = onlineTask.boardId
+        self.createdAt = onlineTask.createdAt
+        self.updatedAt = onlineTask.updatedAt
+    }
+}
+
+extension KanbanColumnProjection {
+    static func onlineColumns(content: OnlineBoardContentReadModel) -> [KanbanColumnProjection] {
+        let orderedStages = content.stages.sorted(by: { $0.orderIndex < $1.orderIndex })
+        return orderedStages.map { stage in
+            let tasks = content.tasks
+                .filter { $0.stageId == stage.stageId }
+                .map { TaskListItemProjection(onlineTask: $0, stages: orderedStages) }
+            return KanbanColumnProjection(
+                stageId: stage.stageId,
+                stageName: stage.name,
+                stageKind: stage.kind,
+                tasks: tasks
+            )
+        }
     }
 }

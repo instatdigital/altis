@@ -23,6 +23,7 @@ final class BoardFeatureFlow: ObservableObject {
     @Published private(set) var state = BoardFeatureState()
 
     private let offlineWorker: any OfflineBoardDataWorker
+    private let onlineAuthGate: OnlineBoardAuthGateContract
     private let onlineGateway: OnlineBoardGatewayContract
     private let store: any LocalStoreContract
     private let workspaceId: WorkspaceID
@@ -33,11 +34,13 @@ final class BoardFeatureFlow: ObservableObject {
 
     init(
         offlineWorker: any OfflineBoardDataWorker,
+        onlineAuthGate: OnlineBoardAuthGateContract,
         onlineGateway: OnlineBoardGatewayContract,
         store: any LocalStoreContract,
         workspaceId: WorkspaceID
     ) {
         self.offlineWorker = offlineWorker
+        self.onlineAuthGate = onlineAuthGate
         self.onlineGateway = onlineGateway
         self.store = store
         self.workspaceId = workspaceId
@@ -254,14 +257,13 @@ final class BoardFeatureFlow: ObservableObject {
         state.isLoadingOnline = true
         spawnTask {
             do {
+                try await self.onlineAuthGate.requireAccess()
                 let models = try await self.onlineGateway.fetchBoards(projectId: projectId)
                 guard !_Concurrency.Task.isCancelled else { return }
                 self.send(.onlineBoardsLoaded(models))
             } catch {
                 guard !_Concurrency.Task.isCancelled else { return }
-                // Gateway threw — the online path was attempted and is currently unusable.
-                // Map the concrete error to a typed reason so the UI surfaces the correct message.
-                self.send(.onlineBoardsFailed(self.unavailableReason(for: error)))
+                self.send(.onlineBoardsFailed(OnlineBoardUnavailableReason(error: error)))
             }
         }
     }
@@ -379,32 +381,5 @@ final class BoardFeatureFlow: ObservableObject {
                 taskCount: editorBoard.taskCount
             )
         }
-    }
-
-    // MARK: - Error mapping
-
-    /// Maps a gateway error to the most specific `OnlineBoardUnavailableReason`.
-    ///
-    /// Auth-specific codes are checked first so they are not swallowed by the
-    /// broad `NSURLErrorDomain` fallback. Remaining network-layer errors then
-    /// surface `networkUnavailable`. All other errors default to `networkUnavailable`
-    /// until richer error types are introduced in Phase 14.
-    private func unavailableReason(for error: Error) -> OnlineBoardUnavailableReason {
-        let nsError = error as NSError
-        // Check auth-specific URL error codes before the broad domain fallback,
-        // so authentication failures are not misclassified as connectivity loss.
-        let authErrorCodes: Set<Int> = [
-            NSURLErrorUserAuthenticationRequired,
-            NSURLErrorUserCancelledAuthentication
-        ]
-        if nsError.domain == NSURLErrorDomain && authErrorCodes.contains(nsError.code) {
-            return .notAuthenticated
-        }
-        // Remaining URLSession / network-layer errors signal connectivity loss.
-        if nsError.domain == NSURLErrorDomain {
-            return .networkUnavailable
-        }
-        // Default to network unavailable; further specialisation deferred to Phase 14.
-        return .networkUnavailable
     }
 }

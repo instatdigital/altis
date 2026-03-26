@@ -17,6 +17,8 @@ enum TaskListFeatureEvent {
     // MARK: Data results
     /// Local persistence returned the task list projections for the active offline board.
     case offlineTasksLoaded([TaskListItemProjection])
+    /// Online transport returned the task list projections for the active online board.
+    case onlineTasksLoaded([TaskListItemProjection])
     /// The active board is online but the online path is unavailable.
     case onlineUnavailable(OnlineBoardUnavailableReason)
     /// A data operation failed.
