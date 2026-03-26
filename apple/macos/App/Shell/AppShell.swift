@@ -12,12 +12,15 @@ import SwiftUI
 /// Phase 9: Task page flow wired; `TaskPageView` replaces the stub.
 ///          Board rows navigate to a task list (Phase 10 renders tasks;
 ///          Phase 9 provides the create-task entry point).
+/// Phase 10: Task list flow wired; `TaskListPageView` renders tasks from
+///           offline local typed projections.
 struct AppShell: View {
 
     @StateObject private var homeFlow: HomeFeatureFlow
     @StateObject private var projectFlow: ProjectFeatureFlow
     @StateObject private var boardFlow: BoardFeatureFlow
     @StateObject private var taskPageFlow: TaskPageFeatureFlow
+    @StateObject private var taskListFlow: TaskListFeatureFlow
 
     private let environment: AppEnvironment
 
@@ -42,6 +45,9 @@ struct AppShell: View {
         _taskPageFlow = StateObject(wrappedValue: TaskPageFeatureFlow(
             offlineWorker: OfflineTaskPageWorker(store: environment.store),
             store: environment.store as any LocalStoreContract & LocalWritePathContract
+        ))
+        _taskListFlow = StateObject(wrappedValue: TaskListFeatureFlow(
+            offlineWorker: OfflineTaskListWorker(store: environment.store)
         ))
     }
 
@@ -83,7 +89,8 @@ struct AppShell: View {
             )
         case .taskList(let boardId, let boardMode):
             TaskListPageView(
-                flow: taskPageFlow,
+                taskListFlow: taskListFlow,
+                taskPageFlow: taskPageFlow,
                 boardId: boardId,
                 boardMode: boardMode,
                 workspaceId: environment.workspaceId,

@@ -2,15 +2,17 @@ import SwiftUI
 
 /// Task list page for a single board.
 ///
-/// Phase 9: Provides the create-task entry point. Task rows are listed
-/// as a loading placeholder; full task list rendering is Phase 10.
+/// Phase 10: Renders the offline task list from `TaskListFeatureFlow`.
+/// Shows task title and current stage for each row.
+/// Supports opening `TaskPage` from a task row.
 ///
-/// Renders state from `TaskPageFeatureFlow` (which owns both task creation
-/// and task detail). All user intents are emitted as `TaskPageFeatureEvent`
-/// values — the view never mutates data directly.
+/// `TaskPageFeatureFlow` owns task creation and detail.
+/// `TaskListFeatureFlow` owns list data loading.
+/// All user intents are emitted as typed events — the view never mutates data directly.
 struct TaskListPageView: View {
 
-    @ObservedObject var flow: TaskPageFeatureFlow
+    @ObservedObject var taskListFlow: TaskListFeatureFlow
+    @ObservedObject var taskPageFlow: TaskPageFeatureFlow
 
     let boardId: BoardID
     let boardMode: BoardMode
@@ -24,7 +26,14 @@ struct TaskListPageView: View {
 
     var body: some View {
         Group {
-            emptyState
+            if taskListFlow.state.isLoading && taskListFlow.state.tasks.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if taskListFlow.state.tasks.isEmpty {
+                emptyState
+            } else {
+                taskList
+            }
         }
         .navigationTitle("Tasks")
         .toolbar {
@@ -36,23 +45,24 @@ struct TaskListPageView: View {
                 } label: {
                     Label("New Task", systemImage: "plus")
                 }
-                .disabled(boardMode == .online || flow.state.boardStages.isEmpty)
+                .disabled(boardMode == .online || taskPageFlow.state.boardStages.isEmpty)
             }
         }
         .sheet(isPresented: $isShowingCreateSheet) {
             createTaskSheet
         }
         .alert("Error", isPresented: Binding(
-            get: { flow.state.errorMessage != nil },
-            set: { if !$0 { flow.send(.errorAcknowledged) } }
+            get: { taskPageFlow.state.errorMessage != nil },
+            set: { if !$0 { taskPageFlow.send(.errorAcknowledged) } }
         )) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(flow.state.errorMessage ?? "")
+            Text(taskPageFlow.state.errorMessage ?? "")
         }
         .onAppear {
             if boardMode == .offline {
-                flow.send(.boardContextLoaded(boardId: boardId, boardMode: boardMode))
+                taskListFlow.send(.appeared(boardId: boardId, boardMode: boardMode))
+                taskPageFlow.send(.boardContextLoaded(boardId: boardId, boardMode: boardMode))
             }
         }
     }
@@ -69,6 +79,17 @@ struct TaskListPageView: View {
         )
     }
 
+    private var taskList: some View {
+        List(taskListFlow.state.tasks, id: \.taskId) { task in
+            TaskListRowView(projection: task)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    taskListFlow.send(.taskSelected(task.taskId))
+                    onTaskSelected?(task.taskId)
+                }
+        }
+    }
+
     private var createTaskSheet: some View {
         VStack(spacing: 20) {
             Text("New Task")
@@ -78,8 +99,8 @@ struct TaskListPageView: View {
                 .textFieldStyle(.roundedBorder)
                 .onSubmit { submitCreate() }
 
-            if !flow.state.boardStages.isEmpty {
-                stagePicker(stages: flow.state.boardStages)
+            if !taskPageFlow.state.boardStages.isEmpty {
+                stagePicker(stages: taskPageFlow.state.boardStages)
             }
 
             HStack {
@@ -92,13 +113,19 @@ struct TaskListPageView: View {
                 }
                 .disabled(
                     newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    || flow.state.isCreating
+                    || taskPageFlow.state.isCreating
                 )
                 .keyboardShortcut(.defaultAction)
             }
         }
         .padding(24)
         .frame(minWidth: 360)
+        .onChange(of: taskPageFlow.state.isCreating) { _, isCreating in
+            // Refresh the list after task creation finishes.
+            if !isCreating && taskPageFlow.state.errorMessage == nil {
+                taskListFlow.send(.appeared(boardId: boardId, boardMode: boardMode))
+            }
+        }
     }
 
     @ViewBuilder
@@ -125,21 +152,19 @@ struct TaskListPageView: View {
         let trimmed = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        // Resolve target stage: use selected stage or the first stage of the board.
         let targetStageId: BoardStageID
         if let sid = selectedStageId {
             targetStageId = sid
-        } else if let firstStage = flow.state.boardStages.first {
+        } else if let firstStage = taskPageFlow.state.boardStages.first {
             targetStageId = firstStage.stageId
         } else {
-            // Stage context not yet loaded — button should be disabled in this state.
             return
         }
 
-        guard let projectId = flow.state.activeProjectId else { return }
+        guard let projectId = taskPageFlow.state.activeProjectId else { return }
 
         isShowingCreateSheet = false
-        flow.send(.createTaskRequested(
+        taskPageFlow.send(.createTaskRequested(
             title: trimmed,
             boardId: boardId,
             stageId: targetStageId,
@@ -149,9 +174,86 @@ struct TaskListPageView: View {
     }
 }
 
+// MARK: - Task row
+
+private struct TaskListRowView: View {
+
+    let projection: TaskListItemProjection
+
+    var body: some View {
+        HStack(spacing: 12) {
+            statusIcon
+            VStack(alignment: .leading, spacing: 3) {
+                Text(projection.title)
+                    .font(.body)
+                    .lineLimit(2)
+                if let stageName = projection.stageName {
+                    stageLabel(name: stageName)
+                }
+            }
+            Spacer()
+            stageProgress
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var statusIcon: some View {
+        Image(systemName: statusImageName)
+            .foregroundStyle(statusColor)
+            .frame(width: 20)
+    }
+
+    private var statusImageName: String {
+        switch projection.status {
+        case .open:      return "circle"
+        case .completed: return "checkmark.circle.fill"
+        case .failed:    return "xmark.circle.fill"
+        }
+    }
+
+    private var statusColor: Color {
+        switch projection.status {
+        case .open:      return .secondary
+        case .completed: return .green
+        case .failed:    return .red
+        }
+    }
+
+    @ViewBuilder
+    private func stageLabel(name: String) -> some View {
+        let kind = projection.stageKind
+        Text(name)
+            .font(.caption)
+            .foregroundStyle(stageLabelColor(for: kind))
+    }
+
+    private func stageLabelColor(for kind: BoardStageKind?) -> Color {
+        switch kind {
+        case .terminalSuccess: return .green
+        case .terminalFailure: return .red
+        default:               return .secondary
+        }
+    }
+
+    @ViewBuilder
+    private var stageProgress: some View {
+        if let orderIndex = projection.stageOrderIndex,
+           let total = projection.totalStageCount,
+           total > 0 {
+            Text("\(orderIndex + 1)/\(total)")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .monospacedDigit()
+        }
+    }
+}
+
 #Preview {
     TaskListPageView(
-        flow: TaskPageFeatureFlow(
+        taskListFlow: TaskListFeatureFlow(
+            offlineWorker: PreviewOfflineTaskListWorker()
+        ),
+        taskPageFlow: TaskPageFeatureFlow(
             offlineWorker: PreviewOfflineTaskPageDataWorker(),
             store: PreviewStore()
         ),
@@ -162,6 +264,12 @@ struct TaskListPageView: View {
 }
 
 // MARK: - Preview helpers
+
+private struct PreviewOfflineTaskListWorker: OfflineTaskListDataWorker {
+    func loadTasks(boardId: BoardID) async throws -> [TaskListItemProjection] {
+        []
+    }
+}
 
 private struct PreviewOfflineTaskPageDataWorker: OfflineTaskPageDataWorker {
     func loadTask(taskId: TaskID) async throws -> TaskDetailProjection {
@@ -179,7 +287,6 @@ private struct PreviewOfflineTaskPageDataWorker: OfflineTaskPageDataWorker {
 }
 
 private struct PreviewStore: LocalStoreContract, LocalWritePathContract {
-    // LocalStoreContract
     func fetchProjectListItems(workspaceId: WorkspaceID) async throws -> [ProjectListItemProjection] { [] }
     func fetchBoardListItems(projectId: ProjectID) async throws -> [BoardListItemProjection] { [] }
     func fetchKanbanColumns(boardId: BoardID) async throws -> [KanbanColumnProjection] { [] }
@@ -191,7 +298,6 @@ private struct PreviewStore: LocalStoreContract, LocalWritePathContract {
     func fetchBoardStagePresetStages(stagePresetId: BoardStagePresetID) async throws -> [BoardStagePresetStage] { [] }
     func fetchBoardStagePresets(workspaceId: WorkspaceID) async throws -> [BoardStagePreset] { [] }
     func fetchTask(id: TaskID) async throws -> Task? { nil }
-    // LocalWritePathContract
     func createProject(_ project: Project) async throws {}
     func updateProject(_ project: Project) async throws {}
     func deleteProject(id: ProjectID) async throws {}

@@ -184,11 +184,11 @@ This remains the first executable macOS slice.
 
 ## Phase 10. Offline Task List
 
-- [ ] Implement offline `TaskList` page
-- [ ] Show task title
-- [ ] Show current stage in list mode
-- [ ] Support opening `TaskPage` from list
-- [ ] Ensure list reads from offline local typed projections only
+- [x] Implement offline `TaskList` page
+- [x] Show task title
+- [x] Show current stage in list mode
+- [x] Support opening `TaskPage` from list
+- [x] Ensure list reads from offline local typed projections only
 
 ## Phase 11. Offline Kanban
 
