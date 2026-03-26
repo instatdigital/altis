@@ -8,7 +8,7 @@ import Foundation
 /// Rules (from `docs/SYNC_RULES.md`):
 /// - Offline-board writes stay local-only.
 /// - This contract is not used for online-board mutations.
-/// - No sync intent, outbox item, or backend replay is part of this contract.
+/// - Local acceptance ends at the SQLite write; online boards use a separate gateway.
 ///
 /// Canonical specification: `shared/persistence/LocalWritePathContract.swift`
 /// The concrete implementation is injected at the app shell level so feature

@@ -230,11 +230,11 @@ This phase is about making the online path architecturally ready without pretend
 
 ## Phase 15. Cleanup Of Old Sync Direction
 
-- [ ] Remove or rename files, types, comments, and tests that still describe sync/outbox/reconciliation architecture
-- [ ] Remove outdated references to `lastModifiedAt` and latest-version replacement where they no longer apply
-- [ ] Update Swift tests to match the board-mode contract and remove sync-era assertions
-- [ ] Update README files that still describe offline-first sync
-- [ ] Confirm backend/API docs describe online boards only
+- [x] Remove or rename files, types, comments, and tests that still describe sync/outbox/reconciliation architecture
+- [x] Remove outdated references to `lastModifiedAt` and latest-version replacement where they no longer apply
+- [x] Update Swift tests to match the board-mode contract and remove sync-era assertions
+- [x] Update README files that still describe offline-first sync
+- [x] Confirm backend/API docs describe online boards only
 
 ## Phase 16. Validation
 

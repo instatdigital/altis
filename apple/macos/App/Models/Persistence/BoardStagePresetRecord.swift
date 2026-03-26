@@ -55,8 +55,8 @@ extension BoardStagePresetRecord {
 
 /// Flat SQLite-row representation of a `BoardStagePresetStage` sub-entity.
 ///
-/// Preset stages are children of a `BoardStagePreset`. They carry no sync metadata
-/// because they are owned by and versioned with their parent preset.
+/// Preset stages are children of a `BoardStagePreset`. They are stored as plain
+/// local child records owned by their parent preset.
 ///
 /// Column mapping (one row per preset stage):
 /// - `presetStageId` TEXT PRIMARY KEY

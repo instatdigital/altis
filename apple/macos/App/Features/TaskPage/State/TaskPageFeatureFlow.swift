@@ -90,7 +90,7 @@ final class TaskPageFeatureFlow: ObservableObject {
             state.task = projection
             state.activeBoardId = projection.boardId
             state.activeProjectId = projection.projectId
-            // Sync board stages from the loaded task.
+            // Refresh board stages from the loaded task projection.
             if !projection.boardStages.isEmpty {
                 state.boardStages = projection.boardStages
             }
@@ -102,7 +102,7 @@ final class TaskPageFeatureFlow: ObservableObject {
             state.task = projection
             state.activeBoardId = projection.boardId
             state.activeProjectId = projection.projectId
-            // Sync board stages from the loaded task.
+            // Refresh board stages from the loaded task projection.
             if !projection.boardStages.isEmpty {
                 state.boardStages = projection.boardStages
             }

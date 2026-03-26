@@ -29,7 +29,7 @@ Typical Apple concerns:
 
 ## Rules
 
-- Keep cross-platform domain and sync contracts out of this layer unless they are Apple-only integrations.
+- Keep cross-platform domain, transport, and persistence contracts out of this layer unless they are Apple-only integrations.
 - Put Apple-specific wrappers or adapters shared by both apps in `apple/shared/`.
 
 ## Bootstrap projects for Xcode

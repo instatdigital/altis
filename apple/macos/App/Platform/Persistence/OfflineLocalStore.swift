@@ -22,7 +22,7 @@ private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self
 /// Rules (from `docs/ARCHITECTURE.md` and `docs/SYNC_RULES.md`):
 /// - Offline-board writes stay local-only.
 /// - UI reads typed projections, not raw domain entities.
-/// - No sync, outbox, or reconciliation logic belongs here.
+/// - This store is only the durable path for offline boards and shared local support entities.
 final class OfflineLocalStore: Sendable {
 
     private let actor: DatabaseActor

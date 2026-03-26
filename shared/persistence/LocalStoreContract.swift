@@ -9,8 +9,8 @@ import Foundation
 ///
 /// Rules (from `docs/SYNC_RULES.md`):
 /// - UI MUST read from local typed projections only.
-/// - Network responses update the local store first; the UI then re-reads.
-/// - The local store is the runtime source of truth for all UI reads.
+/// - Offline-board features read from this local store.
+/// - Online-board features read from feature-owned online state or online read models.
 ///
 /// This protocol lives in `shared/persistence/` because it is a cross-platform
 /// contract. The concrete SQLite implementation lives in the platform app.

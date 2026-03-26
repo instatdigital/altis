@@ -485,6 +485,7 @@ struct BoardFeatureFlowRegressionTests {
         try await withTemporaryStore(prefix: "altis-board-flow") { store in
             let flow = BoardFeatureFlow(
                 offlineWorker: SuspendedOfflineBoardWorker(),
+                onlineAuthGate: AllowingOnlineBoardAuthGate(),
                 onlineGateway: SuspendedOnlineBoardGateway(),
                 store: store,
                 workspaceId: workspaceId
@@ -650,7 +651,7 @@ private struct SuspendedOnlineBoardGateway: OnlineBoardGatewayContract {
         return []
     }
 
-    func fetchTasks(boardId: BoardID) async throws -> [OnlineTaskReadModel] {
+    func fetchBoardContent(boardId: BoardID) async throws -> OnlineBoardContentReadModel {
         throw CancellationError()
     }
 
@@ -658,17 +659,17 @@ private struct SuspendedOnlineBoardGateway: OnlineBoardGatewayContract {
         throw CancellationError()
     }
 
-    func moveTask(taskId: TaskID, toStageId: BoardStageID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+    func moveTask(_ request: OnlineTaskStageMoveWriteModel) async throws -> OnlineTaskReadModel {
         throw CancellationError()
     }
 
-    func completeTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
+    func applyTerminalAction(_ request: OnlineTaskTerminalActionWriteModel) async throws -> OnlineTaskReadModel {
         throw CancellationError()
     }
+}
 
-    func failTask(taskId: TaskID, boardId: BoardID) async throws -> OnlineTaskReadModel {
-        throw CancellationError()
-    }
+private struct AllowingOnlineBoardAuthGate: OnlineBoardAuthGateContract {
+    func requireAccess() async throws {}
 }
 
 // MARK: - BoardFeatureFlow task cancellation regressions
@@ -694,6 +695,7 @@ struct BoardFeatureFlowCancellationTests {
         try await withTemporaryStore(prefix: "altis-cancel-latch") { store in
             let flow = BoardFeatureFlow(
                 offlineWorker: latch,
+                onlineAuthGate: AllowingOnlineBoardAuthGate(),
                 onlineGateway: SuspendedOnlineBoardGateway(),
                 store: store,
                 workspaceId: workspaceId
@@ -741,6 +743,7 @@ struct BoardFeatureFlowCancellationTests {
 
             let flow = BoardFeatureFlow(
                 offlineWorker: LatchOfflineBoardWorker(),
+                onlineAuthGate: AllowingOnlineBoardAuthGate(),
                 onlineGateway: SuspendedOnlineBoardGateway(),
                 store: spy,
                 workspaceId: workspaceId
@@ -1073,5 +1076,3 @@ struct OfflineLocalStoreTaskTests {
         }
     }
 }
-
-
