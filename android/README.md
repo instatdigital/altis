@@ -7,12 +7,15 @@ Android application scope for Altis.
 Before implementation work in `android`, load:
 
 - `../AGENTS.md`
-- `../docs/ARCHITECTURE.md` (including `Global Artifact Classification Workflow`)
-- `../docs/MVP_APP_STRUCTURE.md`
-- `../docs/TYPES_AND_CONTRACTS.md`
-- `../docs/SYNC_RULES.md`
-- `../docs/DEVELOPMENT_RULES.md`
-- `../docs/PROJECT_SETUP.md`
+- this README
+- only the canon required by the task, following `AGENTS.md#Lean context bootstrap`
+
+Default extra focus:
+
+- placement and ownership:
+  - `../docs/ARCHITECTURE.md` with `Global Artifact Classification Workflow`
+- setup or commands:
+  - `../docs/PROJECT_SETUP.md`
 
 ## Planned ownership
 

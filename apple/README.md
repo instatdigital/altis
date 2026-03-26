@@ -8,18 +8,24 @@ This layer contains Apple-platform work split into:
 
 ## Agent context bootstrap
 
-Before Apple-layer implementation work, load the minimum required canon:
+For Apple-layer work, load:
 
 - `../AGENTS.md`
 - this README
-- `../docs/ARCHITECTURE.md`:
-  - `Layer model`
-  - `Default artifact placement`
-  - `Global Artifact Classification Workflow`
-- `../docs/TYPES_AND_CONTRACTS.md` only for touched entities
-- `../docs/SYNC_RULES.md` when board, task, persistence, transport, or availability behavior is affected
-- `../docs/MVP_APP_STRUCTURE.md` when UX flow or screen responsibilities are affected
-- `../docs/PROJECT_SETUP.md` when setup, commands, or tooling matter
+- only the canon required by the task, using `AGENTS.md#Lean context bootstrap`
+
+Typical Apple concerns:
+
+- placement or ownership:
+  - `../docs/ARCHITECTURE.md` with `Global Artifact Classification Workflow`
+- entities or boundaries:
+  - `../docs/TYPES_AND_CONTRACTS.md`
+- board authority, persistence, transport, availability:
+  - `../docs/SYNC_RULES.md`
+- screens or UX flow:
+  - `../docs/MVP_APP_STRUCTURE.md`
+- setup or commands:
+  - `../docs/PROJECT_SETUP.md`
 
 ## Rules
 

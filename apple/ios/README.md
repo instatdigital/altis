@@ -8,15 +8,15 @@ Before implementation work in `apple/ios`, load:
 
 - `../../AGENTS.md`
 - `../README.md`
-- `../../docs/ARCHITECTURE.md`:
-  - `Layer model`
-  - `Default artifact placement`
-  - `Global Artifact Classification Workflow`
-  - relevant Apple and feature sections
-- `../../docs/TYPES_AND_CONTRACTS.md` only for touched entities
-- `../../docs/SYNC_RULES.md` when board, task, persistence, transport, or availability behavior is affected
-- `../../docs/MVP_APP_STRUCTURE.md` when screens, navigation, or UX flow responsibilities are affected
-- `../../docs/PROJECT_SETUP.md` when setup, build commands, or tooling matter
+- this README
+- only the canon required by the task, following `AGENTS.md#Lean context bootstrap`
+
+Default extra focus:
+
+- placement and ownership:
+  - `../../docs/ARCHITECTURE.md` with `Global Artifact Classification Workflow`
+- setup or build commands:
+  - `../../docs/PROJECT_SETUP.md`
 
 ## Planned ownership
 

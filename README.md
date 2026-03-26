@@ -19,22 +19,7 @@ Current goal: establish a stable repository structure before platform-specific i
 
 ## Agent context
 
-The repository includes:
-
-- `AGENTS.md` for Codex-style coding agents
-- `CLAUDE.md` for Claude-style coding agents
-
-Repository-wide agent rules should stay centralized in `AGENTS.md` and the files under `docs/`.
-
-`CLAUDE.md` should remain a lightweight entry point that points Claude to the canonical monorepo rules and then to the nearest platform or layer-specific README.
-
-Key canonical architecture documents currently include:
-
-- `docs/ARCHITECTURE.md`
-- `docs/MVP_APP_STRUCTURE.md`
-- `docs/TYPES_AND_CONTRACTS.md`
-- `docs/SYNC_RULES.md`
-
-Mandatory for placement decisions:
-
-- `docs/ARCHITECTURE.md#Global Artifact Classification Workflow`
+- `AGENTS.md` is the global routing layer for repository work.
+- `CLAUDE.md` is a thin Claude entry point and should stay shorter than `AGENTS.md`.
+- Canonical product and architecture rules live in `docs/`.
+- Placement decisions always go through `docs/ARCHITECTURE.md#Global Artifact Classification Workflow`.

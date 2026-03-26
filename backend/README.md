@@ -8,15 +8,15 @@ Before implementation work in `backend`, load:
 
 - `../AGENTS.md`
 - this README
-- `../docs/ARCHITECTURE.md`:
-  - `Layer model`
-  - `Default artifact placement`
-  - `Global Artifact Classification Workflow`
-  - relevant backend sections
-- `../docs/TYPES_AND_CONTRACTS.md` only for touched entities and contracts
-- `../docs/SYNC_RULES.md` when board authority or online write-path behavior is affected
-- `../docs/BACKEND_ARCHITECTURE.md`
-- `../docs/PROJECT_SETUP.md` when setup, commands, or tooling matter
+- only the canon required by the task, following `AGENTS.md#Lean context bootstrap`
+- `../docs/BACKEND_ARCHITECTURE.md` when backend module boundaries or responsibilities matter
+
+Default extra focus:
+
+- placement and ownership:
+  - `../docs/ARCHITECTURE.md` with `Global Artifact Classification Workflow`
+- setup or commands:
+  - `../docs/PROJECT_SETUP.md`
 
 ## Current direction
 
