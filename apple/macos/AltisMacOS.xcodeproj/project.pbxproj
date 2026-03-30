@@ -3,836 +3,537 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 90;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F4DB9BECBA12A6A3223681F /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1D4510AAD26CF6DB0427BE /* AppRoute.swift */; };
-		15783A2F2356D5CA531C51B8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
-		1727A55FE22884D72B57E6C0 /* BoardFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC903E4827950842973296FF /* BoardFeatureState.swift */; };
-		24789AD5E62B6A642952821F /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009753DFF96FAF283F791733 /* RootView.swift */; };
-		273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */; };
-		29CF5D9B71166AF2A34087EF /* KanbanBoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC8F6E7BA4F2F67123CAC00 /* KanbanBoardPageView.swift */; };
-		2E9C63CDAB47FEE2003AA095 /* ProjectPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B0BA2E52DAC3DEA4F88B452 /* ProjectPageView.swift */; };
-		44F316FEC52F9E1B55829ECB /* TaskListFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */; };
-		454070CCA28356311D94995A /* AppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DB719A28AC7DEFB229F10B /* AppShell.swift */; };
-		520EF04D77DF2917496CC53A /* TaskPageFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */; };
-		56AE6E8CE1C6B8FDA1AFBFAB /* TaskListPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D70DD97BFDE43BC1DEB5EDB5 /* TaskListPageView.swift */; };
-		57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */; };
-		69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C10A915EC8B78700F94841D /* Cocoa.framework */; };
-		6E88F0153003105FB189507C /* BoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999AE2D9BA9FE56362D93067 /* BoardPageView.swift */; };
-		AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E712F71965E003A7C2C /* BoardMode.swift */; };
-		AF163E742F719AC7003A7C2C /* HomeFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E732F719AC7003A7C2C /* HomeFeatureEvent.swift */; };
-		AF163E762F719AD4003A7C2C /* HomeFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E752F719AD4003A7C2C /* HomeFeatureFlow.swift */; };
-		AF163E782F719AE3003A7C2C /* ProjectFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E772F719AE3003A7C2C /* ProjectFeatureEvent.swift */; };
-		AF163E7A2F719AF3003A7C2C /* ProjectDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E792F719AF3003A7C2C /* ProjectDataWorker.swift */; };
-		AF163E7C2F719AFE003A7C2C /* ProjectFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E7B2F719AFE003A7C2C /* ProjectFeatureFlow.swift */; };
-		AF163E7E2F719B14003A7C2C /* BoardFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E7D2F719B14003A7C2C /* BoardFeatureEvent.swift */; };
-		AF163E802F719B26003A7C2C /* OfflineBoardDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E7F2F719B26003A7C2C /* OfflineBoardDataWorker.swift */; };
-		AF163E822F719B32003A7C2C /* BoardFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E812F719B32003A7C2C /* BoardFeatureFlow.swift */; };
-		AF163E842F719B46003A7C2C /* TaskListFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E832F719B46003A7C2C /* TaskListFeatureEvent.swift */; };
-		AF163E862F719B58003A7C2C /* OfflineTaskListDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E852F719B58003A7C2C /* OfflineTaskListDataWorker.swift */; };
-		AF163E882F719B63003A7C2C /* TaskListFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E872F719B63003A7C2C /* TaskListFeatureFlow.swift */; };
-		AF163E8A2F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E892F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift */; };
-		AF163E8C2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E8B2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift */; };
-		AF163E8E2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E8D2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift */; };
-		AF163E902F719BBA003A7C2C /* TaskPageFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E8F2F719BBA003A7C2C /* TaskPageFeatureEvent.swift */; };
-		AF163E922F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E912F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift */; };
-		AF163E942F719BD3003A7C2C /* TaskPageFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */; };
-		AF163E972F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */; };
-		AF163E9C2F72A452003A7C2C /* OnlineBoardGatewayContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */; };
-		AF163EA02F72B162003A7C2C /* OfflineLocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */; };
-		AF163EA22F72B17A003A7C2C /* OfflineProjectDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */; };
-		AF163EA42F72B1BB003A7C2C /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF163EA32F72B1BB003A7C2C /* AppEnvironment.swift */; };
-		AF1927FB2F705268004558EB /* EntityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FA2F705268004558EB /* EntityID.swift */; };
-		AF1927FF2F705298004558EB /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1927FE2F705298004558EB /* Workspace.swift */; };
-		AF1928012F705298004558EB /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928002F705298004558EB /* Project.swift */; };
-		AF1928032F705299004558EB /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928022F705299004558EB /* Board.swift */; };
-		AF1928052F7052BC004558EB /* BoardStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928042F7052BC004558EB /* BoardStage.swift */; };
-		AF1928072F7052BD004558EB /* BoardStagePreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928062F7052BD004558EB /* BoardStagePreset.swift */; };
-		AF1928092F7052BE004558EB /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928082F7052BE004558EB /* Task.swift */; };
-		AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */; };
-		AF19280F2F70540E004558EB /* PersistenceRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19280E2F70540E004558EB /* PersistenceRecord.swift */; };
-		AF1928132F70542A004558EB /* ProjectRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928122F70542A004558EB /* ProjectRecord.swift */; };
-		AF1928152F705437004558EB /* BoardRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928142F705437004558EB /* BoardRecord.swift */; };
-		AF1928172F705445004558EB /* BoardStageRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928162F705445004558EB /* BoardStageRecord.swift */; };
-		AF1928192F705456004558EB /* BoardStagePresetRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928182F705456004558EB /* BoardStagePresetRecord.swift */; };
-		AF19281B2F705467004558EB /* TaskRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19281A2F705467004558EB /* TaskRecord.swift */; };
-		AF19281D2F70547D004558EB /* LocalWritePathContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19281C2F70547D004558EB /* LocalWritePathContract.swift */; };
-		AF19281F2F705487004558EB /* LocalStoreContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19281E2F705487004558EB /* LocalStoreContract.swift */; };
-		AF1928212F705496004558EB /* ProjectListItemProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928202F705496004558EB /* ProjectListItemProjection.swift */; };
-		AF1928232F70549B004558EB /* BoardListItemProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928222F70549B004558EB /* BoardListItemProjection.swift */; };
-		AF1928252F7054A3004558EB /* TaskListItemProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928242F7054A3004558EB /* TaskListItemProjection.swift */; };
-		AF1928272F7054AC004558EB /* TaskDetailProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928262F7054AC004558EB /* TaskDetailProjection.swift */; };
-		AF1928292F7054B3004558EB /* KanbanColumnProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF1928282F7054B3004558EB /* KanbanColumnProjection.swift */; };
-		AF19282E2F705A0C004558EB /* PersistenceRecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */; };
-		AF92BD802F72D82C008225D7 /* OfflineLocalBoardWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF92BD7F2F72D82C008225D7 /* OfflineLocalBoardWorker.swift */; };
-		AFD6648D2F755FF700A73FDF /* OfflineTaskWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD6648C2F755FF700A73FDF /* OfflineTaskWorker.swift */; };
-		B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */; };
-		C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2CD785CA6B557085DD3209 /* HomePageView.swift */; };
-		E157B8C0C0CEDC007C80FF6D /* KanbanBoardFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */; };
-		EB01AB5442118A6732B6E7D5 /* TaskPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F58EC954A3A4214F07A7EA /* TaskPageView.swift */; };
-		FF5FF22D2272B579F0F1853E /* HomeFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D967340833E3367BDDE707C8 /* HomeFeatureState.swift */; };
+		02976A6C4A5637A246355F51 /* OfflineKanbanDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A4ADCDA3713F9059879696 /* OfflineKanbanDataWorker.swift */; };
+		0D7337AD8309688198AA6826 /* ProjectRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF67DE6544DD5E20FBEB0E7 /* ProjectRecord.swift */; };
+		1404C3507FCA6A8AE777D4A5 /* HomeFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364D78A7D135CE641D387963 /* HomeFeatureEvent.swift */; };
+		19A6F08442E46BDB108D81A6 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37AC22D1BA7712228697883 /* AppRoute.swift */; };
+		1D63F11911C6488E41B0682A /* OfflineTaskWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B577F79A507180F09A1982 /* OfflineTaskWorker.swift */; };
+		1FAC3A8FEA96CEBCFAC29EED /* TaskPageFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB59D4EDB7A33B124636B045 /* TaskPageFeatureState.swift */; };
+		22E60EDD3CDC3B3E7865F4A9 /* BoardStageRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE841CFD6BE8229303825A5 /* BoardStageRecord.swift */; };
+		2B402916426394CE2E4474BF /* BoardStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFDA097BF42D7F1CC4C4628 /* BoardStage.swift */; };
+		2E1915BEE28F6FAC1539BBEC /* OfflineBoardDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E5637F82BC556AD3A8AA7D /* OfflineBoardDataWorker.swift */; };
+		2EAB014E5526CE65335B32AA /* ProjectListItemProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB30B579DB3992A0A2DBBED1 /* ProjectListItemProjection.swift */; };
+		2FD33EE2C1919A9B604D7AD3 /* OnlineBoardGatewayContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18262CB12B99D4E9166B4BCC /* OnlineBoardGatewayContract.swift */; };
+		322793FE25BC71DB5F03176F /* EntityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A252EFE86DE71106F035018 /* EntityID.swift */; };
+		3461A741EAF8AB564EAA5EF8 /* KanbanBoardFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA93A4A6272D78179EA2960 /* KanbanBoardFeatureFlow.swift */; };
+		34A0727EAC7DBF3247730D61 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB3C518939325080B754953 /* Task.swift */; };
+		34FB82E37C2173F2F39F50F1 /* BoardFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319FC758B4668B922A0B8E86 /* BoardFeatureEvent.swift */; };
+		389E5A3C71D3EEF7C8571DAA /* AltisMacOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30AECB9BCA94C0F827315B9 /* AltisMacOSApp.swift */; };
+		3E4E2F6E650FFA423A773D1E /* TaskPageFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5A6CBCA51ACFA0B6516DC6 /* TaskPageFeatureFlow.swift */; };
+		3E9338B4F7DD81C0B78E0F94 /* ProjectFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBD523E450C458FFCAE8CC0 /* ProjectFeatureState.swift */; };
+		40EFF104F19C47BE77223EB5 /* altis_logo_placeholder_light.svg in Resources */ = {isa = PBXBuildFile; fileRef = 1007C24494F0E0F6BB74FCEE /* altis_logo_placeholder_light.svg */; };
+		461A97153FCA2F15107B0503 /* LocalStoreContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4C700DAD9688B398E801A6 /* LocalStoreContract.swift */; };
+		4871BBD4A115BA3C4E3F3E4F /* altis_logo_placeholder_dark.svg in Resources */ = {isa = PBXBuildFile; fileRef = 5619EC507265B1FAB3E3EFD8 /* altis_logo_placeholder_dark.svg */; };
+		550485A20873F691523A5738 /* BoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D001CB2C882612D2DD38A5 /* BoardPageView.swift */; };
+		58F784884A09C09E7B3AA653 /* OfflineProjectDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569E1BBB3123EE7A9ECC37F6 /* OfflineProjectDataWorker.swift */; };
+		59A84E56D9E9F7C8D92BD841 /* HomeFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6645E3FADB3EE5F1A1653AA7 /* HomeFeatureFlow.swift */; };
+		5BBC37ED1D99C8D191D47556 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1450D008E2F66BC3D72999C6 /* Cocoa.framework */; };
+		60A862C6B7790AB480067033 /* ProjectFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E82C8330F632F7932F6AA0 /* ProjectFeatureEvent.swift */; };
+		668EBEC2A9B2144CB465DD52 /* BoardListItemProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A79F24CB00F368A15B0AAB2 /* BoardListItemProjection.swift */; };
+		6CBEAEE45A480267B42D59FF /* LocalWritePathContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D778FC09A56663E256C1A1 /* LocalWritePathContract.swift */; };
+		807A90B9B6265F5251DB2670 /* OfflineLocalBoardWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EF790610ADA2D2A3CFA8EF /* OfflineLocalBoardWorker.swift */; };
+		84F568D8B0EDF1F3DAB6DF3B /* BoardStagePreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9BC600B91832BB75052267 /* BoardStagePreset.swift */; };
+		84FADEB88642E34C1B52499B /* ProjectPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52EC565F702286C5139713CE /* ProjectPageView.swift */; };
+		880051EE87843BB546BABA95 /* HomePageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FD887773F2321E826B4CFD /* HomePageView.swift */; };
+		88CC0C4C150FAC12B461EA97 /* AltisMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94731D5EECE3DE25FC38581D /* AltisMacOSTests.swift */; };
+		89637652094D90F2DE84697B /* TaskListPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E021B99FD87269D3F924E733 /* TaskListPageView.swift */; };
+		8C1D7A4076A3799C1E99BF4A /* KanbanBoardFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18A4330B462DE132450A2B2 /* KanbanBoardFeatureState.swift */; };
+		9164F05A99C26729DDFC9951 /* TaskRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = F299A52C490F9F3E6CAEF991 /* TaskRecord.swift */; };
+		91CA781184087F000A2E646E /* Workspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567E21F0EAEB706F57315573 /* Workspace.swift */; };
+		95E3716EB64095A05ED3415E /* TaskPageFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE8D13A677DA695C0CB4ACC /* TaskPageFeatureEvent.swift */; };
+		9858B7459B396F663470DC6D /* TaskDetailProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818F0052A3ACCF31B6F654F8 /* TaskDetailProjection.swift */; };
+		9A326B7CC786D65849BD3E95 /* HomeFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F229A3C7A861FF8B8C22223 /* HomeFeatureState.swift */; };
+		9AD61D4F8B65DE15802CBEB8 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995F1044F0772E828405B0BD /* Project.swift */; };
+		A66676B71CA09A340746053C /* altis_logo_placeholder_light.png in Resources */ = {isa = PBXBuildFile; fileRef = AC4D962B5971815F85F8E2E4 /* altis_logo_placeholder_light.png */; };
+		A9EB2B1A6E2CB9F3E2B3D79B /* TaskPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE598B2289DDAEDC286A44FA /* TaskPageView.swift */; };
+		AA0A31A7C11DB4474AA0439E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0693B88A9A7DE751F6D70082 /* Assets.xcassets */; };
+		ABD04BDD39C02E1BDFD28B00 /* OfflineTaskPageDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9054C080AB8C11F167760EAC /* OfflineTaskPageDataWorker.swift */; };
+		AE5673B18E8630F3FE3B49C3 /* OfflineTaskListDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93758F31893A83780D99137 /* OfflineTaskListDataWorker.swift */; };
+		AF4431500EC95B35F8D4698E /* TaskListFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E69EC94218EDED7CFFD70FF8 /* TaskListFeatureFlow.swift */; };
+		B7FBB4ED8F30D764143DD014 /* ProjectFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954A6C072C647FF7A996E58C /* ProjectFeatureFlow.swift */; };
+		B9FA066E3084ED909C49188A /* ProjectDataWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9BF2E00DBB900F9AF5CB7F /* ProjectDataWorker.swift */; };
+		BB0BE28687F7FDA2A76A73EC /* BoardMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD7BEE19F8997253C218BD09 /* BoardMode.swift */; };
+		BC0D28743B4661B72C07889E /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B649A33DE66FC274A66071 /* AppEnvironment.swift */; };
+		C60188B2F1AF15DDB2B12FC9 /* altis_logo_placeholder_dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 237C090F9D15463CE3370A66 /* altis_logo_placeholder_dark.png */; };
+		CD298963AD436BAEC354ABFF /* TaskListFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092FE00999DD63EFEA019DEA /* TaskListFeatureState.swift */; };
+		CE793E7EB98D467B19B638A7 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C221B06D3C664D319BE6323 /* Board.swift */; };
+		CFE403034B8648486C96FC5D /* BoardFeatureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E0F2E8C6D6759F588F70A10 /* BoardFeatureState.swift */; };
+		DE4D1BEB6497FFC7D5B79E1A /* KanbanBoardFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C51F485EC70BE0D486821A /* KanbanBoardFeatureEvent.swift */; };
+		E2856C826ECC80292A110F8A /* BoardFeatureFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478B6BB6D346E6C73E66B58 /* BoardFeatureFlow.swift */; };
+		E45AFB4E5D5D46ED20F059FA /* TaskListFeatureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8972BABA3A5FE4605D48A25 /* TaskListFeatureEvent.swift */; };
+		E5EBD4561156799BD60F1300 /* PersistenceRecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9857638A9AF59779D4ABA1D5 /* PersistenceRecordTests.swift */; };
+		E6EB057E22FDF88FB4E97DDD /* TaskListItemProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE950DF6F79E495F1C4EB64 /* TaskListItemProjection.swift */; };
+		E70ACEF9A816BD3E51220C14 /* KanbanColumnProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C7DC15699D363E11B155DD /* KanbanColumnProjection.swift */; };
+		E9A35CC98F5E43ED5DD5D62A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E65E7D59778BA58C8AF565E7 /* RootView.swift */; };
+		EA2A4D6282FD18BE5AD3FDD2 /* BoardStagePresetRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AC8F510301245C5BDEA468 /* BoardStagePresetRecord.swift */; };
+		EAE87359725467B062CB6261 /* KanbanBoardPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6B2FCC88B1893F9A1276EA /* KanbanBoardPageView.swift */; };
+		EC4498272484D277F597AF8F /* AppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BE34361E429D5706E26F43 /* AppShell.swift */; };
+		F43C161D716BFF960E64BA9D /* OfflineLocalStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6907FA73A59C6252F240586 /* OfflineLocalStore.swift */; };
+		F5DCA8674F903F7AF6F01C3B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1450D008E2F66BC3D72999C6 /* Cocoa.framework */; };
+		FB9C9AFDF2AC1DAB4A09FC77 /* OnlineBoardUnavailableReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB4408D408AF9C42442E5D6 /* OnlineBoardUnavailableReason.swift */; };
+		FBC5CD07BFE37B46E15EF0B7 /* PersistenceRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1246EF0E89A380C122142D /* PersistenceRecord.swift */; };
+		FF189B4B5116CD7EAF8AAD3E /* BoardStageInvariants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534A2683763C8D5B10801761 /* BoardStageInvariants.swift */; };
+		FF9D601697795397E82D50BE /* BoardRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02461D8A46A2E6338E30355 /* BoardRecord.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0284CAC84FC36A46CFDA4FB4 /* PBXContainerItemProxy */ = {
+		400EE760881F986F4E5B979E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 8F357C5BAC7E08671616333A /* Project object */;
+			containerPortal = 6D3C4AC431EB2F7CEA889FBB /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 46EC88EAD15DB7984CE39851;
+			remoteGlobalIDString = 73BABD5A1A93C454268E9971;
 			remoteInfo = AltisMacOS;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		009753DFF96FAF283F791733 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RootView.swift; path = App/RootView.swift; sourceTree = "<group>"; };
-		0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltisMacOSApp.swift; path = App/AltisMacOSApp.swift; sourceTree = "<group>"; };
-		0E1D4510AAD26CF6DB0427BE /* AppRoute.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
-		18F58EC954A3A4214F07A7EA /* TaskPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskPageView.swift; sourceTree = "<group>"; };
-		2D2CD785CA6B557085DD3209 /* HomePageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomePageView.swift; sourceTree = "<group>"; };
-		3CC8F6E7BA4F2F67123CAC00 /* KanbanBoardPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KanbanBoardPageView.swift; sourceTree = "<group>"; };
-		4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KanbanBoardFeatureState.swift; sourceTree = "<group>"; };
-		58EAF51483D6191D8DDCBB6C /* Altis macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Altis macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Config/Release.xcconfig; sourceTree = "<group>"; };
-		6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AltisMacOSTests.swift; sourceTree = "<group>"; };
-		687AF830925F835E854E0BF3 /* Debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Config/Debug.xcconfig; sourceTree = "<group>"; };
-		6C10A915EC8B78700F94841D /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		87DB719A28AC7DEFB229F10B /* AppShell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppShell.swift; sourceTree = "<group>"; };
-		8DEC202A1A09109E913FEEFA /* Altis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Altis.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		999AE2D9BA9FE56362D93067 /* BoardPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardPageView.swift; sourceTree = "<group>"; };
-		9B0BA2E52DAC3DEA4F88B452 /* ProjectPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectPageView.swift; sourceTree = "<group>"; };
-		9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProjectFeatureState.swift; sourceTree = "<group>"; };
-		9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskListFeatureState.swift; sourceTree = "<group>"; };
-		AF163E712F71965E003A7C2C /* BoardMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardMode.swift; sourceTree = "<group>"; };
-		AF163E732F719AC7003A7C2C /* HomeFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeatureEvent.swift; sourceTree = "<group>"; };
-		AF163E752F719AD4003A7C2C /* HomeFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeFeatureFlow.swift; sourceTree = "<group>"; };
-		AF163E772F719AE3003A7C2C /* ProjectFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFeatureEvent.swift; sourceTree = "<group>"; };
-		AF163E792F719AF3003A7C2C /* ProjectDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDataWorker.swift; sourceTree = "<group>"; };
-		AF163E7B2F719AFE003A7C2C /* ProjectFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFeatureFlow.swift; sourceTree = "<group>"; };
-		AF163E7D2F719B14003A7C2C /* BoardFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardFeatureEvent.swift; sourceTree = "<group>"; };
-		AF163E7F2F719B26003A7C2C /* OfflineBoardDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineBoardDataWorker.swift; sourceTree = "<group>"; };
-		AF163E812F719B32003A7C2C /* BoardFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardFeatureFlow.swift; sourceTree = "<group>"; };
-		AF163E832F719B46003A7C2C /* TaskListFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListFeatureEvent.swift; sourceTree = "<group>"; };
-		AF163E852F719B58003A7C2C /* OfflineTaskListDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTaskListDataWorker.swift; sourceTree = "<group>"; };
-		AF163E872F719B63003A7C2C /* TaskListFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListFeatureFlow.swift; sourceTree = "<group>"; };
-		AF163E892F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanbanBoardFeatureEvent.swift; sourceTree = "<group>"; };
-		AF163E8B2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineKanbanDataWorker.swift; sourceTree = "<group>"; };
-		AF163E8D2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanbanBoardFeatureFlow.swift; sourceTree = "<group>"; };
-		AF163E8F2F719BBA003A7C2C /* TaskPageFeatureEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureEvent.swift; sourceTree = "<group>"; };
-		AF163E912F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTaskPageDataWorker.swift; sourceTree = "<group>"; };
-		AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureFlow.swift; sourceTree = "<group>"; };
-		AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineBoardUnavailableReason.swift; sourceTree = "<group>"; };
-		AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineBoardGatewayContract.swift; sourceTree = "<group>"; };
-		AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineLocalStore.swift; sourceTree = "<group>"; };
-		AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineProjectDataWorker.swift; sourceTree = "<group>"; };
-		AF163EA32F72B1BB003A7C2C /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
-		AF1927FA2F705268004558EB /* EntityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityID.swift; sourceTree = "<group>"; };
-		AF1927FE2F705298004558EB /* Workspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workspace.swift; sourceTree = "<group>"; };
-		AF1928002F705298004558EB /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
-		AF1928022F705299004558EB /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
-		AF1928042F7052BC004558EB /* BoardStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStage.swift; sourceTree = "<group>"; };
-		AF1928062F7052BD004558EB /* BoardStagePreset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStagePreset.swift; sourceTree = "<group>"; };
-		AF1928082F7052BE004558EB /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
-		AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStageInvariants.swift; sourceTree = "<group>"; };
-		AF19280E2F70540E004558EB /* PersistenceRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceRecord.swift; sourceTree = "<group>"; };
-		AF1928122F70542A004558EB /* ProjectRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectRecord.swift; sourceTree = "<group>"; };
-		AF1928142F705437004558EB /* BoardRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardRecord.swift; sourceTree = "<group>"; };
-		AF1928162F705445004558EB /* BoardStageRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStageRecord.swift; sourceTree = "<group>"; };
-		AF1928182F705456004558EB /* BoardStagePresetRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardStagePresetRecord.swift; sourceTree = "<group>"; };
-		AF19281A2F705467004558EB /* TaskRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRecord.swift; sourceTree = "<group>"; };
-		AF19281C2F70547D004558EB /* LocalWritePathContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWritePathContract.swift; sourceTree = "<group>"; };
-		AF19281E2F705487004558EB /* LocalStoreContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStoreContract.swift; sourceTree = "<group>"; };
-		AF1928202F705496004558EB /* ProjectListItemProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectListItemProjection.swift; sourceTree = "<group>"; };
-		AF1928222F70549B004558EB /* BoardListItemProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardListItemProjection.swift; sourceTree = "<group>"; };
-		AF1928242F7054A3004558EB /* TaskListItemProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListItemProjection.swift; sourceTree = "<group>"; };
-		AF1928262F7054AC004558EB /* TaskDetailProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailProjection.swift; sourceTree = "<group>"; };
-		AF1928282F7054B3004558EB /* KanbanColumnProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KanbanColumnProjection.swift; sourceTree = "<group>"; };
-		AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceRecordTests.swift; sourceTree = "<group>"; };
-		AF92BD7F2F72D82C008225D7 /* OfflineLocalBoardWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineLocalBoardWorker.swift; sourceTree = "<group>"; };
-		AFD6648C2F755FF700A73FDF /* OfflineTaskWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTaskWorker.swift; sourceTree = "<group>"; };
-		C44E51198C46F082AAE86750 /* MACOS_MVP_TASK_BREAKDOWN.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = MACOS_MVP_TASK_BREAKDOWN.md; sourceTree = "<group>"; };
-		C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskPageFeatureState.swift; sourceTree = "<group>"; };
-		CC903E4827950842973296FF /* BoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoardFeatureState.swift; sourceTree = "<group>"; };
-		D70DD97BFDE43BC1DEB5EDB5 /* TaskListPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TaskListPageView.swift; sourceTree = "<group>"; };
-		D967340833E3367BDDE707C8 /* HomeFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeFeatureState.swift; sourceTree = "<group>"; };
-		F7113E2887FC076C1A652F1E /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Config/Base.xcconfig; sourceTree = "<group>"; };
+		05FD887773F2321E826B4CFD /* HomePageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomePageView.swift; path = App/Features/Home/Page/HomePageView.swift; sourceTree = "<group>"; };
+		0693B88A9A7DE751F6D70082 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
+		092FE00999DD63EFEA019DEA /* TaskListFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskListFeatureState.swift; path = App/Features/TaskList/State/TaskListFeatureState.swift; sourceTree = "<group>"; };
+		0AF67DE6544DD5E20FBEB0E7 /* ProjectRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectRecord.swift; path = App/Models/Persistence/ProjectRecord.swift; sourceTree = "<group>"; };
+		0C221B06D3C664D319BE6323 /* Board.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Board.swift; path = App/Models/Domain/Board.swift; sourceTree = "<group>"; };
+		1007C24494F0E0F6BB74FCEE /* altis_logo_placeholder_light.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = altis_logo_placeholder_light.svg; path = Resources/altis_logo_placeholder_light.svg; sourceTree = "<group>"; };
+		1450D008E2F66BC3D72999C6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		17B577F79A507180F09A1982 /* OfflineTaskWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineTaskWorker.swift; path = App/Platform/Persistence/OfflineTaskWorker.swift; sourceTree = "<group>"; };
+		18262CB12B99D4E9166B4BCC /* OnlineBoardGatewayContract.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnlineBoardGatewayContract.swift; path = App/Models/Contracts/OnlineBoardGatewayContract.swift; sourceTree = "<group>"; };
+		1A252EFE86DE71106F035018 /* EntityID.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EntityID.swift; path = App/Models/Domain/EntityID.swift; sourceTree = "<group>"; };
+		1E0F2E8C6D6759F588F70A10 /* BoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardFeatureState.swift; path = App/Features/Board/State/BoardFeatureState.swift; sourceTree = "<group>"; };
+		1FA93A4A6272D78179EA2960 /* KanbanBoardFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KanbanBoardFeatureFlow.swift; path = App/Features/KanbanBoard/State/KanbanBoardFeatureFlow.swift; sourceTree = "<group>"; };
+		237C090F9D15463CE3370A66 /* altis_logo_placeholder_dark.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = altis_logo_placeholder_dark.png; path = Resources/altis_logo_placeholder_dark.png; sourceTree = "<group>"; };
+		2A79F24CB00F368A15B0AAB2 /* BoardListItemProjection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardListItemProjection.swift; path = App/Models/Projections/BoardListItemProjection.swift; sourceTree = "<group>"; };
+		2BFDA097BF42D7F1CC4C4628 /* BoardStage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStage.swift; path = App/Models/Domain/BoardStage.swift; sourceTree = "<group>"; };
+		319FC758B4668B922A0B8E86 /* BoardFeatureEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardFeatureEvent.swift; path = App/Features/Board/State/BoardFeatureEvent.swift; sourceTree = "<group>"; };
+		3478B6BB6D346E6C73E66B58 /* BoardFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardFeatureFlow.swift; path = App/Features/Board/State/BoardFeatureFlow.swift; sourceTree = "<group>"; };
+		364D78A7D135CE641D387963 /* HomeFeatureEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeFeatureEvent.swift; path = App/Features/Home/State/HomeFeatureEvent.swift; sourceTree = "<group>"; };
+		41A4ADCDA3713F9059879696 /* OfflineKanbanDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineKanbanDataWorker.swift; path = App/Features/KanbanBoard/State/OfflineKanbanDataWorker.swift; sourceTree = "<group>"; };
+		4D1246EF0E89A380C122142D /* PersistenceRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceRecord.swift; path = App/Models/Persistence/PersistenceRecord.swift; sourceTree = "<group>"; };
+		4E9BF2E00DBB900F9AF5CB7F /* ProjectDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectDataWorker.swift; path = App/Features/Project/State/ProjectDataWorker.swift; sourceTree = "<group>"; };
+		4F1E9BAE46A9889F21BE723F /* Altis macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Altis macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FE841CFD6BE8229303825A5 /* BoardStageRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStageRecord.swift; path = App/Models/Persistence/BoardStageRecord.swift; sourceTree = "<group>"; };
+		52EC565F702286C5139713CE /* ProjectPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectPageView.swift; path = App/Features/Project/Page/ProjectPageView.swift; sourceTree = "<group>"; };
+		534A2683763C8D5B10801761 /* BoardStageInvariants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStageInvariants.swift; path = App/Models/Domain/BoardStageInvariants.swift; sourceTree = "<group>"; };
+		5619EC507265B1FAB3E3EFD8 /* altis_logo_placeholder_dark.svg */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = altis_logo_placeholder_dark.svg; path = Resources/altis_logo_placeholder_dark.svg; sourceTree = "<group>"; };
+		567E21F0EAEB706F57315573 /* Workspace.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Workspace.swift; path = App/Models/Domain/Workspace.swift; sourceTree = "<group>"; };
+		569E1BBB3123EE7A9ECC37F6 /* OfflineProjectDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineProjectDataWorker.swift; path = App/Platform/Persistence/OfflineProjectDataWorker.swift; sourceTree = "<group>"; };
+		5F229A3C7A861FF8B8C22223 /* HomeFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeFeatureState.swift; path = App/Features/Home/State/HomeFeatureState.swift; sourceTree = "<group>"; };
+		62C7DC15699D363E11B155DD /* KanbanColumnProjection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KanbanColumnProjection.swift; path = App/Models/Projections/KanbanColumnProjection.swift; sourceTree = "<group>"; };
+		6645E3FADB3EE5F1A1653AA7 /* HomeFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HomeFeatureFlow.swift; path = App/Features/Home/State/HomeFeatureFlow.swift; sourceTree = "<group>"; };
+		77D778FC09A56663E256C1A1 /* LocalWritePathContract.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalWritePathContract.swift; path = App/Models/Persistence/LocalWritePathContract.swift; sourceTree = "<group>"; };
+		7C014D874458BB422169905B /* MACOS_MVP_TASK_BREAKDOWN.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = MACOS_MVP_TASK_BREAKDOWN.md; sourceTree = "<group>"; };
+		7CB3C518939325080B754953 /* Task.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Task.swift; path = App/Models/Domain/Task.swift; sourceTree = "<group>"; };
+		818F0052A3ACCF31B6F654F8 /* TaskDetailProjection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskDetailProjection.swift; path = App/Models/Projections/TaskDetailProjection.swift; sourceTree = "<group>"; };
+		84E5637F82BC556AD3A8AA7D /* OfflineBoardDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineBoardDataWorker.swift; path = App/Features/Board/State/OfflineBoardDataWorker.swift; sourceTree = "<group>"; };
+		9054C080AB8C11F167760EAC /* OfflineTaskPageDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineTaskPageDataWorker.swift; path = App/Features/TaskPage/State/OfflineTaskPageDataWorker.swift; sourceTree = "<group>"; };
+		94731D5EECE3DE25FC38581D /* AltisMacOSTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltisMacOSTests.swift; path = Tests/AltisMacOSTests.swift; sourceTree = "<group>"; };
+		954A6C072C647FF7A996E58C /* ProjectFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectFeatureFlow.swift; path = App/Features/Project/State/ProjectFeatureFlow.swift; sourceTree = "<group>"; };
+		9857638A9AF59779D4ABA1D5 /* PersistenceRecordTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceRecordTests.swift; path = Tests/PersistenceRecordTests.swift; sourceTree = "<group>"; };
+		995F1044F0772E828405B0BD /* Project.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Project.swift; path = App/Models/Domain/Project.swift; sourceTree = "<group>"; };
+		9A657BBF734218B3575D2E62 /* Altis macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Altis macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D4C700DAD9688B398E801A6 /* LocalStoreContract.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalStoreContract.swift; path = App/Models/Persistence/LocalStoreContract.swift; sourceTree = "<group>"; };
+		A02461D8A46A2E6338E30355 /* BoardRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardRecord.swift; path = App/Models/Persistence/BoardRecord.swift; sourceTree = "<group>"; };
+		A18A4330B462DE132450A2B2 /* KanbanBoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KanbanBoardFeatureState.swift; path = App/Features/KanbanBoard/State/KanbanBoardFeatureState.swift; sourceTree = "<group>"; };
+		A1AA06D21BEB7C7330DCFE3B /* Base.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Config/Base.xcconfig; sourceTree = "<group>"; };
+		A7BE34361E429D5706E26F43 /* AppShell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppShell.swift; path = App/Shell/AppShell.swift; sourceTree = "<group>"; };
+		AC4D962B5971815F85F8E2E4 /* altis_logo_placeholder_light.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; name = altis_logo_placeholder_light.png; path = Resources/altis_logo_placeholder_light.png; sourceTree = "<group>"; };
+		B0EF790610ADA2D2A3CFA8EF /* OfflineLocalBoardWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineLocalBoardWorker.swift; path = App/Platform/Persistence/OfflineLocalBoardWorker.swift; sourceTree = "<group>"; };
+		B6AC8F510301245C5BDEA468 /* BoardStagePresetRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStagePresetRecord.swift; path = App/Models/Persistence/BoardStagePresetRecord.swift; sourceTree = "<group>"; };
+		BA039F49EDDA56F6AED644C8 /* Release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Config/Release.xcconfig; sourceTree = "<group>"; };
+		BB59D4EDB7A33B124636B045 /* TaskPageFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskPageFeatureState.swift; path = App/Features/TaskPage/State/TaskPageFeatureState.swift; sourceTree = "<group>"; };
+		BBE950DF6F79E495F1C4EB64 /* TaskListItemProjection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskListItemProjection.swift; path = App/Models/Projections/TaskListItemProjection.swift; sourceTree = "<group>"; };
+		BE598B2289DDAEDC286A44FA /* TaskPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskPageView.swift; path = App/Features/TaskPage/Page/TaskPageView.swift; sourceTree = "<group>"; };
+		BEB4408D408AF9C42442E5D6 /* OnlineBoardUnavailableReason.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OnlineBoardUnavailableReason.swift; path = App/SharedUI/OnlineBoardUnavailableReason.swift; sourceTree = "<group>"; };
+		BEE8D13A677DA695C0CB4ACC /* TaskPageFeatureEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskPageFeatureEvent.swift; path = App/Features/TaskPage/State/TaskPageFeatureEvent.swift; sourceTree = "<group>"; };
+		BFBD523E450C458FFCAE8CC0 /* ProjectFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectFeatureState.swift; path = App/Features/Project/State/ProjectFeatureState.swift; sourceTree = "<group>"; };
+		C6907FA73A59C6252F240586 /* OfflineLocalStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineLocalStore.swift; path = App/Platform/Persistence/OfflineLocalStore.swift; sourceTree = "<group>"; };
+		DB30B579DB3992A0A2DBBED1 /* ProjectListItemProjection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectListItemProjection.swift; path = App/Models/Projections/ProjectListItemProjection.swift; sourceTree = "<group>"; };
+		DB6B2FCC88B1893F9A1276EA /* KanbanBoardPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KanbanBoardPageView.swift; path = App/Features/KanbanBoard/Page/KanbanBoardPageView.swift; sourceTree = "<group>"; };
+		E021B99FD87269D3F924E733 /* TaskListPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskListPageView.swift; path = App/Features/TaskList/Page/TaskListPageView.swift; sourceTree = "<group>"; };
+		E30AECB9BCA94C0F827315B9 /* AltisMacOSApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltisMacOSApp.swift; path = App/AltisMacOSApp.swift; sourceTree = "<group>"; };
+		E65E7D59778BA58C8AF565E7 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RootView.swift; path = App/RootView.swift; sourceTree = "<group>"; };
+		E69EC94218EDED7CFFD70FF8 /* TaskListFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskListFeatureFlow.swift; path = App/Features/TaskList/State/TaskListFeatureFlow.swift; sourceTree = "<group>"; };
+		E8972BABA3A5FE4605D48A25 /* TaskListFeatureEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskListFeatureEvent.swift; path = App/Features/TaskList/State/TaskListFeatureEvent.swift; sourceTree = "<group>"; };
+		E9B649A33DE66FC274A66071 /* AppEnvironment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppEnvironment.swift; path = App/Shell/AppEnvironment.swift; sourceTree = "<group>"; };
+		F299A52C490F9F3E6CAEF991 /* TaskRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskRecord.swift; path = App/Models/Persistence/TaskRecord.swift; sourceTree = "<group>"; };
+		F37AC22D1BA7712228697883 /* AppRoute.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppRoute.swift; path = App/Navigation/AppRoute.swift; sourceTree = "<group>"; };
+		F3C51F485EC70BE0D486821A /* KanbanBoardFeatureEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KanbanBoardFeatureEvent.swift; path = App/Features/KanbanBoard/State/KanbanBoardFeatureEvent.swift; sourceTree = "<group>"; };
+		F4D001CB2C882612D2DD38A5 /* BoardPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardPageView.swift; path = App/Features/Board/Page/BoardPageView.swift; sourceTree = "<group>"; };
+		F6E82C8330F632F7932F6AA0 /* ProjectFeatureEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectFeatureEvent.swift; path = App/Features/Project/State/ProjectFeatureEvent.swift; sourceTree = "<group>"; };
+		F93758F31893A83780D99137 /* OfflineTaskListDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineTaskListDataWorker.swift; path = App/Features/TaskList/State/OfflineTaskListDataWorker.swift; sourceTree = "<group>"; };
+		FC145DA0A7B351F7A3217519 /* Debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Config/Debug.xcconfig; sourceTree = "<group>"; };
+		FD7BEE19F8997253C218BD09 /* BoardMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardMode.swift; path = App/Models/Domain/BoardMode.swift; sourceTree = "<group>"; };
+		FE9BC600B91832BB75052267 /* BoardStagePreset.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStagePreset.swift; path = App/Models/Domain/BoardStagePreset.swift; sourceTree = "<group>"; };
+		FF5A6CBCA51ACFA0B6516DC6 /* TaskPageFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskPageFeatureFlow.swift; path = App/Features/TaskPage/State/TaskPageFeatureFlow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		14029AE8F7CF1209B3134039 /* Frameworks */ = {
+		67587BC7DD6803BE8CAAF3EA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
-				69E81EEDC9449B7F3CF93A86 /* Cocoa.framework in Frameworks */,
+				F5DCA8674F903F7AF6F01C3B /* Cocoa.framework in Frameworks */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		63B24347855C5CC448735E73 /* Frameworks */ = {
+		B7EBB7E85C1193CA21835057 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
-				15783A2F2356D5CA531C51B8 /* Cocoa.framework in Frameworks */,
+				5BBC37ED1D99C8D191D47556 /* Cocoa.framework in Frameworks */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0DCF5C00603B13576283D1BE /* State */ = {
+		0BCC5EC2056738BD7B512A20 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				C81BC3A8BFEA6B6369DADA13 /* TaskPageFeatureState.swift */,
-				AF163E8F2F719BBA003A7C2C /* TaskPageFeatureEvent.swift */,
-				AF163E912F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift */,
-				AF163E932F719BD3003A7C2C /* TaskPageFeatureFlow.swift */,
-			);
-			path = State;
-			sourceTree = "<group>";
-		};
-		10A65B9357836931365807A1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				8DEC202A1A09109E913FEEFA /* Altis.app */,
-				58EAF51483D6191D8DDCBB6C /* Altis macOS.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		2702A6B27C9EE0F193D697DF /* Shell */ = {
-			isa = PBXGroup;
-			children = (
-				87DB719A28AC7DEFB229F10B /* AppShell.swift */,
-				AF163EA32F72B1BB003A7C2C /* AppEnvironment.swift */,
-			);
-			path = Shell;
-			sourceTree = "<group>";
-		};
-		292DF1619795B3C977CF145E = {
-			isa = PBXGroup;
-			children = (
-				10A65B9357836931365807A1 /* Products */,
-				E9C5559B631AE04C522F3A8B /* Frameworks */,
-				0D6D99E89116EF7C32885B34 /* AltisMacOSApp.swift */,
-				009753DFF96FAF283F791733 /* RootView.swift */,
-				D48C12F12F71432100AA1001 /* Tests */,
-				7A33D821EA5CF66D220493E7 /* Docs */,
-				F7113E2887FC076C1A652F1E /* Base.xcconfig */,
-				5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */,
-				687AF830925F835E854E0BF3 /* Debug.xcconfig */,
-				60EEF566E5A61DF93DBB9589 /* App */,
-			);
-			sourceTree = "<group>";
-		};
-		2DEA34A1E95ACFEAA5255D58 /* KanbanBoard */ = {
-			isa = PBXGroup;
-			children = (
-				B4F14D0503B5FAD49BDEB1A8 /* Page */,
-				C1E5E90A6CA18966DB19D27A /* State */,
-			);
-			path = KanbanBoard;
-			sourceTree = "<group>";
-		};
-		38B34E8594BD87D0DC2EE3EA /* State */ = {
-			isa = PBXGroup;
-			children = (
-				CC903E4827950842973296FF /* BoardFeatureState.swift */,
-				AF163E7D2F719B14003A7C2C /* BoardFeatureEvent.swift */,
-				AF163E7F2F719B26003A7C2C /* OfflineBoardDataWorker.swift */,
-				AF163E812F719B32003A7C2C /* BoardFeatureFlow.swift */,
-			);
-			path = State;
-			sourceTree = "<group>";
-		};
-		3F2316EE5C22DFBF219D3D00 /* Navigation */ = {
-			isa = PBXGroup;
-			children = (
-				0E1D4510AAD26CF6DB0427BE /* AppRoute.swift */,
-			);
-			path = Navigation;
-			sourceTree = "<group>";
-		};
-		4291CFA7E64F61F454E4187C /* Page */ = {
-			isa = PBXGroup;
-			children = (
-				D70DD97BFDE43BC1DEB5EDB5 /* TaskListPageView.swift */,
-			);
-			path = Page;
-			sourceTree = "<group>";
-		};
-		5111F7E96DBBD54253389298 /* Board */ = {
-			isa = PBXGroup;
-			children = (
-				5CBEECB86B41AE3DE9485B10 /* Page */,
-				38B34E8594BD87D0DC2EE3EA /* State */,
-			);
-			path = Board;
-			sourceTree = "<group>";
-		};
-		5CBEECB86B41AE3DE9485B10 /* Page */ = {
-			isa = PBXGroup;
-			children = (
-				999AE2D9BA9FE56362D93067 /* BoardPageView.swift */,
-			);
-			path = Page;
-			sourceTree = "<group>";
-		};
-		60EEF566E5A61DF93DBB9589 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				2702A6B27C9EE0F193D697DF /* Shell */,
-				3F2316EE5C22DFBF219D3D00 /* Navigation */,
-				C6A56C70AC07C59B57EC9309 /* Features */,
-				AF1927F82F70525A004558EB /* Models */,
-				AF163E952F7295D2003A7C2C /* SharedUI */,
-				AF163E9D2F72B139003A7C2C /* Platform */,
-			);
-			path = App;
-			sourceTree = "<group>";
-		};
-		7A33D821EA5CF66D220493E7 /* Docs */ = {
-			isa = PBXGroup;
-			children = (
-				C44E51198C46F082AAE86750 /* MACOS_MVP_TASK_BREAKDOWN.md */,
-			);
-			name = Docs;
-			sourceTree = "<group>";
-		};
-		9075BBD5B043B5F18235D275 /* OS X */ = {
-			isa = PBXGroup;
-			children = (
-				6C10A915EC8B78700F94841D /* Cocoa.framework */,
-			);
-			name = "OS X";
-			sourceTree = "<group>";
-		};
-		90BD38041A6135239C2F3475 /* Page */ = {
-			isa = PBXGroup;
-			children = (
-				18F58EC954A3A4214F07A7EA /* TaskPageView.swift */,
-			);
-			path = Page;
-			sourceTree = "<group>";
-		};
-		AF163E952F7295D2003A7C2C /* SharedUI */ = {
-			isa = PBXGroup;
-			children = (
-				AF163E962F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift */,
-			);
-			path = SharedUI;
-			sourceTree = "<group>";
-		};
-		AF163E982F729C51003A7C2C /* Contracts */ = {
-			isa = PBXGroup;
-			children = (
-				AF163E9B2F72A452003A7C2C /* OnlineBoardGatewayContract.swift */,
-			);
-			path = Contracts;
-			sourceTree = "<group>";
-		};
-		AF163E9D2F72B139003A7C2C /* Platform */ = {
-			isa = PBXGroup;
-			children = (
-				AF163E9E2F72B13C003A7C2C /* Persistence */,
-			);
-			path = Platform;
-			sourceTree = "<group>";
-		};
-		AF163E9E2F72B13C003A7C2C /* Persistence */ = {
-			isa = PBXGroup;
-			children = (
-				AF163E9F2F72B162003A7C2C /* OfflineLocalStore.swift */,
-				AF163EA12F72B17A003A7C2C /* OfflineProjectDataWorker.swift */,
-				AF92BD7F2F72D82C008225D7 /* OfflineLocalBoardWorker.swift */,
-				AFD6648C2F755FF700A73FDF /* OfflineTaskWorker.swift */,
-			);
-			path = Persistence;
-			sourceTree = "<group>";
-		};
-		AF1927F82F70525A004558EB /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				AF1927F92F705261004558EB /* Domain */,
-				AF19280C2F7053FC004558EB /* Persistence */,
-				AF19280D2F7053FF004558EB /* Projections */,
-				AF163E982F729C51003A7C2C /* Contracts */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		AF1927F92F705261004558EB /* Domain */ = {
-			isa = PBXGroup;
-			children = (
-				AF1927FA2F705268004558EB /* EntityID.swift */,
-				AF1927FE2F705298004558EB /* Workspace.swift */,
-				AF1928002F705298004558EB /* Project.swift */,
-				AF1928022F705299004558EB /* Board.swift */,
-				AF1928042F7052BC004558EB /* BoardStage.swift */,
-				AF1928062F7052BD004558EB /* BoardStagePreset.swift */,
-				AF1928082F7052BE004558EB /* Task.swift */,
-				AF19280A2F7052D6004558EB /* BoardStageInvariants.swift */,
-				AF163E712F71965E003A7C2C /* BoardMode.swift */,
-			);
-			path = Domain;
-			sourceTree = "<group>";
-		};
-		AF19280C2F7053FC004558EB /* Persistence */ = {
-			isa = PBXGroup;
-			children = (
-				AF19280E2F70540E004558EB /* PersistenceRecord.swift */,
-				AF1928122F70542A004558EB /* ProjectRecord.swift */,
-				AF1928142F705437004558EB /* BoardRecord.swift */,
-				AF1928162F705445004558EB /* BoardStageRecord.swift */,
-				AF1928182F705456004558EB /* BoardStagePresetRecord.swift */,
-				AF19281A2F705467004558EB /* TaskRecord.swift */,
-				AF19281C2F70547D004558EB /* LocalWritePathContract.swift */,
-				AF19281E2F705487004558EB /* LocalStoreContract.swift */,
-			);
-			path = Persistence;
-			sourceTree = "<group>";
-		};
-		AF19280D2F7053FF004558EB /* Projections */ = {
-			isa = PBXGroup;
-			children = (
-				AF1928202F705496004558EB /* ProjectListItemProjection.swift */,
-				AF1928222F70549B004558EB /* BoardListItemProjection.swift */,
-				AF1928242F7054A3004558EB /* TaskListItemProjection.swift */,
-				AF1928262F7054AC004558EB /* TaskDetailProjection.swift */,
-				AF1928282F7054B3004558EB /* KanbanColumnProjection.swift */,
-			);
-			path = Projections;
-			sourceTree = "<group>";
-		};
-		B3C7A5FDACBB83AACE8247CB /* State */ = {
-			isa = PBXGroup;
-			children = (
-				D967340833E3367BDDE707C8 /* HomeFeatureState.swift */,
-				AF163E732F719AC7003A7C2C /* HomeFeatureEvent.swift */,
-				AF163E752F719AD4003A7C2C /* HomeFeatureFlow.swift */,
-			);
-			path = State;
-			sourceTree = "<group>";
-		};
-		B4F14D0503B5FAD49BDEB1A8 /* Page */ = {
-			isa = PBXGroup;
-			children = (
-				3CC8F6E7BA4F2F67123CAC00 /* KanbanBoardPageView.swift */,
-			);
-			path = Page;
-			sourceTree = "<group>";
-		};
-		C1E5E90A6CA18966DB19D27A /* State */ = {
-			isa = PBXGroup;
-			children = (
-				4416B54CDDBB352113A1EC07 /* KanbanBoardFeatureState.swift */,
-				AF163E892F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift */,
-				AF163E8B2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift */,
-				AF163E8D2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift */,
-			);
-			path = State;
-			sourceTree = "<group>";
-		};
-		C6A56C70AC07C59B57EC9309 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				CE62FEB319733684A9678229 /* Home */,
-				CDA52DCB94BE60E5487EDDA8 /* Project */,
-				5111F7E96DBBD54253389298 /* Board */,
-				F9C5C835A1A3CE2495E0F83A /* TaskList */,
-				2DEA34A1E95ACFEAA5255D58 /* KanbanBoard */,
-				D3B116788661D41CB0449559 /* TaskPage */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		CA66EFCC091B46C7BF2DC6A0 /* State */ = {
-			isa = PBXGroup;
-			children = (
-				9CC987C75810068A2AF00082 /* ProjectFeatureState.swift */,
-				AF163E772F719AE3003A7C2C /* ProjectFeatureEvent.swift */,
-				AF163E792F719AF3003A7C2C /* ProjectDataWorker.swift */,
-				AF163E7B2F719AFE003A7C2C /* ProjectFeatureFlow.swift */,
-			);
-			path = State;
-			sourceTree = "<group>";
-		};
-		CDA52DCB94BE60E5487EDDA8 /* Project */ = {
-			isa = PBXGroup;
-			children = (
-				FE71A686BD7F87F960DB9F32 /* Page */,
-				CA66EFCC091B46C7BF2DC6A0 /* State */,
-			);
-			path = Project;
-			sourceTree = "<group>";
-		};
-		CE62FEB319733684A9678229 /* Home */ = {
-			isa = PBXGroup;
-			children = (
-				F2FF236C41850874B7CC3337 /* Page */,
-				B3C7A5FDACBB83AACE8247CB /* State */,
-			);
-			path = Home;
-			sourceTree = "<group>";
-		};
-		D3B116788661D41CB0449559 /* TaskPage */ = {
-			isa = PBXGroup;
-			children = (
-				90BD38041A6135239C2F3475 /* Page */,
-				0DCF5C00603B13576283D1BE /* State */,
-			);
-			path = TaskPage;
-			sourceTree = "<group>";
-		};
-		D48C12F12F71432100AA1001 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				6772B1810F8EFE6014D9CAD9 /* AltisMacOSTests.swift */,
-				AF19282C2F70579D004558EB /* PersistenceRecordTests.swift */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
-		E8358A943D83D16F1FB720F9 /* State */ = {
-			isa = PBXGroup;
-			children = (
-				9F6786FD441C6F5530A6D341 /* TaskListFeatureState.swift */,
-				AF163E832F719B46003A7C2C /* TaskListFeatureEvent.swift */,
-				AF163E852F719B58003A7C2C /* OfflineTaskListDataWorker.swift */,
-				AF163E872F719B63003A7C2C /* TaskListFeatureFlow.swift */,
-			);
-			path = State;
-			sourceTree = "<group>";
-		};
-		E9C5559B631AE04C522F3A8B /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				9075BBD5B043B5F18235D275 /* OS X */,
+				53292950A859063CD86FA793 /* OS X */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		F2FF236C41850874B7CC3337 /* Page */ = {
+		33CBE0A3982F24E0A7361975 /* Docs */ = {
 			isa = PBXGroup;
 			children = (
-				2D2CD785CA6B557085DD3209 /* HomePageView.swift */,
+				7C014D874458BB422169905B /* MACOS_MVP_TASK_BREAKDOWN.md */,
 			);
-			path = Page;
+			name = Docs;
 			sourceTree = "<group>";
 		};
-		F9C5C835A1A3CE2495E0F83A /* TaskList */ = {
+		3B6AA207F5A36A42AB456E8D = {
 			isa = PBXGroup;
 			children = (
-				4291CFA7E64F61F454E4187C /* Page */,
-				E8358A943D83D16F1FB720F9 /* State */,
+				4D88457CCEFBAFB4007959B1 /* Products */,
+				0BCC5EC2056738BD7B512A20 /* Frameworks */,
+				E30AECB9BCA94C0F827315B9 /* AltisMacOSApp.swift */,
+				F4D001CB2C882612D2DD38A5 /* BoardPageView.swift */,
+				319FC758B4668B922A0B8E86 /* BoardFeatureEvent.swift */,
+				3478B6BB6D346E6C73E66B58 /* BoardFeatureFlow.swift */,
+				1E0F2E8C6D6759F588F70A10 /* BoardFeatureState.swift */,
+				84E5637F82BC556AD3A8AA7D /* OfflineBoardDataWorker.swift */,
+				05FD887773F2321E826B4CFD /* HomePageView.swift */,
+				364D78A7D135CE641D387963 /* HomeFeatureEvent.swift */,
+				6645E3FADB3EE5F1A1653AA7 /* HomeFeatureFlow.swift */,
+				5F229A3C7A861FF8B8C22223 /* HomeFeatureState.swift */,
+				DB6B2FCC88B1893F9A1276EA /* KanbanBoardPageView.swift */,
+				F3C51F485EC70BE0D486821A /* KanbanBoardFeatureEvent.swift */,
+				1FA93A4A6272D78179EA2960 /* KanbanBoardFeatureFlow.swift */,
+				A18A4330B462DE132450A2B2 /* KanbanBoardFeatureState.swift */,
+				41A4ADCDA3713F9059879696 /* OfflineKanbanDataWorker.swift */,
+				52EC565F702286C5139713CE /* ProjectPageView.swift */,
+				4E9BF2E00DBB900F9AF5CB7F /* ProjectDataWorker.swift */,
+				F6E82C8330F632F7932F6AA0 /* ProjectFeatureEvent.swift */,
+				954A6C072C647FF7A996E58C /* ProjectFeatureFlow.swift */,
+				BFBD523E450C458FFCAE8CC0 /* ProjectFeatureState.swift */,
+				E021B99FD87269D3F924E733 /* TaskListPageView.swift */,
+				F93758F31893A83780D99137 /* OfflineTaskListDataWorker.swift */,
+				E8972BABA3A5FE4605D48A25 /* TaskListFeatureEvent.swift */,
+				E69EC94218EDED7CFFD70FF8 /* TaskListFeatureFlow.swift */,
+				092FE00999DD63EFEA019DEA /* TaskListFeatureState.swift */,
+				BE598B2289DDAEDC286A44FA /* TaskPageView.swift */,
+				9054C080AB8C11F167760EAC /* OfflineTaskPageDataWorker.swift */,
+				BEE8D13A677DA695C0CB4ACC /* TaskPageFeatureEvent.swift */,
+				FF5A6CBCA51ACFA0B6516DC6 /* TaskPageFeatureFlow.swift */,
+				BB59D4EDB7A33B124636B045 /* TaskPageFeatureState.swift */,
+				18262CB12B99D4E9166B4BCC /* OnlineBoardGatewayContract.swift */,
+				0C221B06D3C664D319BE6323 /* Board.swift */,
+				FD7BEE19F8997253C218BD09 /* BoardMode.swift */,
+				2BFDA097BF42D7F1CC4C4628 /* BoardStage.swift */,
+				534A2683763C8D5B10801761 /* BoardStageInvariants.swift */,
+				FE9BC600B91832BB75052267 /* BoardStagePreset.swift */,
+				1A252EFE86DE71106F035018 /* EntityID.swift */,
+				995F1044F0772E828405B0BD /* Project.swift */,
+				7CB3C518939325080B754953 /* Task.swift */,
+				567E21F0EAEB706F57315573 /* Workspace.swift */,
+				A02461D8A46A2E6338E30355 /* BoardRecord.swift */,
+				B6AC8F510301245C5BDEA468 /* BoardStagePresetRecord.swift */,
+				4FE841CFD6BE8229303825A5 /* BoardStageRecord.swift */,
+				9D4C700DAD9688B398E801A6 /* LocalStoreContract.swift */,
+				77D778FC09A56663E256C1A1 /* LocalWritePathContract.swift */,
+				4D1246EF0E89A380C122142D /* PersistenceRecord.swift */,
+				0AF67DE6544DD5E20FBEB0E7 /* ProjectRecord.swift */,
+				F299A52C490F9F3E6CAEF991 /* TaskRecord.swift */,
+				2A79F24CB00F368A15B0AAB2 /* BoardListItemProjection.swift */,
+				62C7DC15699D363E11B155DD /* KanbanColumnProjection.swift */,
+				DB30B579DB3992A0A2DBBED1 /* ProjectListItemProjection.swift */,
+				818F0052A3ACCF31B6F654F8 /* TaskDetailProjection.swift */,
+				BBE950DF6F79E495F1C4EB64 /* TaskListItemProjection.swift */,
+				F37AC22D1BA7712228697883 /* AppRoute.swift */,
+				B0EF790610ADA2D2A3CFA8EF /* OfflineLocalBoardWorker.swift */,
+				C6907FA73A59C6252F240586 /* OfflineLocalStore.swift */,
+				569E1BBB3123EE7A9ECC37F6 /* OfflineProjectDataWorker.swift */,
+				17B577F79A507180F09A1982 /* OfflineTaskWorker.swift */,
+				E65E7D59778BA58C8AF565E7 /* RootView.swift */,
+				BEB4408D408AF9C42442E5D6 /* OnlineBoardUnavailableReason.swift */,
+				E9B649A33DE66FC274A66071 /* AppEnvironment.swift */,
+				A7BE34361E429D5706E26F43 /* AppShell.swift */,
+				94731D5EECE3DE25FC38581D /* AltisMacOSTests.swift */,
+				9857638A9AF59779D4ABA1D5 /* PersistenceRecordTests.swift */,
+				0693B88A9A7DE751F6D70082 /* Assets.xcassets */,
+				237C090F9D15463CE3370A66 /* altis_logo_placeholder_dark.png */,
+				5619EC507265B1FAB3E3EFD8 /* altis_logo_placeholder_dark.svg */,
+				AC4D962B5971815F85F8E2E4 /* altis_logo_placeholder_light.png */,
+				1007C24494F0E0F6BB74FCEE /* altis_logo_placeholder_light.svg */,
+				33CBE0A3982F24E0A7361975 /* Docs */,
+				A1AA06D21BEB7C7330DCFE3B /* Base.xcconfig */,
+				BA039F49EDDA56F6AED644C8 /* Release.xcconfig */,
+				FC145DA0A7B351F7A3217519 /* Debug.xcconfig */,
 			);
-			path = TaskList;
 			sourceTree = "<group>";
 		};
-		FE71A686BD7F87F960DB9F32 /* Page */ = {
+		4D88457CCEFBAFB4007959B1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9B0BA2E52DAC3DEA4F88B452 /* ProjectPageView.swift */,
+				9A657BBF734218B3575D2E62 /* Altis macOS.app */,
+				4F1E9BAE46A9889F21BE723F /* Altis macOS.xctest */,
 			);
-			path = Page;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		53292950A859063CD86FA793 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				1450D008E2F66BC3D72999C6 /* Cocoa.framework */,
+			);
+			name = "OS X";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0C0215CC09CA41349434A3D2 /* AltisMacOSTests */ = {
+		73BABD5A1A93C454268E9971 /* AltisMacOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 56327154CB24C0F48AD8DE07 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */;
+			buildConfigurationList = 227B0E6303DFF114270E772B /* Build configuration list for PBXNativeTarget "AltisMacOS" */;
 			buildPhases = (
-				46C948AB35F273AB8F9E9C65 /* Sources */,
-				14029AE8F7CF1209B3134039 /* Frameworks */,
-				2F7407FDB76ABE10001E3D9B /* Resources */,
+				BE38720CED0D30BDB5BF0407 /* Sources */,
+				B7EBB7E85C1193CA21835057 /* Frameworks */,
+				0E73A4145158692E3D72900F /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				ADF69280B6E0E6512B75BF51 /* PBXTargetDependency */,
-			);
-			name = AltisMacOSTests;
-			productName = AltisMacOSTests;
-			productReference = 58EAF51483D6191D8DDCBB6C /* Altis macOS.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		46EC88EAD15DB7984CE39851 /* AltisMacOS */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6787B2EE53CBC99ACCA01C7B /* Build configuration list for PBXNativeTarget "AltisMacOS" */;
-			buildPhases = (
-				35C29C2E51279E5DABE79E5A /* Sources */,
-				63B24347855C5CC448735E73 /* Frameworks */,
-				5B48E75E746FF2FE22F33667 /* Resources */,
-			);
-			buildRules = (
 			);
 			name = AltisMacOS;
 			productName = AltisMacOS;
-			productReference = 8DEC202A1A09109E913FEEFA /* Altis.app */;
+			productReference = 9A657BBF734218B3575D2E62 /* Altis macOS.app */;
 			productType = "com.apple.product-type.application";
+		};
+		EF179366C15B1FB8E40E24CC /* AltisMacOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79F8ACE6CCEFA3886C364A15 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */;
+			buildPhases = (
+				7DFF1E660F3250E9AB8AA278 /* Sources */,
+				67587BC7DD6803BE8CAAF3EA /* Frameworks */,
+				113E148CC83EC317A7A7E4E0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6F2D1EF794E72AD8E38A14F3 /* PBXTargetDependency */,
+			);
+			name = AltisMacOSTests;
+			productName = AltisMacOSTests;
+			productReference = 4F1E9BAE46A9889F21BE723F /* Altis macOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		8F357C5BAC7E08671616333A /* Project object */ = {
+		6D3C4AC431EB2F7CEA889FBB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
-					0C0215CC09CA41349434A3D2 = {
+					73BABD5A1A93C454268E9971 = {
+						DevelopmentTeam = M5D44V6354;
+						ProvisioningStyle = Automatic;
+					};
+					EF179366C15B1FB8E40E24CC = {
 						DevelopmentTeam = M5D44V6354;
 					};
 				};
 			};
-			buildConfigurationList = D79F99C19A8BECB350E0B878 /* Build configuration list for PBXProject "AltisMacOS" */;
+			buildConfigurationList = 5C9A2127D78973AE8E01B437 /* Build configuration list for PBXProject "AltisMacOS" */;
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 292DF1619795B3C977CF145E;
-			preferredProjectObjectVersion = 90;
-			productRefGroup = 10A65B9357836931365807A1 /* Products */;
+			mainGroup = 3B6AA207F5A36A42AB456E8D;
+			productRefGroup = 4D88457CCEFBAFB4007959B1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				46EC88EAD15DB7984CE39851 /* AltisMacOS */,
-				0C0215CC09CA41349434A3D2 /* AltisMacOSTests */,
+				73BABD5A1A93C454268E9971 /* AltisMacOS */,
+				EF179366C15B1FB8E40E24CC /* AltisMacOSTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2F7407FDB76ABE10001E3D9B /* Resources */ = {
+		0E73A4145158692E3D72900F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
+				AA0A31A7C11DB4474AA0439E /* Assets.xcassets in Resources */,
+				C60188B2F1AF15DDB2B12FC9 /* altis_logo_placeholder_dark.png in Resources */,
+				4871BBD4A115BA3C4E3F3E4F /* altis_logo_placeholder_dark.svg in Resources */,
+				A66676B71CA09A340746053C /* altis_logo_placeholder_light.png in Resources */,
+				40EFF104F19C47BE77223EB5 /* altis_logo_placeholder_light.svg in Resources */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5B48E75E746FF2FE22F33667 /* Resources */ = {
+		113E148CC83EC317A7A7E4E0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		35C29C2E51279E5DABE79E5A /* Sources */ = {
+		7DFF1E660F3250E9AB8AA278 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
-				AF1928232F70549B004558EB /* BoardListItemProjection.swift in Sources */,
-				AF163E9C2F72A452003A7C2C /* OnlineBoardGatewayContract.swift in Sources */,
-				273C6DC68224E6FE37AEF386 /* AltisMacOSApp.swift in Sources */,
-				AF163E802F719B26003A7C2C /* OfflineBoardDataWorker.swift in Sources */,
-				AF1928052F7052BC004558EB /* BoardStage.swift in Sources */,
-				AF163EA42F72B1BB003A7C2C /* AppEnvironment.swift in Sources */,
-				AF1928192F705456004558EB /* BoardStagePresetRecord.swift in Sources */,
-				AF163E902F719BBA003A7C2C /* TaskPageFeatureEvent.swift in Sources */,
-				AF1928252F7054A3004558EB /* TaskListItemProjection.swift in Sources */,
-				AF163E8E2F719B9F003A7C2C /* KanbanBoardFeatureFlow.swift in Sources */,
-				AF163E762F719AD4003A7C2C /* HomeFeatureFlow.swift in Sources */,
-				AF1928212F705496004558EB /* ProjectListItemProjection.swift in Sources */,
-				24789AD5E62B6A642952821F /* RootView.swift in Sources */,
-				454070CCA28356311D94995A /* AppShell.swift in Sources */,
-				AF1928012F705298004558EB /* Project.swift in Sources */,
-				AF163E822F719B32003A7C2C /* BoardFeatureFlow.swift in Sources */,
-				0F4DB9BECBA12A6A3223681F /* AppRoute.swift in Sources */,
-				AF163E8C2F719B8E003A7C2C /* OfflineKanbanDataWorker.swift in Sources */,
-				C6509B74CFEA81063E331636 /* HomePageView.swift in Sources */,
-				AF1928072F7052BD004558EB /* BoardStagePreset.swift in Sources */,
-				FF5FF22D2272B579F0F1853E /* HomeFeatureState.swift in Sources */,
-				AF19280F2F70540E004558EB /* PersistenceRecord.swift in Sources */,
-				AF1928172F705445004558EB /* BoardStageRecord.swift in Sources */,
-				AF163E942F719BD3003A7C2C /* TaskPageFeatureFlow.swift in Sources */,
-				AF92BD802F72D82C008225D7 /* OfflineLocalBoardWorker.swift in Sources */,
-				2E9C63CDAB47FEE2003AA095 /* ProjectPageView.swift in Sources */,
-				AF163E882F719B63003A7C2C /* TaskListFeatureFlow.swift in Sources */,
-				B60D55D07D4FF89C58C613F7 /* ProjectFeatureState.swift in Sources */,
-				AF19281D2F70547D004558EB /* LocalWritePathContract.swift in Sources */,
-				AF163E922F719BC9003A7C2C /* OfflineTaskPageDataWorker.swift in Sources */,
-				AF1927FF2F705298004558EB /* Workspace.swift in Sources */,
-				AF1928292F7054B3004558EB /* KanbanColumnProjection.swift in Sources */,
-				AF1928032F705299004558EB /* Board.swift in Sources */,
-				AF163E972F7295D7003A7C2C /* OnlineBoardUnavailableReason.swift in Sources */,
-				AF163E742F719AC7003A7C2C /* HomeFeatureEvent.swift in Sources */,
-				6E88F0153003105FB189507C /* BoardPageView.swift in Sources */,
-				AF1928152F705437004558EB /* BoardRecord.swift in Sources */,
-				AF163EA02F72B162003A7C2C /* OfflineLocalStore.swift in Sources */,
-				AF163EA22F72B17A003A7C2C /* OfflineProjectDataWorker.swift in Sources */,
-				1727A55FE22884D72B57E6C0 /* BoardFeatureState.swift in Sources */,
-				AF1928092F7052BE004558EB /* Task.swift in Sources */,
-				AF19280B2F7052D6004558EB /* BoardStageInvariants.swift in Sources */,
-				AFD6648D2F755FF700A73FDF /* OfflineTaskWorker.swift in Sources */,
-				56AE6E8CE1C6B8FDA1AFBFAB /* TaskListPageView.swift in Sources */,
-				AF1927FB2F705268004558EB /* EntityID.swift in Sources */,
-				AF163E862F719B58003A7C2C /* OfflineTaskListDataWorker.swift in Sources */,
-				44F316FEC52F9E1B55829ECB /* TaskListFeatureState.swift in Sources */,
-				AF163E7C2F719AFE003A7C2C /* ProjectFeatureFlow.swift in Sources */,
-				AF163E7A2F719AF3003A7C2C /* ProjectDataWorker.swift in Sources */,
-				AF163E842F719B46003A7C2C /* TaskListFeatureEvent.swift in Sources */,
-				29CF5D9B71166AF2A34087EF /* KanbanBoardPageView.swift in Sources */,
-				AF1928132F70542A004558EB /* ProjectRecord.swift in Sources */,
-				AF1928272F7054AC004558EB /* TaskDetailProjection.swift in Sources */,
-				E157B8C0C0CEDC007C80FF6D /* KanbanBoardFeatureState.swift in Sources */,
-				AF19281B2F705467004558EB /* TaskRecord.swift in Sources */,
-				EB01AB5442118A6732B6E7D5 /* TaskPageView.swift in Sources */,
-				520EF04D77DF2917496CC53A /* TaskPageFeatureState.swift in Sources */,
-				AF163E7E2F719B14003A7C2C /* BoardFeatureEvent.swift in Sources */,
-				AF163E782F719AE3003A7C2C /* ProjectFeatureEvent.swift in Sources */,
-				AF19281F2F705487004558EB /* LocalStoreContract.swift in Sources */,
-				AF163E722F71965E003A7C2C /* BoardMode.swift in Sources */,
-				AF163E8A2F719B7A003A7C2C /* KanbanBoardFeatureEvent.swift in Sources */,
+				88CC0C4C150FAC12B461EA97 /* AltisMacOSTests.swift in Sources */,
+				E5EBD4561156799BD60F1300 /* PersistenceRecordTests.swift in Sources */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
-		46C948AB35F273AB8F9E9C65 /* Sources */ = {
+		BE38720CED0D30BDB5BF0407 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
-				AF19282E2F705A0C004558EB /* PersistenceRecordTests.swift in Sources */,
-				57811DEFB6D5AD26A864350D /* AltisMacOSTests.swift in Sources */,
+				389E5A3C71D3EEF7C8571DAA /* AltisMacOSApp.swift in Sources */,
+				550485A20873F691523A5738 /* BoardPageView.swift in Sources */,
+				34FB82E37C2173F2F39F50F1 /* BoardFeatureEvent.swift in Sources */,
+				E2856C826ECC80292A110F8A /* BoardFeatureFlow.swift in Sources */,
+				CFE403034B8648486C96FC5D /* BoardFeatureState.swift in Sources */,
+				2E1915BEE28F6FAC1539BBEC /* OfflineBoardDataWorker.swift in Sources */,
+				880051EE87843BB546BABA95 /* HomePageView.swift in Sources */,
+				1404C3507FCA6A8AE777D4A5 /* HomeFeatureEvent.swift in Sources */,
+				59A84E56D9E9F7C8D92BD841 /* HomeFeatureFlow.swift in Sources */,
+				9A326B7CC786D65849BD3E95 /* HomeFeatureState.swift in Sources */,
+				EAE87359725467B062CB6261 /* KanbanBoardPageView.swift in Sources */,
+				DE4D1BEB6497FFC7D5B79E1A /* KanbanBoardFeatureEvent.swift in Sources */,
+				3461A741EAF8AB564EAA5EF8 /* KanbanBoardFeatureFlow.swift in Sources */,
+				8C1D7A4076A3799C1E99BF4A /* KanbanBoardFeatureState.swift in Sources */,
+				02976A6C4A5637A246355F51 /* OfflineKanbanDataWorker.swift in Sources */,
+				84FADEB88642E34C1B52499B /* ProjectPageView.swift in Sources */,
+				B9FA066E3084ED909C49188A /* ProjectDataWorker.swift in Sources */,
+				60A862C6B7790AB480067033 /* ProjectFeatureEvent.swift in Sources */,
+				B7FBB4ED8F30D764143DD014 /* ProjectFeatureFlow.swift in Sources */,
+				3E9338B4F7DD81C0B78E0F94 /* ProjectFeatureState.swift in Sources */,
+				89637652094D90F2DE84697B /* TaskListPageView.swift in Sources */,
+				AE5673B18E8630F3FE3B49C3 /* OfflineTaskListDataWorker.swift in Sources */,
+				E45AFB4E5D5D46ED20F059FA /* TaskListFeatureEvent.swift in Sources */,
+				AF4431500EC95B35F8D4698E /* TaskListFeatureFlow.swift in Sources */,
+				CD298963AD436BAEC354ABFF /* TaskListFeatureState.swift in Sources */,
+				A9EB2B1A6E2CB9F3E2B3D79B /* TaskPageView.swift in Sources */,
+				ABD04BDD39C02E1BDFD28B00 /* OfflineTaskPageDataWorker.swift in Sources */,
+				95E3716EB64095A05ED3415E /* TaskPageFeatureEvent.swift in Sources */,
+				3E4E2F6E650FFA423A773D1E /* TaskPageFeatureFlow.swift in Sources */,
+				1FAC3A8FEA96CEBCFAC29EED /* TaskPageFeatureState.swift in Sources */,
+				2FD33EE2C1919A9B604D7AD3 /* OnlineBoardGatewayContract.swift in Sources */,
+				CE793E7EB98D467B19B638A7 /* Board.swift in Sources */,
+				BB0BE28687F7FDA2A76A73EC /* BoardMode.swift in Sources */,
+				2B402916426394CE2E4474BF /* BoardStage.swift in Sources */,
+				FF189B4B5116CD7EAF8AAD3E /* BoardStageInvariants.swift in Sources */,
+				84F568D8B0EDF1F3DAB6DF3B /* BoardStagePreset.swift in Sources */,
+				322793FE25BC71DB5F03176F /* EntityID.swift in Sources */,
+				9AD61D4F8B65DE15802CBEB8 /* Project.swift in Sources */,
+				34A0727EAC7DBF3247730D61 /* Task.swift in Sources */,
+				91CA781184087F000A2E646E /* Workspace.swift in Sources */,
+				FF9D601697795397E82D50BE /* BoardRecord.swift in Sources */,
+				EA2A4D6282FD18BE5AD3FDD2 /* BoardStagePresetRecord.swift in Sources */,
+				22E60EDD3CDC3B3E7865F4A9 /* BoardStageRecord.swift in Sources */,
+				461A97153FCA2F15107B0503 /* LocalStoreContract.swift in Sources */,
+				6CBEAEE45A480267B42D59FF /* LocalWritePathContract.swift in Sources */,
+				FBC5CD07BFE37B46E15EF0B7 /* PersistenceRecord.swift in Sources */,
+				0D7337AD8309688198AA6826 /* ProjectRecord.swift in Sources */,
+				9164F05A99C26729DDFC9951 /* TaskRecord.swift in Sources */,
+				668EBEC2A9B2144CB465DD52 /* BoardListItemProjection.swift in Sources */,
+				E70ACEF9A816BD3E51220C14 /* KanbanColumnProjection.swift in Sources */,
+				2EAB014E5526CE65335B32AA /* ProjectListItemProjection.swift in Sources */,
+				9858B7459B396F663470DC6D /* TaskDetailProjection.swift in Sources */,
+				E6EB057E22FDF88FB4E97DDD /* TaskListItemProjection.swift in Sources */,
+				19A6F08442E46BDB108D81A6 /* AppRoute.swift in Sources */,
+				807A90B9B6265F5251DB2670 /* OfflineLocalBoardWorker.swift in Sources */,
+				F43C161D716BFF960E64BA9D /* OfflineLocalStore.swift in Sources */,
+				58F784884A09C09E7B3AA653 /* OfflineProjectDataWorker.swift in Sources */,
+				1D63F11911C6488E41B0682A /* OfflineTaskWorker.swift in Sources */,
+				E9A35CC98F5E43ED5DD5D62A /* RootView.swift in Sources */,
+				FB9C9AFDF2AC1DAB4A09FC77 /* OnlineBoardUnavailableReason.swift in Sources */,
+				BC0D28743B4661B72C07889E /* AppEnvironment.swift in Sources */,
+				EC4498272484D277F597AF8F /* AppShell.swift in Sources */,
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		ADF69280B6E0E6512B75BF51 /* PBXTargetDependency */ = {
+		6F2D1EF794E72AD8E38A14F3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = AltisMacOS;
-			target = 46EC88EAD15DB7984CE39851 /* AltisMacOS */;
-			targetProxy = 0284CAC84FC36A46CFDA4FB4 /* PBXContainerItemProxy */;
+			target = 73BABD5A1A93C454268E9971 /* AltisMacOS */;
+			targetProxy = 400EE760881F986F4E5B979E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2A9295BE92A64608A7965212 /* Release configuration for PBXProject "AltisMacOS" */ = {
+		03C574475998A19C9B52147B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F7113E2887FC076C1A652F1E /* Base.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		2C7B9B2130C5023FDE824CF8 /* Release configuration for PBXNativeTarget "AltisMacOS" */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */;
+			baseConfigurationReference = BA039F49EDDA56F6AED644C8 /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				COMBINE_HIDPI_IMAGES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = M5D44V6354;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = Altis;
+				PRODUCT_BUNDLE_IDENTIFIER = com.altis.instat;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = macosDev;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AltisMacOS.app/Contents/MacOS/AltisMacOS";
 			};
 			name = Release;
 		};
-		31631A17552088CA31B79228 /* Release configuration for PBXNativeTarget "AltisMacOSTests" */ = {
+		24FE4FBCBF56FE8D4A9B2AA4 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5DDFD8F45F6A56BF07943D4D /* Release.xcconfig */;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = M5D44V6354;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
-				SDKROOT = macosx;
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Altis.app/Contents/MacOS/Altis";
-			};
-			name = Release;
-		};
-		37B02330ECD0E5AED4B57D30 /* Debug configuration for PBXNativeTarget "AltisMacOSTests" */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 687AF830925F835E854E0BF3 /* Debug.xcconfig */;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = M5D44V6354;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
-				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
-				SDKROOT = macosx;
-				SWIFT_VERSION = 6.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Altis.app/Contents/MacOS/Altis";
-			};
-			name = Debug;
-		};
-		450A5BA9946066026D38350D /* Debug configuration for PBXNativeTarget "AltisMacOS" */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 687AF830925F835E854E0BF3 /* Debug.xcconfig */;
+			baseConfigurationReference = FC145DA0A7B351F7A3217519 /* Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				COMBINE_HIDPI_IMAGES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = M5D44V6354;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = Altis;
+				PRODUCT_BUNDLE_IDENTIFIER = com.altis.instat;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = macosDev;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AltisMacOS.app/Contents/MacOS/AltisMacOS";
 			};
 			name = Debug;
 		};
-		C58E8EFF7640B054F7E9A746 /* Debug configuration for PBXProject "AltisMacOS" */ = {
+		BCDAFF158AAE4153E36EDEC9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F7113E2887FC076C1A652F1E /* Base.xcconfig */;
+			baseConfigurationReference = A1AA06D21BEB7C7330DCFE3B /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -892,34 +593,133 @@
 			};
 			name = Debug;
 		};
+		C2D1360CD0624ED915830EA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FC145DA0A7B351F7A3217519 /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = M5D44V6354;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.altis.instat;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		C52BD1BC7EEC72D221AFB3B8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1AA06D21BEB7C7330DCFE3B /* Base.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CC932AEA1ECF1CB5049D729E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BA039F49EDDA56F6AED644C8 /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = M5D44V6354;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.altis.instat;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		56327154CB24C0F48AD8DE07 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */ = {
+		227B0E6303DFF114270E772B /* Build configuration list for PBXNativeTarget "AltisMacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				31631A17552088CA31B79228 /* Release configuration for PBXNativeTarget "AltisMacOSTests" */,
-				37B02330ECD0E5AED4B57D30 /* Debug configuration for PBXNativeTarget "AltisMacOSTests" */,
+				CC932AEA1ECF1CB5049D729E /* Release */,
+				C2D1360CD0624ED915830EA1 /* Debug */,
 			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6787B2EE53CBC99ACCA01C7B /* Build configuration list for PBXNativeTarget "AltisMacOS" */ = {
+		5C9A2127D78973AE8E01B437 /* Build configuration list for PBXProject "AltisMacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2C7B9B2130C5023FDE824CF8 /* Release configuration for PBXNativeTarget "AltisMacOS" */,
-				450A5BA9946066026D38350D /* Debug configuration for PBXNativeTarget "AltisMacOS" */,
+				BCDAFF158AAE4153E36EDEC9 /* Debug */,
+				C52BD1BC7EEC72D221AFB3B8 /* Release */,
 			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D79F99C19A8BECB350E0B878 /* Build configuration list for PBXProject "AltisMacOS" */ = {
+		79F8ACE6CCEFA3886C364A15 /* Build configuration list for PBXNativeTarget "AltisMacOSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C58E8EFF7640B054F7E9A746 /* Debug configuration for PBXProject "AltisMacOS" */,
-				2A9295BE92A64608A7965212 /* Release configuration for PBXProject "AltisMacOS" */,
+				03C574475998A19C9B52147B /* Release */,
+				24FE4FBCBF56FE8D4A9B2AA4 /* Debug */,
 			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 8F357C5BAC7E08671616333A /* Project object */;
+	rootObject = 6D3C4AC431EB2F7CEA889FBB /* Project object */;
 }

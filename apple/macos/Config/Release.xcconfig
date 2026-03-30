@@ -2,3 +2,8 @@
 
 // macOS release settings bootstrap.
 SWIFT_COMPILATION_MODE = wholemodule
+
+// Distribution signing — overridden by CI via xcodebuild flags.
+// Set DEVELOPMENT_TEAM to your 10-character Apple Team ID.
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Distribution

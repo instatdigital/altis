@@ -11,9 +11,12 @@ protocol OnlineBoardAuthGateContract: Sendable {
 /// the feature flow surfaces an unavailable state — they do NOT fall back to
 /// local writes or silently swallow the failure.
 ///
-/// This protocol is the macOS client-side boundary for backend communication.
-/// Feature flows depend only on this interface; concrete implementations are
-/// injected at the app shell level in Phase 14.
+/// This protocol is the cross-platform canonical client-side boundary for
+/// backend communication. It lives in `shared/contracts/` so all Apple
+/// platforms consume one definition. Platform-specific implementations are
+/// injected at the app shell level; feature flows depend only on this interface.
+///
+/// Phase 14 provides concrete implementations.
 protocol OnlineBoardGatewayContract: Sendable {
 
     // MARK: - Board reads

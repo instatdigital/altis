@@ -238,34 +238,61 @@ This phase is about making the online path architecturally ready without pretend
 
 ## Phase 16. Validation
 
-- [ ] Run fast diagnostics for touched Swift files
-- [ ] Build the macOS project when buildable
-- [ ] Fix actionable compiler errors
-- [ ] Fix actionable warnings that reflect real issues
-- [ ] Document any validation limitation if full build cannot run
+- [x] Run fast diagnostics for touched Swift files
+- [x] Build the macOS project when buildable
+- [x] Fix actionable compiler errors
+- [x] Fix actionable warnings that reflect real issues
+- [x] Document any validation limitation if full build cannot run
+
+Validation notes:
+
+- `swiftlint` was not available in the local environment, so the closest available Swift validation was used instead
+- `xcodebuild -project apple/macos/AltisMacOS.xcodeproj -scheme AltisMacOS -configuration Debug -sdk macosx CODE_SIGNING_ALLOWED=NO build` succeeded on March 26, 2026
+- no actionable compiler errors were reported
+- the only emitted warning was App Intents metadata extraction being skipped because `AppIntents.framework` is not linked, which does not reflect a real issue in the current macOS MVP scope
 
 ## Phase 17. Documentation Sync
 
-- [ ] Update canonical docs if model meanings changed
-- [ ] Update canonical docs if flow boundaries changed
-- [ ] Update canonical docs if persistence conventions changed
-- [ ] Update canonical docs if online API boundaries changed
-- [ ] Mark completed tasks in this file
+- [x] Update canonical docs if model meanings changed
+- [x] Update canonical docs if flow boundaries changed
+- [x] Update canonical docs if persistence conventions changed
+- [x] Update canonical docs if online API boundaries changed
+- [x] Mark completed tasks in this file
+
+Documentation sync notes:
+
+- canonical docs in `docs/TYPES_AND_CONTRACTS.md`, `docs/SYNC_RULES.md`, and `docs/MVP_APP_STRUCTURE.md` were re-checked against the current macOS implementation and did not require additional updates in this phase
+- the only sync adjustment needed was aligning the macOS app-local `OnlineBoardGatewayContract` mirror comments with the canonical contract in `shared/contracts/`
 
 ## Definition Of Done For First Executable Vertical Slice
 
 The first executable slice is now offline-only.
 
-- [ ] `Home` opens as placeholder-only landing hub
-- [ ] User can create a project
-- [ ] User can create an offline board
-- [ ] User can create an offline board from preset copy
-- [ ] Board preserves valid stage invariants
-- [ ] User can create an offline task
-- [ ] List shows current stage
-- [ ] Kanban groups tasks by stage
-- [ ] Drag-and-drop moves tasks between stage columns
-- [ ] Complete moves a task to terminal success stage
-- [ ] Fail moves a task to terminal failure stage
-- [ ] Offline local state survives restart
-- [ ] Relevant docs remain in sync with implementation
+- [x] `Home` opens as placeholder-only landing hub
+- [x] User can create a project
+- [x] User can create an offline board
+- [x] User can create an offline board from preset copy
+- [x] Board preserves valid stage invariants
+- [x] User can create an offline task
+- [x] List shows current stage
+- [x] Kanban groups tasks by stage
+- [x] Drag-and-drop moves tasks between stage columns
+- [x] Complete moves a task to terminal success stage
+- [x] Fail moves a task to terminal failure stage
+- [x] Offline local state survives restart
+- [x] Relevant docs remain in sync with implementation
+- [x] Project logo integrated into app shell via asset catalog
+- [x] macOS bootstrap script updated to automate resource and source discovery
+- [x] Premium macOS App Icon generated and integrated
+- [x] Bootstrap script fixed to include Asset Catalog build settings (ASSETCATALOG_COMPILER_APPICON_NAME)
+
+DoD notes:
+
+- `Home` remains the default shell selection and renders the placeholder-only `HomePageView`
+- offline project, board creation, preset-copy, kanban grouping, and restart durability are covered by macOS tests
+- drag-and-drop semantic completion is validated through the same offline move-task persistence path used by the kanban feature flow
+- docs sync was re-checked in Phase 17 and remains aligned with the current implementation
+- project logo from `common/assets` was integrated into the `AppShell` sidebar using a new `Assets.xcassets` catalog
+- `tooling/scripts/bootstrap_apple_xcode_projects.rb` was updated to automatically include all `App/` sources and `Resources/` assets, and now correctly sets `ASSETCATALOG_COMPILER` build settings for durable project generation
+- a premium macOS App Icon was generated and integrated into the asset catalog to replace the generic blueprint
+dct

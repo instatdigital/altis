@@ -32,9 +32,9 @@ protocol LocalStoreContract: Sendable {
     /// are ordered by `createdAt` descending.
     func fetchKanbanColumns(boardId: BoardID) async throws -> [KanbanColumnProjection]
 
-    /// Returns all non-deleted tasks in a project as list item projections,
+    /// Returns all non-deleted tasks on a board as list item projections,
     /// ordered by `createdAt` descending. Includes current stage context.
-    func fetchTaskListItems(projectId: ProjectID) async throws -> [TaskListItemProjection]
+    func fetchTaskListItems(boardId: BoardID) async throws -> [TaskListItemProjection]
 
     /// Returns the full task detail projection for the task page.
     ///

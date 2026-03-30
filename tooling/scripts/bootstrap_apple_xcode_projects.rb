@@ -38,6 +38,8 @@ def configure_common_swift_settings(target)
     config.build_settings["GENERATE_INFOPLIST_FILE"] = "YES"
     config.build_settings["INFOPLIST_KEY_CFBundleDisplayName"] = "$(PRODUCT_NAME)"
     config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] ||= "com.altis.bootstrap.$(PRODUCT_NAME:rfc1034identifier)"
+    config.build_settings["ASSETCATALOG_COMPILER_APPICON_NAME"] = "AppIcon"
+    config.build_settings["ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME"] = "AccentColor"
   end
 end
 
@@ -81,13 +83,32 @@ def create_macos_project
 
   configure_common_swift_settings(app_target)
   configure_common_swift_settings(test_target)
-  add_sources(project, app_target, [
-    "App/AltisMacOSApp.swift",
-    "App/RootView.swift"
-  ])
-  add_sources(project, test_target, [
-    "Tests/AltisMacOSTests.swift"
-  ])
+
+  # Find and add all Swift files in App/ recursively
+  app_sources = Dir.glob(project_dir.join("App/**/*.swift")).map do |path|
+    Pathname(path).relative_path_from(project_dir).to_s
+  end
+  add_sources(project, app_target, app_sources)
+
+  # Find and add all Swift files in Tests/ recursively
+  test_sources = Dir.glob(project_dir.join("Tests/**/*.swift")).map do |path|
+    Pathname(path).relative_path_from(project_dir).to_s
+  end
+  add_sources(project, test_target, test_sources)
+
+  # Add resources (including Assets.xcassets)
+  resources = Dir.glob(project_dir.join("Resources/**/*")).select { |p| File.file?(p) || p.end_with?(".xcassets") }.map do |path|
+    # Only add the top-level .xcassets folder, not its contents
+    if path.include?(".xcassets/")
+      nil
+    else
+      Pathname(path).relative_path_from(project_dir).to_s
+    end
+  end.compact.uniq
+  
+  resource_refs = resources.map { |p| ensure_file_reference(project, Pathname(p)) }
+  app_target.add_resources(resource_refs)
+
   add_docs_references(project, [
     "MACOS_MVP_TASK_BREAKDOWN.md"
   ])

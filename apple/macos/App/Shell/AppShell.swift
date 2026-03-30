@@ -67,10 +67,15 @@ struct AppShell: View {
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
-                Label("Home", systemImage: "house")
-                    .tag(AppRoute.home)
-                Label("Projects", systemImage: "folder")
-                    .tag(AppRoute.project)
+                Section {
+                    Label("Home", systemImage: "house")
+                        .tag(AppRoute.home)
+                    Label("Projects", systemImage: "folder")
+                        .tag(AppRoute.project)
+                } header: {
+                    AppLogoView()
+                        .padding(.vertical, 8)
+                }
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 220)
             .navigationTitle("Altis")
@@ -128,6 +133,24 @@ struct AppShell: View {
                 .onAppear {
                     taskPageFlow.send(.appeared(taskId: taskId, boardMode: boardMode))
                 }
+        }
+    }
+}
+
+/// Helper view to render the project logo adapting to current color scheme.
+struct AppLogoView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image("altis_logo_placeholder")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 24, height: 24)
+            
+            Text("Altis")
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundColor(.primary)
         }
     }
 }

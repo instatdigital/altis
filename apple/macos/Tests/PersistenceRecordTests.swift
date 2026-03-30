@@ -318,6 +318,134 @@ struct OfflineLocalStoreBoardListRegressionTests {
     }
 }
 
+// MARK: - Offline project flow
+
+@Suite("Offline project flow")
+struct OfflineProjectFlowTests {
+
+    @Test("OfflineProjectDataWorker creates a project and reloads it from projections")
+    func createProjectAndReloadProjection() async throws {
+        let workspaceId = WorkspaceID()
+
+        try await withTemporaryStore(prefix: "altis-project-flow") { store in
+            let worker = OfflineProjectDataWorker(store: store, workspaceId: workspaceId)
+
+            let created = try await worker.createProject(name: "Alpha", workspaceId: workspaceId)
+            let fetched = try #require(try await store.fetchProject(id: created.projectId))
+            let projections = try await worker.loadProjects()
+
+            #expect(fetched.projectId == created.projectId)
+            #expect(fetched.name == "Alpha")
+            #expect(projections.map(\.name) == ["Alpha"])
+            #expect(projections.first?.boardCount == 0)
+        }
+    }
+}
+
+// MARK: - Offline board creation
+
+@Suite("Offline board creation")
+struct OfflineBoardCreationTests {
+
+    @Test("createBoard persists an offline board with the canonical default stages")
+    func createBoardPersistsDefaultStages() async throws {
+        let workspaceId = WorkspaceID()
+        let project = Project(workspaceId: workspaceId, name: "Project")
+
+        try await withTemporaryStore(prefix: "altis-board-create") { store in
+            try await store.createProject(project)
+            let worker = OfflineLocalBoardWorker(store: store)
+
+            let board = try await worker.createBoard(
+                name: "Sprint Board",
+                projectId: project.projectId,
+                workspaceId: workspaceId
+            )
+
+            let persistedBoard = try #require(try await store.fetchBoard(id: board.boardId))
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+
+            #expect(persistedBoard.mode == .offline)
+            #expect(stages.map(\.name) == ["To Do", "Done", "Cancelled"])
+            #expect(stages.map(\.kind) == [.regular, .terminalSuccess, .terminalFailure])
+            #expect(stages.map(\.orderIndex) == [0, 1, 2])
+
+            switch BoardStageInvariants.validate(stages) {
+            case .success:
+                break
+            case .failure(let violation):
+                Issue.record("Expected default board stages to satisfy invariants, got: \(violation)")
+            }
+        }
+    }
+
+    @Test("createBoardFromPreset copies preset stages into board-local stages")
+    func createBoardFromPresetCopiesStages() async throws {
+        let workspaceId = WorkspaceID()
+        let project = Project(workspaceId: workspaceId, name: "Project")
+        let now = Date(timeIntervalSince1970: 1_710_000_000)
+        let preset = BoardStagePreset(
+            workspaceId: workspaceId,
+            name: "Shipping Flow",
+            createdAt: now,
+            updatedAt: now
+        )
+        let presetStages = [
+            BoardStagePresetStage(
+                stagePresetId: preset.stagePresetId,
+                name: "Backlog",
+                orderIndex: 0,
+                kind: .regular
+            ),
+            BoardStagePresetStage(
+                stagePresetId: preset.stagePresetId,
+                name: "Ready",
+                orderIndex: 1,
+                kind: .regular
+            ),
+            BoardStagePresetStage(
+                stagePresetId: preset.stagePresetId,
+                name: "Done",
+                orderIndex: 2,
+                kind: .terminalSuccess
+            ),
+            BoardStagePresetStage(
+                stagePresetId: preset.stagePresetId,
+                name: "Cancelled",
+                orderIndex: 3,
+                kind: .terminalFailure
+            ),
+        ]
+
+        try await withTemporaryStore(prefix: "altis-board-preset") { store in
+            try await store.createProject(project)
+            try await store.createBoardStagePreset(preset, stages: presetStages)
+            let worker = OfflineLocalBoardWorker(store: store)
+
+            let board = try await worker.createBoardFromPreset(
+                name: "Preset Board",
+                projectId: project.projectId,
+                workspaceId: workspaceId,
+                preset: preset,
+                presetStages: presetStages
+            )
+
+            let boardStages = try await store.fetchBoardStages(boardId: board.boardId)
+
+            #expect(boardStages.map(\.name) == ["Backlog", "Ready", "Done", "Cancelled"])
+            #expect(boardStages.map(\.kind) == [.regular, .regular, .terminalSuccess, .terminalFailure])
+            #expect(Set(boardStages.map(\.boardId)) == Set([board.boardId]))
+
+            switch BoardStageInvariants.validate(boardStages) {
+            case .success:
+                break
+            case .failure(let violation):
+                Issue.record("Expected preset-derived board stages to satisfy invariants, got: \(violation)")
+            }
+        }
+    }
+}
+
 // MARK: - OfflineLocalBoardWorker stage management
 
 @Suite("OfflineLocalBoardWorker stage management")
@@ -514,6 +642,53 @@ struct BoardFeatureFlowRegressionTests {
             // the store so no background work (e.g. loadPresets hitting SQLite)
             // can resume against a closed connection.
             await flow.cancelAndDrainActiveTasks()
+        }
+    }
+}
+
+// MARK: - Offline kanban projections
+
+@Suite("Offline kanban projections")
+struct OfflineKanbanProjectionTests {
+
+    @Test("fetchKanbanColumns groups tasks under their current stage")
+    func fetchKanbanColumnsGroupsTasksByStage() async throws {
+        let workspaceId = WorkspaceID()
+        let project = Project(workspaceId: workspaceId, name: "Project")
+
+        try await withTemporaryStore(prefix: "altis-kanban-columns") { store in
+            try await store.createProject(project)
+            let boardWorker = OfflineLocalBoardWorker(store: store)
+            let board = try await boardWorker.createBoard(
+                name: "Board",
+                projectId: project.projectId,
+                workspaceId: workspaceId
+            )
+            _ = try await boardWorker.addStage(boardId: board.boardId, name: "Review")
+            let stages = try await store.fetchBoardStages(boardId: board.boardId)
+            let todoStage = try #require(stages.first(where: { $0.name == "To Do" }))
+            let reviewStage = try #require(stages.first(where: { $0.name == "Review" }))
+
+            try await store.createTask(Task(
+                workspaceId: workspaceId,
+                projectId: project.projectId,
+                boardId: board.boardId,
+                stageId: todoStage.stageId,
+                title: "Task A"
+            ))
+            try await store.createTask(Task(
+                workspaceId: workspaceId,
+                projectId: project.projectId,
+                boardId: board.boardId,
+                stageId: reviewStage.stageId,
+                title: "Task B"
+            ))
+
+            let columns = try await store.fetchKanbanColumns(boardId: board.boardId)
+
+            #expect(columns.map(\.stageName) == ["To Do", "Done", "Cancelled", "Review"])
+            #expect(columns.first(where: { $0.stageName == "To Do" })?.tasks.map(\.title) == ["Task A"])
+            #expect(columns.first(where: { $0.stageName == "Review" })?.tasks.map(\.title) == ["Task B"])
         }
     }
 }
@@ -1073,6 +1248,69 @@ struct OfflineLocalStoreTaskTests {
             #expect(updated.currentStage?.kind == .terminalFailure)
             let persisted = try #require(try await store.fetchTask(id: task.taskId))
             #expect(persisted.status == .failed)
+        }
+    }
+}
+
+// MARK: - Offline persistence durability
+
+@Suite("Offline persistence durability")
+struct OfflinePersistenceDurabilityTests {
+
+    @Test("offline local state survives reopening the SQLite store")
+    func localStateSurvivesRestart() async throws {
+        let workspaceId = WorkspaceID()
+        let dbPath = FileManager.default.temporaryDirectory
+            .appendingPathComponent("altis-restart-\(UUID().uuidString).sqlite")
+            .path
+
+        let projectId: ProjectID
+        let boardId: BoardID
+        let taskId: TaskID
+
+        do {
+            let store = try await OfflineLocalStore(path: dbPath)
+            let project = Project(workspaceId: workspaceId, name: "Restart Project")
+            try await store.createProject(project)
+            projectId = project.projectId
+
+            let boardWorker = OfflineLocalBoardWorker(store: store)
+            let board = try await boardWorker.createBoard(
+                name: "Restart Board",
+                projectId: project.projectId,
+                workspaceId: workspaceId
+            )
+            boardId = board.boardId
+
+            let firstStage = try #require((try await store.fetchBoardStages(boardId: board.boardId)).first)
+            let task = Task(
+                workspaceId: workspaceId,
+                projectId: project.projectId,
+                boardId: board.boardId,
+                stageId: firstStage.stageId,
+                title: "Persistent Task"
+            )
+            try await store.createTask(task)
+            taskId = task.taskId
+
+            await store.close()
+        }
+
+        do {
+            let reopenedStore = try await OfflineLocalStore(path: dbPath)
+
+            let project = try #require(try await reopenedStore.fetchProject(id: projectId))
+            let board = try #require(try await reopenedStore.fetchBoard(id: boardId))
+            let task = try #require(try await reopenedStore.fetchTask(id: taskId))
+            let projections = try await reopenedStore.fetchTaskListItems(boardId: boardId)
+
+            #expect(project.name == "Restart Project")
+            #expect(board.name == "Restart Board")
+            #expect(task.title == "Persistent Task")
+            #expect(projections.map(\.title) == ["Persistent Task"])
+
+            await reopenedStore.close()
+            try? FileManager.default.removeItem(atPath: dbPath)
         }
     }
 }
