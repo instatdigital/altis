@@ -55,6 +55,9 @@ jobs:
           UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" $RUNNER_TEMP/profile.plist)
           cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/"$UUID".provisionprofile
 
+          # Export UUID for use in xcodebuild (more reliable than profile name)
+          echo "PROFILE_UUID=$UUID" >> $GITHUB_ENV
+
       - name: Set up App Store Connect API key
         env:
           ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
@@ -66,7 +69,6 @@ jobs:
 
       - name: Build archive
         env:
-          PROFILE_NAME: ${{ vars.MAC_PROVISIONING_PROFILE_NAME }}
           TEAM_ID: ${{ secrets.DEVELOPMENT_TEAM_ID }}
         run: |
           xcodebuild archive \
@@ -76,7 +78,7 @@ jobs:
             -archivePath $RUNNER_TEMP/Altis.xcarchive \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER=com.altis.instat \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
