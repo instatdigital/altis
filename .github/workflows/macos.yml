@@ -88,14 +88,13 @@ jobs:
         env:
           PROFILE_NAME: ${{ vars.MAC_PROVISIONING_PROFILE_NAME }}
         run: |
-          # method=app-store is correct for macOS TestFlight (not app-store-connect)
           cat > $RUNNER_TEMP/ExportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>method</key>
-            <string>app-store</string>
+            <string>app-store-connect</string>
             <key>signingStyle</key>
             <string>manual</string>
             <key>signingCertificate</key>
