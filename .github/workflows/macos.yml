@@ -17,10 +17,12 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
 
-      - name: Install certificate
+      - name: Install certificates
         env:
           MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
           MAC_CERT_P12_PASSWORD: ${{ secrets.MAC_CERT_P12_PASSWORD }}
+          MAC_INSTALLER_CERT_P12: ${{ secrets.MAC_INSTALLER_CERT_P12 }}
+          MAC_INSTALLER_CERT_P12_PASSWORD: ${{ secrets.MAC_INSTALLER_CERT_P12_PASSWORD }}
         run: |
           KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
           KEYCHAIN_PASSWORD=$(uuidgen)
@@ -29,10 +31,18 @@ jobs:
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
+          # Apple Distribution — signs the .app bundle
           echo "$MAC_CERT_P12" | base64 --decode -o $RUNNER_TEMP/cert.p12
           security import $RUNNER_TEMP/cert.p12 \
             -k "$KEYCHAIN_PATH" \
             -P "$MAC_CERT_P12_PASSWORD" \
+            -A -T /usr/bin/codesign -T /usr/bin/security
+
+          # Mac Installer Distribution — signs the .pkg wrapper
+          echo "$MAC_INSTALLER_CERT_P12" | base64 --decode -o $RUNNER_TEMP/installer_cert.p12
+          security import $RUNNER_TEMP/installer_cert.p12 \
+            -k "$KEYCHAIN_PATH" \
+            -P "$MAC_INSTALLER_CERT_P12_PASSWORD" \
             -A -T /usr/bin/codesign -T /usr/bin/security
 
           security set-key-partition-list \
