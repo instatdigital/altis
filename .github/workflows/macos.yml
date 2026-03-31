@@ -55,7 +55,8 @@ jobs:
 
       - name: Resolve provisioning profile UUID
         run: |
-          PROFILE_PATH=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.provisionprofile | head -1)
+          PROFILE_PATH=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/*.provisionprofile 2>/dev/null | head -1)
+          echo "Found profile: $PROFILE_PATH"
           security cms -D -i "$PROFILE_PATH" > $RUNNER_TEMP/profile.plist
           UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" $RUNNER_TEMP/profile.plist)
           PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" $RUNNER_TEMP/profile.plist)
