@@ -1,5 +1,5 @@
 // Shared macOS build settings bootstrap.
-PRODUCT_NAME = Altis macOS
+PRODUCT_NAME = Altis
 
 // Suppress AppIntents metadata-processor warnings for targets that do not link
 // AppIntents.framework. Xcode 16+ runs ExtractAppIntentsMetadata unconditionally;

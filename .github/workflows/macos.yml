@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'apple/macos/**'
+      - 'apple/shared/**'
+      - 'shared/**'
+      - '.github/workflows/macos.yml'
 
 jobs:
   build-and-upload:
