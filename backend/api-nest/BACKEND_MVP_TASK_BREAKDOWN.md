@@ -30,9 +30,9 @@ Rule: Projects define authority. `online` projects are backend-owned. `Board` an
 - [x] Implement ownership boundary (user-scoped logic).
 
 ## 4. Boards & Stages
-- [ ] `GET /projects/:id/boards`, `POST /projects/:id/boards` (boards inherit `online` mode)
-- [ ] Stage endpoints (create, rename, reorder, delete non-terminal)
-- [ ] Enforce invariates: min 3 stages, 1 success, 1 failure.
+- [x] `GET /projects/:id/boards`, `POST /projects/:id/boards` (boards inherit `online` mode)
+- [x] Stage endpoints (create, rename, reorder, delete non-terminal)
+- [x] Enforce invariates: min 3 stages, 1 success, 1 failure.
 
 ## 5. Tasks
 - [ ] `POST /projects/:id/tasks` (project-scoped)
