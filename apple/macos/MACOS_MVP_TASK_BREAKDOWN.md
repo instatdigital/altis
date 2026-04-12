@@ -1,5 +1,10 @@
 # macOS MVP Task Breakdown
 
+Status note:
+
+- this file remains the historical record of the completed macOS MVP under the old board-rooted authority model
+- active follow-up work for the new project-rooted authority model now lives in `MACOS_AUTHORITY_ADAPTATION_TASK_BREAKDOWN.md`
+
 ## Purpose
 
 This file is the working execution checklist for the first macOS vertical slice.

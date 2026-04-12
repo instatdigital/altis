@@ -32,20 +32,22 @@ The first canonical app sections are:
 
 Widget-level task filters are the main feature. Users should be able to configure task visibility for widgets using reusable filter definitions that also make sense inside the main app.
 
-## Board mode model
+## Authority mode model
 
-Boards are created in one of two modes:
+Projects are created in one of two modes:
 
 - `offline`
 - `online`
 
 Product rules:
 
-- offline boards exist only locally
-- online boards exist only through backend connectivity
-- the product does not synchronize an offline board into an online board
+- offline projects exist only locally
+- online projects exist only through backend connectivity
+- boards inside a project inherit that project's mode
+- tasks inherit authority from their owning board or project
+- the product does not synchronize an offline entity into an online entity
 - the mode is chosen explicitly and is not inferred from connectivity
-- the mode is a board property, not a separate app mode
+- the mode is a project-root property, not a separate app mode
 
 ## Board stage model
 
@@ -74,8 +76,8 @@ Initial homepage scope may use placeholders, but it must act as the canonical la
 
 ## Additional planned capabilities
 
-- collaboration for online boards
-- real-time updates when connected to the network for online boards
+- collaboration for online projects
+- real-time updates when connected to the network for online projects
 - native Apple ID authorization
 
 ## Deferred capabilities
@@ -90,8 +92,7 @@ Initial homepage scope may use placeholders, but it must act as the canonical la
 - widgets and full apps should read from compatible filter definitions
 - project and board are canonical product entities, not optional UI groupings
 - board stages are canonical workflow entities inside board context, not kanban-only decoration
-- board mode is a canonical product concept because it changes authority, availability, and allowed flows
-- board mode changes board behavior without requiring a separate top-level interface branch
-- projects remain client-owned grouping entities in the current phase
-- `projectId` remains a client-owned grouping reference even when a board is online
+- authority mode is a canonical product concept because it changes authority, availability, and allowed flows
+- authority mode changes project and board behavior without requiring a separate top-level interface branch
+- projects are canonical backend-owned entities on the online path
 - workspace-scoped filters and stage presets remain shared support entities in the current phase

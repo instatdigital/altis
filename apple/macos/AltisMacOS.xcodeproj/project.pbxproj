@@ -112,7 +112,7 @@
 		41A4ADCDA3713F9059879696 /* OfflineKanbanDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OfflineKanbanDataWorker.swift; path = App/Features/KanbanBoard/State/OfflineKanbanDataWorker.swift; sourceTree = "<group>"; };
 		4D1246EF0E89A380C122142D /* PersistenceRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceRecord.swift; path = App/Models/Persistence/PersistenceRecord.swift; sourceTree = "<group>"; };
 		4E9BF2E00DBB900F9AF5CB7F /* ProjectDataWorker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectDataWorker.swift; path = App/Features/Project/State/ProjectDataWorker.swift; sourceTree = "<group>"; };
-		4F1E9BAE46A9889F21BE723F /* Altis macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Altis macOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F1E9BAE46A9889F21BE723F /* Altis.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Altis.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FE841CFD6BE8229303825A5 /* BoardStageRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStageRecord.swift; path = App/Models/Persistence/BoardStageRecord.swift; sourceTree = "<group>"; };
 		52EC565F702286C5139713CE /* ProjectPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectPageView.swift; path = App/Features/Project/Page/ProjectPageView.swift; sourceTree = "<group>"; };
 		534A2683763C8D5B10801761 /* BoardStageInvariants.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardStageInvariants.swift; path = App/Models/Domain/BoardStageInvariants.swift; sourceTree = "<group>"; };
@@ -132,7 +132,7 @@
 		954A6C072C647FF7A996E58C /* ProjectFeatureFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectFeatureFlow.swift; path = App/Features/Project/State/ProjectFeatureFlow.swift; sourceTree = "<group>"; };
 		9857638A9AF59779D4ABA1D5 /* PersistenceRecordTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PersistenceRecordTests.swift; path = Tests/PersistenceRecordTests.swift; sourceTree = "<group>"; };
 		995F1044F0772E828405B0BD /* Project.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Project.swift; path = App/Models/Domain/Project.swift; sourceTree = "<group>"; };
-		9A657BBF734218B3575D2E62 /* Altis macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Altis macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A657BBF734218B3575D2E62 /* Altis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Altis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D4C700DAD9688B398E801A6 /* LocalStoreContract.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalStoreContract.swift; path = App/Models/Persistence/LocalStoreContract.swift; sourceTree = "<group>"; };
 		A02461D8A46A2E6338E30355 /* BoardRecord.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardRecord.swift; path = App/Models/Persistence/BoardRecord.swift; sourceTree = "<group>"; };
 		A18A4330B462DE132450A2B2 /* KanbanBoardFeatureState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KanbanBoardFeatureState.swift; path = App/Features/KanbanBoard/State/KanbanBoardFeatureState.swift; sourceTree = "<group>"; };
@@ -289,8 +289,8 @@
 		4D88457CCEFBAFB4007959B1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9A657BBF734218B3575D2E62 /* Altis macOS.app */,
-				4F1E9BAE46A9889F21BE723F /* Altis macOS.xctest */,
+				9A657BBF734218B3575D2E62 /* Altis.app */,
+				4F1E9BAE46A9889F21BE723F /* Altis.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -320,7 +320,7 @@
 			);
 			name = AltisMacOS;
 			productName = AltisMacOS;
-			productReference = 9A657BBF734218B3575D2E62 /* Altis macOS.app */;
+			productReference = 9A657BBF734218B3575D2E62 /* Altis.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EF179366C15B1FB8E40E24CC /* AltisMacOSTests */ = {
@@ -338,7 +338,7 @@
 			);
 			name = AltisMacOSTests;
 			productName = AltisMacOSTests;
-			productReference = 4F1E9BAE46A9889F21BE723F /* Altis macOS.xctest */;
+			productReference = 4F1E9BAE46A9889F21BE723F /* Altis.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */

@@ -12,6 +12,7 @@ The first backend project lives in `backend/api-nest/`.
 ## MVP backend modules
 
 - `auth`
+- `projects`
 - `profile`
 - `tasks`
 - `boards`
@@ -33,10 +34,17 @@ The first backend project lives in `backend/api-nest/`.
 
 ### `tasks`
 
-- task CRUD for online boards only
+- task CRUD for online projects only
 - task detail payloads
 - task links to board and stage identities
-- optional client grouping references may be echoed or mapped, but they do not make those groupings backend-owned by default
+- task ownership is backend-owned when its parent project or board is online
+
+### `projects`
+
+- online project CRUD
+- project is the root authority entity; an online project is strictly backend-owned
+- project membership and ownership boundaries
+- project-scoped list responses and entry points
 
 ### `boards`
 
@@ -56,8 +64,7 @@ The first backend project lives in `backend/api-nest/`.
 
 - Prisma models are backend internals.
 - Shared contracts must remain transport-oriented and must not expose Prisma-generated types directly.
-- Backend APIs represent only online boards and related backend-owned online entities.
+- Backend APIs represent only online projects and related backend-owned online entities.
 - Offline boards do not belong to the backend architecture in the current phase.
-- Projects are not backend-owned by default in the current phase.
+- Offline projects do not belong to the backend architecture in the current phase.
 - Workspace-scoped filters and stage presets are not backend-owned by default in the current phase.
-- Client grouping references such as `projectId` do not by themselves create backend ownership.

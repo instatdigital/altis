@@ -53,7 +53,7 @@ Decision:
 Do not shape the active architecture around offline-online sync, calendar sync, or Google authorization until those features are explicitly brought into scope.
 
 Rationale:
-This reduces premature abstraction and keeps the current architecture focused on explicit board mode boundaries.
+This reduces premature abstraction and keeps the current architecture focused on explicit offline and online authority boundaries.
 
 ## ADR-0005: Add NestJS and Prisma as the backend stack
 
@@ -90,10 +90,10 @@ NestJS aligns naturally with OpenAPI tooling, and Swift clients can map or gener
 Status: accepted
 
 Decision:
-Keep `Project` and `Board` as first-class domain entities alongside `Task` and `TaskFilter`, and make board mode explicit on `Board`.
+Keep `Project` and `Board` as first-class domain entities alongside `Task` and `TaskFilter`, and make mode explicit on both `Project` and `Board`.
 
 Rationale:
-Tasks need stable grouping by project and by board. Board mode changes product behavior enough that it must be modeled explicitly, but it should not force separate mode flags onto every surrounding entity.
+Tasks need stable grouping by project and by board. Project mode changes product behavior enough that it must be modeled explicitly at the project root, while boards must stay mode-consistent with their owning project.
 
 ## ADR-0009: Treat BoardStage and BoardStagePreset as canonical workflow entities
 
@@ -115,18 +115,23 @@ Keep `BoardStagePreset` and `TaskFilter` as workspace-scoped client-owned entiti
 Rationale:
 Board mode should govern boards and board-owned entities only. Promoting presets or filters into backend-owned online entities would add a second authority split that is not required by the current product decision.
 
-## ADR-0011: Keep projects client-owned in the current phase
+## ADR-0011: Promote projects to explicit authority roots
 
 Status: accepted
 
 Decision:
-Keep `Project` as a client-owned grouping entity in the current phase even when it contains online boards.
+Treat `Project` as an explicit authority root in the current phase.
+
+- `offline` projects are local-only
+- `online` projects are backend-owned
+- a `Board` MUST match the mode of its owning `Project`
+- a `Task` inherits authority from its owning `Board` when present, otherwise from its owning `Project`
 
 Rationale:
-Board mode governs boards and board-owned entities only. Making `Project` backend-owned while one project may contain both offline and online boards would reintroduce a second authority split without a documented need.
+This keeps authority simple and explicit. The project becomes the top-level ownership boundary for online and offline work, while boards and tasks follow that boundary instead of creating a second ad hoc split.
 
 Implication:
-`projectId` remains a client-owned grouping reference in canonical client models unless a later decision explicitly promotes projects into backend-owned online entities.
+Projects on the online path must be represented in backend contracts and backend persistence. Boards may no longer vary independently from their owning project's mode.
 
 ## ADR-0012: Use SQLite-backed local persistence for offline Apple boards
 
@@ -146,7 +151,7 @@ Decision:
 For MVP, all users may edit board stages and workspace-level board stage presets. Role-based permissions are deferred.
 
 Rationale:
-The current priority is workflow architecture and board mode separation, not access control.
+The current priority is workflow architecture and authority separation, not access control.
 
 ## ADR-0014: Use feature-scoped event-driven UI flows in apps
 

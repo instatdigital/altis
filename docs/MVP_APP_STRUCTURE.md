@@ -11,7 +11,7 @@ This file is the source of truth for UX-level application architecture in the cu
 - UX architecture should be documented in terms of sections, flows, responsibilities, and state transitions.
 - Agents must not invent new sections, navigation branches, or feature entry points unless those changes are added to this file in the same change.
 - Pages, layouts, and reusable visual components MUST be documented as part of an event-driven flow, not as isolated visual fragments.
-- Board mode choice is a UX-level concern because it changes data authority and availability for the selected board without changing the overall shell structure.
+- Project mode choice is a UX-level concern because it changes data authority and availability for the selected project without changing the overall shell structure.
 
 ## Core sections
 
@@ -29,15 +29,15 @@ This file is the source of truth for UX-level application architecture in the cu
 
 - theme switching
 - widget-level filtering
-- offline boards
-- online boards
+- offline projects
+- online projects
 - online authorization for server-backed features
 
 ## UX responsibilities by section
 
 ### Auth
 
-- sign in for online boards and other server-backed features
+- sign in for online projects and other server-backed features
 - restore session
 - gate server-backed collaboration and account features
 - return the user into the previously relevant online flow when possible
@@ -80,13 +80,14 @@ This file is the source of truth for UX-level application architecture in the cu
 - task grouping at the product level
 - high-level container for related work
 - stable context switch for list and board projections
+- owner of the project mode choice: `offline` or `online`
 
 ### Board
 
 - owner of kanban-oriented organization
 - owner of ordered board stages
 - owner of terminal successful and terminal unsuccessful stages
-- owner of the board mode choice: `offline` or `online`
+- inherits mode from the owning project
 - may be created from reusable stage presets
 
 ### Profile
@@ -116,10 +117,10 @@ The MVP should be understood as a small number of stable UX shells:
 ## Typed data contract
 
 - UI data MUST be typed and consistent with shared domain meaning and read models.
-- Offline board pages and components MUST render from local typed projections.
-- Online board pages and components MUST render from typed feature state or explicit online read models.
+- Offline project pages and components MUST render from local typed projections.
+- Online project pages and components MUST render from typed feature state or explicit online read models.
 - Board-owned task and stage surfaces inherit their data authority from the selected board.
-- Board mode choice belongs to board creation, not to top-level shell switching or later board configuration.
+- Project mode choice belongs to project creation, not to top-level shell switching or later board configuration.
 - Components SHOULD receive only the data required for rendering and interaction.
 
 ## Event-driven flow contract
@@ -132,9 +133,9 @@ Required responsibilities:
 - pages subscribe to the flows relevant to the surface they compose
 - feature flows process user, lifecycle, and online result events
 - feature flows work through isolated data-facing classes for local persistence or online transport
-- local or online state changes drive rendering according to board mode
+- local or online state changes drive rendering according to entity mode
 
-UI MUST NOT hide the difference between offline and online boards inside board-specific flows.
+UI MUST NOT hide the difference between offline and online entities inside project and board flows.
 
 ## Board stage UX contract
 
@@ -160,7 +161,7 @@ The MVP should support:
 - accessing board configuration for stage setup when permitted
 - accessing profile and settings from the shell level
 - starting auth when online-only features are required
-- choosing board mode when creating a board
+- choosing project mode when creating a project
 
 ## UX flow contracts
 
@@ -168,8 +169,8 @@ The MVP should support:
 
 - The user enters the app through `Home`.
 - The app keeps one normal navigation shell for projects and boards.
-- Entering an existing board uses that board's stored mode.
-- Creating a board requires choosing whether that board is offline or online.
+- Entering an existing board uses the mode inherited from its owning project.
+- Creating a board requires a project context and inherits that project's mode.
 
 ### Task browsing flow
 
@@ -189,7 +190,8 @@ The MVP should support:
 
 - Project changes redefine the active task scope.
 - Board changes refine the active projection inside the current or explicit project scope.
-- Entering a different board may change data authority and permitted actions if that board has a different mode.
+- Entering a different project may change data authority and permitted actions if that project has a different mode.
+- Boards inside one project do not change authority independently from that project.
 
 ### Account and settings flow
 
@@ -204,7 +206,7 @@ The MVP should support:
 
 ## Architectural implication
 
-List and kanban are not separate products and not separate stores. They are two projections over one canonical task domain. The important architectural split is board authority, and that split lives on `Board`, not in a separate shell.
+List and kanban are not separate products and not separate stores. They are two projections over one canonical task domain. The important architectural split is entity authority, rooted at `Project` and inherited by `Board` and `Task`, not in a separate shell.
 
 ## Documentation maintenance rule
 

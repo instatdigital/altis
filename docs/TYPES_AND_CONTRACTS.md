@@ -18,7 +18,7 @@ This file is the source of truth for:
 - Domain meaning MUST be defined globally before platform implementation diverges.
 - Canonical entities and relationships MUST be documented here before app-local variants appear.
 - UI models, local persistence models, and transport contracts MUST remain typed and explicitly separated.
-- Board mode MUST be explicit on `Board` and respected by related persistence and transport boundaries.
+- Project and board mode MUST be explicit on root entities and respected by related persistence and transport boundaries.
 
 ## Canonical entities
 
@@ -41,9 +41,15 @@ Required fields:
 
 - `projectId`
 - `workspaceId`
+- `mode`
 - `name`
 - `createdAt`
 - `updatedAt`
+
+`mode` MUST be one of:
+
+- `offline`
+- `online`
 
 ### Board
 
@@ -66,8 +72,8 @@ Required fields:
 
 `projectId` rule:
 
-- `projectId` is a client-owned grouping reference in the current phase.
-- For online boards, `projectId` remains part of the canonical client model but is not a backend-owned entity contract unless a later decision documents that promotion.
+- `projectId` references a canonical `Project`.
+- A `Board` MUST share the same `mode` as its owning `Project`.
 
 ### BoardStage
 
@@ -144,7 +150,7 @@ Required fields:
 - `createdAt`
 - `updatedAt`
 
-### BoardMode
+### AuthorityMode
 
 Explicit domain value that defines data authority.
 
@@ -155,9 +161,9 @@ Values:
 
 Rules:
 
-- `offline` means the board and its board-owned entities are stored locally.
-- `online` means the board and its board-owned entities are served through backend APIs.
-- Board mode MUST NOT be inferred from connectivity.
+- `offline` means the project or board and its owned entities are stored locally.
+- `online` means the project or board and its owned entities are served through backend APIs.
+- Mode MUST NOT be inferred from connectivity.
 
 ## Required relationships
 
@@ -182,15 +188,16 @@ Rules:
 
 - A `Task` with `stageId` MUST also have `boardId`.
 - A `Task` assigned to a `Board` MUST belong to the same `Project` as that `Board`.
+- A `Board` MUST belong to a `Project` with the same `mode`.
 - A `BoardStage` inherits persistence and authority from its owning `Board`.
 - A `Task` assigned to a `Board` inherits persistence and authority from that `Board`.
-- `Project` is a client-owned grouping entity in the current phase.
-- For online boards and online board-scoped tasks, `projectId` remains a client-owned grouping reference unless a later contract makes projects backend-owned.
-- A `Task` without `boardId` is project-scoped and uses local client persistence in the current phase unless a later contract documents a backend-owned non-board task flow.
+- A `Task` without `boardId` inherits persistence and authority from its owning `Project`.
 - An `offline` board MUST NOT depend on backend-only identifiers or sync metadata.
 - An `online` board MUST NOT rely on local durable write acceptance while disconnected.
-- A `Project` may contain both offline and online boards.
-- A `Workspace` may contain both offline and online boards.
+- An `offline` project MUST NOT depend on backend-only identifiers or sync metadata.
+- An `online` project MUST NOT rely on local durable write acceptance while disconnected.
+- A `Project` MUST NOT mix offline and online boards.
+- A `Workspace` may contain both offline and online projects.
 - `BoardStagePreset` and `TaskFilter` are workspace-scoped support entities and are not independently typed by board mode.
 - `BoardStagePreset` and `TaskFilter` use local client persistence in the current phase unless a later contract explicitly promotes them to backend-owned online entities.
 - Board creation from a preset MUST copy preset stages into board-local `BoardStage` entities.
@@ -239,8 +246,7 @@ Rules:
 - UI projections MUST NOT be raw persistence records.
 - Feature state MUST NOT become the de facto domain model.
 - Offline persistence records MUST NOT carry fake sync or outbox fields.
-- Transport contracts exist only for online boards and related online entities that are explicitly backend-owned.
-- Client-owned grouping references such as `projectId` MAY remain in client models without becoming backend-owned entities.
+- Transport contracts exist only for online projects and related online entities that are explicitly backend-owned.
 
 ## UI projection rule
 
@@ -260,23 +266,23 @@ These are projections, not canonical entities.
 
 ## Persistence typing rule
 
-- Offline boards MUST use explicit local persistence records.
-- Online boards MAY use ephemeral caches or transport mappers, but those are not the durable source of truth.
-- SQLite records on Apple platforms MUST preserve canonical identifiers and board mode explicitly.
+- Offline entities MUST use explicit local persistence records.
+- Online entities MAY use ephemeral caches or transport mappers, but those are not the durable source of truth.
+- SQLite records on Apple platforms MUST preserve canonical identifiers and explicit modes on authoritative roots.
 - Workspace-scoped presets and filters use local persistence in the current phase.
 
 ## Transport typing rule
 
-- Backend transport contracts MUST model only online boards and related backend-owned online entities.
-- Offline boards MUST NOT be represented as a syncable transport entity class.
+- Backend transport contracts MUST model only online projects and related backend-owned online entities.
+- Offline entities MUST NOT be represented as a syncable transport entity class.
 - Workspace-scoped presets and filters MUST NOT be treated as backend-owned unless that contract is documented separately.
-- Client-owned grouping references such as `projectId` MUST NOT be treated as proof that `Project` is backend-owned.
 - OpenAPI-first contracts remain the preferred backend-client boundary.
 
-Required online-board transport families in the current phase:
+Required online transport families in the current phase:
 
-- auth gate contract for online-board access before backend reads or writes
-- board list read model for project-scoped online board discovery
+- auth gate contract for online-project access before backend reads or writes
+- project list read model for online project discovery
+- board list read model for online board discovery inside one project
 - board content read model carrying ordered stages plus board-scoped tasks
 - task detail read model carrying task metadata plus board ownership references
 - task stage-move write model
@@ -285,5 +291,5 @@ Required online-board transport families in the current phase:
 Rules:
 
 - feature flows MUST map online read models into typed UI projections before rendering
-- online board writes MUST cross typed write models rather than ad hoc parameter lists
+- online writes MUST cross typed write models rather than ad hoc parameter lists
 - auth-gate failure MUST surface as blocked or unavailable online state, not as a local durable fallback

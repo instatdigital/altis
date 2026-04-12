@@ -19,19 +19,20 @@ Tasks and boards still support canonical grouping by:
 
 The main product feature remains widget-level filtering.
 
-The key architecture rule is now explicit board mode:
+The key architecture rule is now explicit authority on project roots:
 
-- `offline` boards are stored and edited only locally
-- `online` boards are loaded and edited only through backend APIs
+- `offline` projects are stored and edited only locally (device-owned)
+- `online` projects are strictly backend-owned, and loaded/edited only through backend APIs
+- boards and tasks inherit authority from their owning project or board chain
 
 There is no offline-online synchronization layer between those modes. The product must not pretend that one board can seamlessly switch authority between local storage and backend state.
 
-Only `Board` is explicitly typed by mode. Related board-owned entities inherit storage and authority from the board they belong to. Workspace-scoped support entities such as filters and stage presets remain shared client-side entities in the current phase.
+`Project` and `Board` are explicitly typed by mode. A `Board` MUST match the mode of its owning `Project`. A `Task` inherits authority from its owning `Board` when present, otherwise from its owning `Project`. Workspace-scoped support entities such as filters and stage presets remain shared client-side entities in the current phase.
 
 Additional active capabilities:
 
-- collaboration for online boards
-- real-time updates while connected for online boards
+- collaboration for online projects
+- real-time updates while connected for online projects
 - native Apple ID authorization for online capabilities
 
 Deferred capabilities:
@@ -49,6 +50,13 @@ Core shared entity used by all platforms and all presentation modes.
 
 Canonical grouping entity for tasks and boards.
 
+Every project MUST declare a project mode:
+
+- `offline`
+- `online`
+
+Project mode is a business rule and the root authority for project-scoped data.
+
 ### Board
 
 Canonical workflow entity for kanban organization inside a project.
@@ -58,7 +66,7 @@ Every board MUST declare a board mode:
 - `offline`
 - `online`
 
-Board mode is a business rule, not a view preference.
+Board mode is a business rule, not a view preference, and MUST match the owning project's mode.
 
 ### BoardStage
 
@@ -80,8 +88,8 @@ Presentation-specific projection over the same task set. Flat list and kanban re
 
 Canonical value describing data authority:
 
-- `offline`: the board and its board-owned data are local-only
-- `online`: the board and its board-owned data are backend-backed
+- `offline`: the project or board and its owned data are local-only
+- `online`: the project or board and its owned data are backend-backed
 
 ## UI composition model
 
@@ -104,7 +112,7 @@ The first application architecture revolves around these canonical sections:
 
 ### Auth
 
-Authentication for online boards and other server-backed capabilities.
+Authentication for online projects and other server-backed capabilities.
 
 ### Home
 
@@ -124,7 +132,7 @@ Single-task detail and editing surface.
 
 ### Project
 
-Project-level scope for tasks and boards. A project may contain both offline and online boards and remains client-owned in the current phase.
+Project-level scope for tasks and boards. A project is created as either `offline` or `online` and acts as the root authority for project-scoped tasks and boards.
 
 ### Board
 
@@ -152,8 +160,8 @@ At MVP level, the app should support:
 - a switch between list and kanban modes
 - direct navigation into a task page
 - profile and settings access outside the main task browsing flow
-- online authorization entry points when online boards are used
-- board-mode choice during board creation
+- online authorization entry points when online projects are used
+- project-mode choice during project creation
 
 ## UX architecture source
 
@@ -182,7 +190,7 @@ Cross-platform domain rules, application logic, transport contracts, and local p
 
 ### `backend`
 
-NestJS backend services, Prisma schema and database access, auth adapters, and online-board APIs.
+NestJS backend services, Prisma schema and database access, auth adapters, and online-project APIs.
 
 ### `apple/shared`
 
@@ -208,10 +216,10 @@ The current Apple bootstrap uses:
 
 Apple local persistence direction:
 
-- Apple clients use SQLite-backed local persistence for offline boards only.
-- Online boards may use in-memory feature state or short-lived caches, but they do not own durable offline task state.
-- Projects and workspaces may contain both offline and online boards.
-- Projects remain client-owned and locally persisted in the current phase.
+- Apple clients use SQLite-backed local persistence for offline projects and their owned entities only.
+- Online projects may use in-memory feature state or short-lived caches, but they do not own durable offline task state.
+- Workspaces may contain both offline and online projects.
+- Boards inside one project MUST match the owning project's mode.
 - Workspace-scoped filters and stage presets remain locally persisted support entities in the current phase.
 
 Apple transport contract placement:
@@ -252,7 +260,7 @@ Feature event sources may include:
 
 - explicit user actions
 - lifecycle events such as load, refresh, foreground, and restore
-- network success or failure events for online boards
+- network success or failure events for online entities
 - navigation result events
 
 Feature state rules:
@@ -260,8 +268,8 @@ Feature state rules:
 - A view renders from feature state and does not own business workflow decisions.
 - Views must not call repositories or transport clients directly.
 - The same canonical task meaning must feed list, kanban, widgets, and task detail projections.
-- Offline board updates and online board responses MUST enter the same feature flow for the active board mode.
-- Non-board tasks and workspace-scoped support entities MUST use the feature flow that owns them rather than inferring authority from a board that may not exist.
+- Offline and online updates MUST enter the same feature flow for the active entity mode.
+- Project-scoped tasks and workspace-scoped support entities MUST use the feature flow that owns them rather than inferring authority from a board that may not exist.
 
 ## Default artifact placement
 
@@ -369,33 +377,31 @@ Flow rules:
 
 - Pages MUST subscribe to the flows required for their responsibility.
 - Feature flows MUST consume user events, lifecycle events, and online result events through one coherent event pipeline.
-- Initial data load and later updates must enter the same feature flow for the active board mode.
+- Initial data load and later updates must enter the same feature flow for the active entity mode.
 - Feature flows MUST work with typed state and typed events.
 - Data workers MUST encapsulate data access behind typed interfaces.
 - UI-facing components MUST NOT call transport clients directly.
-- Offline boards MUST render from local typed projections.
-- Online boards MUST render from feature-owned online state or explicit online read models, not raw transport payloads.
+- Offline entities MUST render from local typed projections.
+- Online entities MUST render from feature-owned online state or explicit online read models, not raw transport payloads.
 - A feature MUST NOT emit unavailable, blocked, or reconnect-required state unless the flow has enough evidence that the relevant online path was actually required and could not be used.
 - If a canonical surface may legally contain both offline and online entities, the feature contract MUST define a real success path for each represented authority or explicitly document why one authority is out of scope for that phase.
 - A placeholder gateway or routing point does not by itself satisfy a feature-flow contract; the contract is only coherent when matching state and event paths exist for both success and failure semantics that the phase claims to support.
 
-For board-mode rules, see `docs/SYNC_RULES.md`.
+For authority-mode rules, see `docs/SYNC_RULES.md`.
 
 ## Boundary rules
 
 - Shared logic must not depend on platform UI frameworks.
 - Backend infrastructure must not leak Prisma-specific models into client-facing contracts.
-- Board mode is a first-class domain concept and must be explicit in domain and transport boundaries.
-- Offline boards MUST NOT depend on backend contracts, sync metadata, or reconciliation logic.
-- Online boards MUST NOT pretend to be locally authoritative while disconnected.
-- Offline boards use local persistence as their only durable source of truth.
-- Online boards use backend APIs as their only durable source of truth.
-- Offline and online boards may share task, board-stage, preset, and filter semantics, but they MUST NOT share a fake sync pipeline.
+- Project and board mode are first-class domain concepts and must be explicit in domain and transport boundaries.
+- Offline entities MUST NOT depend on backend contracts, sync metadata, or reconciliation logic.
+- Online entities MUST NOT pretend to be locally authoritative while disconnected.
+- Offline projects use local persistence as their only durable source of truth.
+- Online projects use backend APIs as their only durable source of truth.
+- Offline and online entities may share task, board-stage, preset, and filter semantics, but they MUST NOT share a fake sync pipeline.
 - Widgets, list, kanban, and task detail must consume the same canonical task meaning.
 - Every staged board must define one terminal successful stage and one terminal unsuccessful stage.
 - Widget filters must be serializable and stable enough for persistence and app handoff.
-- Projects are not backend-owned by default in the current phase.
-- `projectId` remains a client-owned grouping reference even when an online board is rendered through backend-backed flows.
 - Workspace-scoped presets and filters are not backend-owned by default.
 
 ## Recommended logical modules
@@ -407,11 +413,11 @@ As implementation starts, prefer these responsibilities even if they are not yet
 - `BoardDomain`: board entities, board mode, and project relationships
 - `BoardWorkflow`: board stages, terminal stage rules, and stage preset definitions
 - `TaskFilters`: reusable filter definitions and evaluation rules
-- `OfflineBoardPersistence`: offline-board local storage and projections
-- `OnlineBoardGateway`: online-board API integration and mapping
-- `BoardModeRouting`: feature-level handling of board authority inside the same app shells
+- `OfflineProjectPersistence`: offline-project local storage and projections
+- `OnlineProjectGateway`: online-project API integration and mapping
+- `EntityModeRouting`: feature-level handling of offline and online authority inside the same app shells
 - `TaskAuth`: user session and provider abstractions
-- `TaskContracts`: API request and response contracts for online boards
+- `TaskContracts`: API request and response contracts for online projects
 
 ## Backend architecture direction
 
@@ -423,13 +429,14 @@ The backend stack is:
 Recommended backend modules for MVP:
 
 - `auth`
+- `projects`
 - `profile`
 - `tasks`
 - `boards`
 - `settings`
 - `health`
 
-These backend modules serve only online boards and related backend-owned online entities. Projects remain client-owned grouping entities in the current phase.
+These backend modules serve only online projects and related backend-owned online entities.
 
 Prisma should remain an implementation detail of the backend. Shared contracts should describe transport payloads and domain concepts, not raw Prisma-generated types. The preferred direction is OpenAPI-first contracts for backend-client boundaries.
 

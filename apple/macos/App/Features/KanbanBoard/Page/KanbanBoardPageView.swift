@@ -113,7 +113,15 @@ private struct KanbanColumnView: View {
                         )
                         .contentShape(Rectangle())
                         .onTapGesture { onTaskSelected(task.taskId) }
-                        .draggable(task.taskId.rawValue)
+                        .draggable(task.taskId.rawValue) {
+                            Text(task.title)
+                                .font(.body)
+                                .lineLimit(2)
+                                .padding(10)
+                                .background(Color(nsColor: .windowBackgroundColor))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 2)
+                        }
                     }
                     if column.tasks.isEmpty {
                         emptyColumn

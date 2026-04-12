@@ -23,7 +23,7 @@ Default extra focus:
 - primary backend stack: NestJS
 - database access: Prisma
 - first service: `api-nest/`
-- backend ownership is limited to online boards and related backend-owned online entities
+- backend ownership is limited to online projects and related backend-owned online entities
 
 ## Architecture rule
 

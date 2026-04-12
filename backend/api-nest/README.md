@@ -28,6 +28,7 @@ Default extra focus:
 ## MVP module layout
 
 - `src/modules/auth`
+- `src/modules/projects`
 - `src/modules/profile`
 - `src/modules/tasks`
 - `src/modules/boards`
@@ -46,4 +47,4 @@ Default extra focus:
 
 Do not use Prisma-generated types as shared client contracts.
 
-The API project serves only online boards and related backend-owned online entities. Offline boards and client-owned projects do not belong in this module.
+The API project serves only online projects and related backend-owned online entities. Offline projects do not belong in this module.

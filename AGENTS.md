@@ -15,10 +15,12 @@ Altis is a multi-platform task manager monorepo split between shared business lo
 
 - One canonical task model powers list, kanban, task detail, and widgets.
 - Widget filters are first-class product entities.
-- `Board.mode` is explicit: `offline` or `online`.
-- Offline boards are local-only.
-- Online boards are backend-only.
-- There is no sync, outbox, reconciliation, or hidden local fallback for online boards.
+- `Project.mode` is explicit: `offline` or `online`.
+- `Board.mode` is explicit and MUST match its owning project's mode.
+- Offline projects and their owned entities are local-only.
+- Online projects and their owned entities are backend-only.
+- `Task` authority is inherited from its owning `Board` when present, otherwise from its owning `Project`.
+- There is no sync, outbox, reconciliation, or hidden local fallback for online entities.
 - Collaboration, real-time delivery, and Apple ID auth are online-only directions for now.
 - Calendar sync and Google auth stay deferred unless explicitly requested.
 
@@ -34,7 +36,7 @@ For scoped work, also load the nearest platform or layer README, then load only 
   - `docs/ARCHITECTURE.md`: `Layer model`, `Default artifact placement`, `Global Artifact Classification Workflow`, plus the relevant platform or feature section
 - entities, identifiers, typed boundaries:
   - `docs/TYPES_AND_CONTRACTS.md`: touched entities and relevant boundary rules only
-- board authority, persistence, transport, availability:
+- authority, persistence, transport, availability:
   - `docs/SYNC_RULES.md`
 - screens, navigation, shells, UX flow responsibilities:
   - `docs/MVP_APP_STRUCTURE.md`: relevant sections only
@@ -94,4 +96,4 @@ Apple contract mirror rule:
 
 ## Current phase
 
-Priority is still bootstrap: stabilize structure, keep offline and online board boundaries explicit, continue the macOS-first vertical slice, and avoid premature implementation detail.
+Priority is authority-split migration: stabilize the new offline/online project model, bootstrap the backend MVP around online entities, and adapt the macOS slice without reintroducing sync semantics.
