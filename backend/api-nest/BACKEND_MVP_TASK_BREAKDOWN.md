@@ -9,19 +9,19 @@ Rule: Projects define authority. `online` projects are backend-owned. `Board` an
 - [x] Global config, request validation, error envelope, logging, OpenAPI, health endpoints.
 
 ## 1. DB & Prisma
-- [ ] Init Prisma (User, Session, Project, Board, BoardStage, Task)
-- [ ] Add unique constraints & relations (Ownership chain)
-- [ ] Add `mode` explicit fields (must be `online` in backend context)
-- [ ] Generate client, add first migration
+- [x] Init Prisma (User, Session, Project, Board, BoardStage, Task) — User + Session done; rest in Tasks 3-5
+- [x] Add unique constraints & relations (Ownership chain)
+- [x] Add `mode` explicit fields (must be `online` in backend context)
+- [x] Generate client, add first migration
 
 ## 2. Auth MVP (Best Practice)
-- [ ] Store `Session` records linked to `User`
-- [ ] Implement JWT: Do NOT send tokens in response body.
-- [ ] Use `Set-Cookie: HttpOnly; Secure; SameSite=Strict` for session payload & refresh
-- [ ] `POST /auth/apple/exchange` or dummy MVP verify -> Creates session -> sets HTTP-only cookie
-- [ ] `POST /auth/logout` -> clears cookie, revokes DB session
-- [ ] `GET /auth/session` -> returns `user` context using auth cookie
-- [ ] Add CORS/CSRF protections.
+- [x] Store `Session` records linked to `User`
+- [x] Implement JWT: Do NOT send tokens in response body.
+- [x] Use `Set-Cookie: HttpOnly; Secure; SameSite=Strict` for session payload & refresh
+- [x] `POST /auth/apple/exchange` or dummy MVP verify -> Creates session -> sets HTTP-only cookie
+- [x] `POST /auth/logout` -> clears cookie, revokes DB session
+- [x] `GET /auth/session` -> returns `user` context using auth cookie
+- [x] Add CORS/CSRF protections.
 
 ## 3. Projects
 - [ ] Define shared canonical transport contracts (no Prisma leakage)
