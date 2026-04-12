@@ -46,6 +46,11 @@ export class AuthService {
       create: {
         appleId,
         email: claims.email ?? null,
+        workspaces: {
+          create: {
+            name: 'Personal Workspace',
+          },
+        },
       },
     });
 

@@ -24,10 +24,10 @@ Rule: Projects define authority. `online` projects are backend-owned. `Board` an
 - [x] Add CORS/CSRF protections.
 
 ## 3. Projects
-- [ ] Define shared canonical transport contracts (no Prisma leakage)
-- [ ] `GET /projects` (list `online` only)
-- [ ] `POST /projects` (creates project, MUST set `mode=online`)
-- [ ] Implement ownership boundary (user-scoped logic).
+- [x] Define shared canonical transport contracts (no Prisma leakage)
+- [x] `GET /projects` (list `online` only)
+- [x] `POST /projects` (creates project, MUST set `mode=online`)
+- [x] Implement ownership boundary (user-scoped logic).
 
 ## 4. Boards & Stages
 - [ ] `GET /projects/:id/boards`, `POST /projects/:id/boards` (boards inherit `online` mode)
