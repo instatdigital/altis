@@ -35,9 +35,9 @@ Rule: Projects define authority. `online` projects are backend-owned. `Board` an
 - [x] Enforce invariates: min 3 stages, 1 success, 1 failure.
 
 ## 5. Tasks
-- [ ] `POST /projects/:id/tasks` (project-scoped)
-- [ ] `POST /boards/:id/tasks` (board-scoped)
-- [ ] `PUT /tasks/:id`, `POST /tasks/:id/move`, `POST /tasks/:id/complete`, `POST /tasks/:id/fail`
+- [x] `POST /projects/:id/tasks` (project-scoped)
+- [x] `POST /boards/:id/tasks` (board-scoped)
+- [x] `PUT /tasks/:id`, `POST /tasks/:id/move`, `POST /tasks/:id/complete`, `POST /tasks/:id/fail`
 
 ## 6. Wrap Up
 - [ ] Profile `GET /profile/me`

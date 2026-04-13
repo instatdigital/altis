@@ -66,6 +66,8 @@ Canonical destinations:
 - backend modules and infra: `backend/`
 - assets: `common/assets/`
 - automation and CI: `tooling/`
+- feature breakdowns & agent task slices: `docs/features/<platform>/`
+- completed feature breakdowns: `docs/features/archive/`
 - docs: `docs/`
 
 Apple contract mirror rule:

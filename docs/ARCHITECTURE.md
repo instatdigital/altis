@@ -292,6 +292,8 @@ Use stable paths for common artifact types:
 - scripts -> `tooling/scripts/`
 - CI helpers -> `tooling/ci/`
 - templates -> `tooling/templates/`
+- feature breakdowns & active AI agent slices -> `docs/features/<platform>/`
+- completed feature breakdowns -> `docs/features/archive/`
 - architecture, product, and process docs -> `docs/`
 
 ## Global Artifact Classification Workflow
@@ -316,6 +318,7 @@ Artifact type classification:
 - `backend module/infra` -> `backend/`
 - `assets` -> `common/assets/`
 - `automation/template/CI helper` -> `tooling/`
+- `feature breakdown/agent task slice` -> `docs/features/<platform>/`
 - `architecture/product/process docs` -> `docs/`
 
 Ownership boundary classification:
