@@ -40,7 +40,7 @@ Rule: Projects define authority. `online` projects are backend-owned. `Board` an
 - [x] `PUT /tasks/:id`, `POST /tasks/:id/move`, `POST /tasks/:id/complete`, `POST /tasks/:id/fail`
 
 ## 6. Wrap Up
-- [ ] Profile `GET /profile/me`
-- [ ] Global error handling (unavailable, forbidden, not-found)
-- [ ] Integration tests across Auth, Projects, Boards, Tasks
-- [ ] Commit & sync canonical contracts to `shared/contracts`
+- [x] Profile `GET /profile/me`
+- [x] Global error handling (unavailable, forbidden, not-found)
+- [x] Integration tests across Auth, Projects, Boards, Tasks
+- [x] Commit & sync canonical contracts to `shared/contracts`

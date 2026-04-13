@@ -47,7 +47,10 @@ export class TasksController {
 
   @Post('boards/:boardId/tasks')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a board-scoped task (placed in first regular stage by default)' })
+  @ApiOperation({
+    summary:
+      'Create a board-scoped task (placed in first regular stage by default)',
+  })
   @ApiCreatedResponse({ type: TaskDto })
   createForBoard(
     @CurrentUser() user: AuthenticatedUser,
@@ -69,7 +72,9 @@ export class TasksController {
   }
 
   @Post('tasks/:taskId/move')
-  @ApiOperation({ summary: 'Move task to a different stage within the same board' })
+  @ApiOperation({
+    summary: 'Move task to a different stage within the same board',
+  })
   @ApiOkResponse({ type: TaskDto })
   move(
     @CurrentUser() user: AuthenticatedUser,
@@ -80,7 +85,10 @@ export class TasksController {
   }
 
   @Post('tasks/:taskId/complete')
-  @ApiOperation({ summary: 'Mark task as complete (moves to terminalSuccess stage if board-scoped)' })
+  @ApiOperation({
+    summary:
+      'Mark task as complete (moves to terminalSuccess stage if board-scoped)',
+  })
   @ApiOkResponse({ type: TaskDto })
   complete(
     @CurrentUser() user: AuthenticatedUser,
@@ -90,7 +98,10 @@ export class TasksController {
   }
 
   @Post('tasks/:taskId/fail')
-  @ApiOperation({ summary: 'Mark task as failed (moves to terminalFailure stage if board-scoped)' })
+  @ApiOperation({
+    summary:
+      'Mark task as failed (moves to terminalFailure stage if board-scoped)',
+  })
   @ApiOkResponse({ type: TaskDto })
   fail(
     @CurrentUser() user: AuthenticatedUser,

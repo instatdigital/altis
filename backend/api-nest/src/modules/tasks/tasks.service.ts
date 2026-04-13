@@ -108,14 +108,18 @@ export class TasksService {
     const task = await this.requireTaskOwnership(userId, taskId);
 
     if (!task.boardId) {
-      throw new BadRequestException('Only board-scoped tasks can be moved between stages');
+      throw new BadRequestException(
+        'Only board-scoped tasks can be moved between stages',
+      );
     }
 
     const stage = await this.prisma.boardStage.findFirst({
       where: { id: dto.stageId, boardId: task.boardId },
     });
     if (!stage) {
-      throw new BadRequestException('Stage does not belong to this task\'s board');
+      throw new BadRequestException(
+        "Stage does not belong to this task's board",
+      );
     }
 
     let status = task.status;
@@ -140,7 +144,8 @@ export class TasksService {
       const stage = await this.prisma.boardStage.findFirst({
         where: { boardId: task.boardId, kind: 'terminalSuccess' },
       });
-      if (!stage) throw new BadRequestException('Board has no terminalSuccess stage');
+      if (!stage)
+        throw new BadRequestException('Board has no terminalSuccess stage');
       data.stageId = stage.id;
     }
 
@@ -161,7 +166,8 @@ export class TasksService {
       const stage = await this.prisma.boardStage.findFirst({
         where: { boardId: task.boardId, kind: 'terminalFailure' },
       });
-      if (!stage) throw new BadRequestException('Board has no terminalFailure stage');
+      if (!stage)
+        throw new BadRequestException('Board has no terminalFailure stage');
       data.stageId = stage.id;
     }
 

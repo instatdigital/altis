@@ -7,7 +7,10 @@ export class CreateTaskDto {
   @IsNotEmpty()
   title!: string;
 
-  @ApiPropertyOptional({ description: 'Place in this stage (board-scoped only). Defaults to first regular stage.' })
+  @ApiPropertyOptional({
+    description:
+      'Place in this stage (board-scoped only). Defaults to first regular stage.',
+  })
   @IsOptional()
   @IsUUID()
   stageId?: string;
