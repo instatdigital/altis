@@ -501,7 +501,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = M5D44V6354;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altis.instat;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = macosDev;
@@ -521,7 +521,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "3rd Party Mac Developer Application";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = M5D44V6354;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.altis.instat;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = macosDev;
@@ -615,7 +615,7 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
@@ -702,7 +702,7 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Altis macOS";
+				INFOPLIST_KEY_CFBundleDisplayName = "Altis";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
